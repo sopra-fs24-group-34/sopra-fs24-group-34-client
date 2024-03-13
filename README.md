@@ -1,1 +1,0 @@
-# sopra-fs24-group-34-client
