@@ -1,6 +1,4 @@
-# SoPra FS24 group 34: Client
-
-## Prerequisites and Installation
+#### Prerequisites and Installation
 After the installation, update the npm package manager to **10.4.0** by running ```npm install -g npm@10.4.0```\
 You can ensure the correct version of node and npm by running ```node -v``` and ```npm --version```, which should give you **v20.11.0** and **10.4.0** respectively.\
 Before you start your application for the first time, run this command to install all other dependencies, including React:
