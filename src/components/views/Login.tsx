@@ -83,7 +83,7 @@ const Login = () => {
               width="100%"
               onClick={() => doLogin()}
             >
-            {IsRegistration ? "Register" : "Login"}
+              {IsRegistration ? "Register" : "Login"}
             </Button>
           </div>
           <div className="register button-container">
@@ -92,7 +92,7 @@ const Login = () => {
               onClick={switchLoginToRegistration}
               style={{marginTop: "10px"}} // Add margin to the top
             >
-            {IsRegistration ? "Switch to Login" : "Switch to Register"}
+              {IsRegistration ? "Switch to Login" : "Switch to Register"}
             </Button>
           </div>
         </div>
