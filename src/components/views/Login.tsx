@@ -62,36 +62,37 @@ const Login = () => {
   const switchLoginToRegistration = () => {
     setIsRegistration((prevIsRegistration) => !prevIsRegistration);
   };
+
   return (
     <BaseContainer>
       <div className="login container">
         <div className="login form">
           <FormField
-              label="Username"
-              value={username}
-              onChange={(un: string) => setUsername(un)}
+            label="Username"
+            value={username}
+            onChange={(un: string) => setUsername(un)}
           />
           <FormField
-              label="Password" //
-              value={password}
-              onChange={(n) => setPassword(n)}
+            label="Password" //
+            value={password}
+            onChange={(n) => setPassword(n)}
           />
           <div className="login button-container">
             <Button
-                disabled={!username || !password}
-                width="100%"
-                onClick={() => doLogin()}
+              disabled={!username || !password}
+              width="100%"
+              onClick={() => doLogin()}
             >
-              {IsRegistration ? "Register" : "Login"}
+            {IsRegistration ? "Register" : "Login"}
             </Button>
           </div>
           <div className="register button-container">
             <Button
-                width="100%"
-                onClick={switchLoginToRegistration}
-                style={{marginTop: "10px"}} // Add margin to the top
+              width="100%"
+              onClick={switchLoginToRegistration}
+              style={{marginTop: "10px"}} // Add margin to the top
             >
-              {IsRegistration ? "Switch to Login" : "Switch to Register"}
+            {IsRegistration ? "Switch to Login" : "Switch to Register"}
             </Button>
           </div>
         </div>
