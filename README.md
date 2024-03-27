@@ -1,2 +1,1 @@
-# SoPra FS24 group 34: Client
-
+cd # SoPra FS24 group 34: Client
