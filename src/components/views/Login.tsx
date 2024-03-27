@@ -18,6 +18,7 @@ const FormField = (props) => {
     <div className="login field">
       <label className="login label">{props.label}</label>
       <input
+        type={props.label === "Password" ? "password" : "text"}
         className="login input"
         placeholder="enter here.."
         value={props.value}
@@ -37,17 +38,17 @@ const Login = () => {
   const navigate = useNavigate();
   const [name, setName] = useState<string>(null);
   const [username, setUsername] = useState<string>(null);
+  const [password, setPassword] = useState<string>(null);
+  const [IsRegistration, setIsRegistration] = useState(false);
 
   const doLogin = async () => {
     try {
-      const requestBody = JSON.stringify({ username, name });
-      const response = await api.post("/users", requestBody);
-
-      // Get the returned user and update a new object.
-      const user = new User(response.data);
+      const requestBody = JSON.stringify({ username, password });
+      const response = await (IsRegistration ? api.post("/register", requestBody) : api.post("/login", requestBody));
 
       // Store the token into the local storage.
-      localStorage.setItem("token", user.token);
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("id", response.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
       navigate("/game");
@@ -58,27 +59,39 @@ const Login = () => {
     }
   };
 
+  const switchLoginToRegistration = () => {
+    setIsRegistration((prevIsRegistration) => !prevIsRegistration);
+  };
   return (
     <BaseContainer>
       <div className="login container">
         <div className="login form">
           <FormField
-            label="Username"
-            value={username}
-            onChange={(un: string) => setUsername(un)}
+              label="Username"
+              value={username}
+              onChange={(un: string) => setUsername(un)}
           />
           <FormField
-            label="Name"
-            value={name}
-            onChange={(n) => setName(n)}
+              label="Password" //
+              value={password}
+              onChange={(n) => setPassword(n)}
           />
           <div className="login button-container">
             <Button
-              disabled={!username || !name}
-              width="100%"
-              onClick={() => doLogin()}
+                disabled={!username || !password}
+                width="100%"
+                onClick={() => doLogin()}
             >
-              Login
+              {IsRegistration ? "Register" : "Login"}
+            </Button>
+          </div>
+          <div className="register button-container">
+            <Button
+                width="100%"
+                onClick={switchLoginToRegistration}
+                style={{marginTop: "10px"}} // Add margin to the top
+            >
+              {IsRegistration ? "Switch to Login" : "Switch to Register"}
             </Button>
           </div>
         </div>
