@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import User from "models/User";
 import {useNavigate} from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
@@ -29,22 +28,22 @@ FormField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>(null);
   const [password, setPassword] = useState<string>(null);
 
-  const doLogin = async () => {
+  const doRegister = async () => {
     try {
       const requestBody = JSON.stringify({ username, password });
-      const response = await api.post("/login", requestBody);
+      const response = await api.post("/register", requestBody);
 
       // Store the token into the local storage.
       localStorage.setItem("token", response.token);
       localStorage.setItem("id", response.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/game");
+      navigate("/game"); // Something else
     } catch (error) {
       alert(
         `Something went wrong during the login: \n${handleError(error)}`
@@ -82,9 +81,9 @@ const Login = () => {
             <Button
               disabled={!username || !password}
               width="100%"
-              onClick={() => doLogin()}
+              onClick={() => doRegister()}
             >
-              Login
+              Register
             </Button>
           </div>
         </div>  
@@ -96,4 +95,4 @@ const Login = () => {
 /**
  * You can get access to the history object's properties via the useLocation, useNavigate, useParams, ... hooks.
  */
-export default Login;
+export default Register;

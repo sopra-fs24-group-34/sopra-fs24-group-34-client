@@ -3,7 +3,7 @@ import { api, handleError } from "helpers/api";
 import User from "models/User";
 import {useNavigate} from "react-router-dom";
 import { Button } from "components/ui/Button";
-import "styles/views/Login.scss";
+import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 
@@ -29,15 +29,14 @@ FormField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const Login = () => {
+const LandingPage = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>(null);
-  const [password, setPassword] = useState<string>(null);
+  const [lobbyCode, setLobbyCode] = useState(null);
 
-  const doLogin = async () => {
+  const doJoinLobby = async () => {
     try {
-      const requestBody = JSON.stringify({ username, password });
-      const response = await api.post("/login", requestBody);
+      const requestBody = JSON.stringify({ lobbyCode });
+      const response = await api.post("/something", requestBody); // must be defined
 
       // Store the token into the local storage.
       localStorage.setItem("token", response.token);
@@ -52,8 +51,12 @@ const Login = () => {
     }
   };
 
-  const doBack = () => {
-    navigate("/landingPage");
+  const doLogin = () => {
+    navigate("/login");
+  };
+
+  const doRegister = () => {
+    navigate("/register");
   };
 
   return (
@@ -61,30 +64,33 @@ const Login = () => {
       <div className="login container">
         <div className="login form">
           <FormField
-            label="Username"
-            value={username}
-            onChange={(un: string) => setUsername(un)}
+            label="Lobby Code"
+            value={lobbyCode}
+            onChange={(code) => setLobbyCode(code)}
           />
-          <FormField
-            label="Password" 
-            value={password}
-            onChange={(n) => setPassword(n)}
-          />
+          <div className="login button-container">
+          <Button
+              disabled={!lobbyCode}
+              width="100%"
+              onClick={doJoinLobby}
+            >
+              Join
+            </Button>
+          </div>
         </div>
         <div className="login button-form">
           <div className="login button-container">
           <Button
               width="100%"
-              onClick={doBack}
-            >
-              Back
-            </Button>
-            <Button
-              disabled={!username || !password}
-              width="100%"
-              onClick={() => doLogin()}
+              onClick={doLogin}
             >
               Login
+            </Button>
+            <Button
+              width="100%"
+              onClick={doRegister}
+            >
+              Register
             </Button>
           </div>
         </div>  
@@ -96,4 +102,4 @@ const Login = () => {
 /**
  * You can get access to the history object's properties via the useLocation, useNavigate, useParams, ... hooks.
  */
-export default Login;
+export default LandingPage;

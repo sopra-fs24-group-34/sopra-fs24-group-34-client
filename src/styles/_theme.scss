@@ -8,10 +8,10 @@
    feel free to play around with these and see what other look you can come up with! :D
 */
 
-$accent: #97ABFF;
-$accentDark: #123597;
-$textColor: white;
-$background: #262632;
+$accent: #a4c8de;
+$accentDark: #a4c8de;
+$textColor: rgb(10, 9, 9);
+$background: #e8e8ef;
 
 /* some constants */
 
@@ -39,4 +39,8 @@ $borderRadius: 0.75em;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.button {
+  color: #050f14;
 }
