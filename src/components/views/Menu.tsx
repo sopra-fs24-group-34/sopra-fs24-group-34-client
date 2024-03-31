@@ -5,8 +5,11 @@ import { Button } from "components/ui/Button";
 import {useNavigate} from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import "styles/views/Game.scss";
+import "styles/views/Menu.scss";
 import { User } from "types";
+import Profile from "./menu-tabs/Profile";
+import Leaderboard from "./menu-tabs/Leaderboard";
+import Friends from "./menu-tabs/Friends";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -20,9 +23,14 @@ Player.propTypes = {
   user: PropTypes.object,
 };
 
-const Game = () => {
+const Menu = () => {
   // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate 
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState("leaderboard");
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
 
   // define a state variable (using the state hook).
   // if this variable changes, the component will re-render, but the variable will
@@ -83,30 +91,51 @@ const Game = () => {
 
   if (users) {
     content = (
-      <div className="game">
-        <ul className="game user-list">
+      <div className="menu">
+        <ul className="menu user-list">
           {users.map((user: User) => (
             <li key={user.id}>
               <Player user={user} />
             </li>
           ))}
         </ul>
-        <Button width="100%" onClick={() => logout()}>
-          Logout
-        </Button>
+        
       </div>
     );
   }
 
   return (
-    <BaseContainer className="game container">
-      <h2>Happy Coding!</h2>
-      <p className="game paragraph">
+    <BaseContainer className="menu container">
+
+      <div style={{ display: 'flex', width: '100%' }}>
+          <Button style={{ flex: '8', marginRight: '10px' }}>
+            Create new Lobby
+          </Button>
+          <Button style={{ flex: '2' }} onClick={() => logout()}>
+            Logout
+          </Button>
+        </div>
+
+        <nav className="menu navbar">
+          <ul>
+            <li><a href="#" onClick={() => handleTabChange("profile")}>Profile</a></li>
+            <li><a href="#" onClick={() => handleTabChange("leaderboard")}>Leaderboard</a></li>
+            <li><a href="#" onClick={() => handleTabChange("friends")}>Friends</a></li>
+          </ul>
+        </nav>
+
+      <p className="menu paragraph">
         Get all users from secure endpoint:
       </p>
+      <BaseContainer className="menu view">
+        {activeTab === "profile" && <Profile />}
+        {activeTab === "leaderboard" && <Leaderboard />}
+        {activeTab === "friends" && <Friends />}
+      </BaseContainer>
+      
       {content}
     </BaseContainer>
   );
 };
 
-export default Game;
+export default Menu;
