@@ -14,7 +14,6 @@ import Friends from "./menu-tabs/Friends";
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    <div className="player name">{user.name}</div>
     <div className="player id">id: {user.id}</div>
   </div>
 );
@@ -118,16 +117,14 @@ const Menu = () => {
 
         <nav className="menu navbar">
           <ul>
-            <li><a href="#" onClick={() => handleTabChange("profile")}>Profile</a></li>
-            <li><a href="#" onClick={() => handleTabChange("leaderboard")}>Leaderboard</a></li>
-            <li><a href="#" onClick={() => handleTabChange("friends")}>Friends</a></li>
+            <li className={activeTab === "profile" ? "active" : ""}><a href="#" onClick={() => handleTabChange("profile")}>Profile</a></li>
+            <li className={activeTab === "leaderboard" ? "active" : ""}><a href="#" onClick={() => handleTabChange("leaderboard")}>Leaderboard</a></li>
+            <li className={activeTab === "friends" ? "active" : ""}><a href="#" onClick={() => handleTabChange("friends")}>Friends</a></li>
           </ul>
         </nav>
 
-      <p className="menu paragraph">
-        Get all users from secure endpoint:
-      </p>
-      <BaseContainer className="menu view">
+
+      <BaseContainer className="view">
         {activeTab === "profile" && <Profile />}
         {activeTab === "leaderboard" && <Leaderboard />}
         {activeTab === "friends" && <Friends />}

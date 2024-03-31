@@ -1,4 +1,4 @@
-@import "../theme";
+@import "../../theme";
 
 /* The '&' is a shorthand for the containing element,
   so for example a '&.user-list' inside .menu will compile to
@@ -50,42 +50,43 @@
         &:not(:last-child) {
           border-right: 1px solid #ccc; // Add a border-right to all items except the last one
         }
-        &.active {
-          //color: blue; //doesn't seem to do anything rn
-          font-weight: bold; /* Optionally, add font-weight for emphasis */
-        }
 
         a {
           display: block;
+          color: white;
           text-decoration: none;
           text-align: center;
           font-size: larger;
-
-          // doesn't work rn
-          //color: #ccc; /* Default color for inactive tabs */
-          //transition: color 0.3s ease;
-          //&:hover { 
-          //  color: #ff0000;
-          //}
-          
+          &:hover {
+            color: #ccc;
+          }
         }
-        
       }
     }
   }
-  
-}
-.view {
-  background: lighten($background, 5%);
-  padding: 0;
-  border-radius: $borderRadius;
-  //display: flex;
-  //flex-direction: column;
-  //align-items: center;
-  //box-shadow: $dropShadow;
-  width: 100%;
+  &.view {
+    background: lighten($background, 5%);
+    padding: 1.5em;
+    border-radius: $borderRadius;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: $dropShadow;
+    width: 100%;
 
+    &.profile {
+
+    }
+    &.leaderboard {
+
+    }
+    &.friends {
+      &.invitations {
+
+      }
+    }
   }
+}
 
 .player {
   &.container {
