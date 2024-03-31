@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import User from "models/User";
 import {useNavigate} from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-
+import {LoginLogo} from "../ui/LoginLogo";
+import {LogoutLogo} from "../ui/LogoutLogo";
+import {RegisterLogo} from "../ui/RegisterLogo";
 
 const FormField = (props) => {
   return (
@@ -84,13 +85,15 @@ const LandingPage = () => {
               width="100%"
               onClick={doLogin}
             >
-              Login
+              Login  
+              <span ><LoginLogo left-margin="40px" width="24px" height="24px"/></span>
             </Button>
             <Button
               width="100%"
               onClick={doRegister}
             >
               Register
+              <span ><LoginLogo left-margin="40px" width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  
