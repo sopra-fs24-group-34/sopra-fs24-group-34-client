@@ -6,104 +6,101 @@ import BaseContainer from "components/ui/BaseContainer";
 import { Button } from "components/ui/Button";
 import { User } from "types";
 
-const Player = ({ user }: { user: User }) => {
+const Profile = ({ user }: { user: User }) => {
+
+    // nedim-j: rewrite to get token & id from menu
     const userToken = localStorage.getItem("token");
+    const userId = localStorage.getItem("id");
+
     const [isEditing, setIsEditing] = useState(false);
     const [editedUsername, setEditedUsername] = useState(user.username);
 
-  
     const sendEdit = async () => {
-      setIsEditing(false);
-      try {
-        const requestBody = JSON.stringify({ id:user.id, username: editedUsername, token: userToken });
-        await api.put("/users", requestBody);
-        const getUpdate = async () => {
-          const response2 = await api.get(`/users/${user.id}`);
-          console.log("GET response on Edit", response2);
-          setEditedUsername(response2.data.username);
+        setIsEditing(false);
+        try {
+          const requestBody = JSON.stringify({ id: userId, username: editedUsername, token: userToken });
+          await api.put("/users", requestBody);
           
+          getUser();
+    
+        } catch (error) {
+          setEditedUsername(user.username);
+          alert(
+            `Something went wrong during updating the profile: \n${handleError(error)}`
+          );
         }
-        getUpdate();
-  
-      } catch (error) {
-        setEditedUsername(user.username); // in case user not authorized to change or username taken
-        alert(
-          `Something went wrong during updating the profile: \n${handleError(error)}`
-        );
+      };
+
+      const getUser = async () => {
+        try {
+        const response = await api.get(`/users/${userId}`);
+        console.log("GET response: ", response);
+        setEditedUsername(response.data.username);
+        } catch (error) {
+            alert(
+                `Something went wrong fetching the user: \n${handleError(error)}`
+              );
+        }
+
       }
-    };
-  
-    return(
-      <div className="player container">
-        <div className="player details">
-          <div className="player label">Username:</div>
-          {isEditing ? (
-            <input className="profilepage input"
-              type="text"
-              value={editedUsername}
-              onChange={(e) => setEditedUsername(e.target.value)}
-            />
-          ) : (
-            <div className="player value">
-              {editedUsername}
-            </div>
-            )}
-          </div>
-  
-        <div className="player details">
-          <div className="player label">Online Status:</div>
-          <div className="player value">{user.status}</div>
-        </div> 
-  
-          <div className="player details">
-          {isEditing ? (
-            <Button width="100%"
-              onClick={() => 
-              sendEdit()}>
-              Save
-            </Button>
-          
-          ) : (
-            <Button width="100%"
-              onClick={() => 
-                setIsEditing(true)}>
-              Edit
-            </Button>
-          )}
-          </div>
-      </div>
-    
-    );
-  };
+      
+    return (
 
-const Profile = () => {
-  return (
-
-    
     <>
-    <h2>Profile Page</h2>
     <div className="profile">
 
+        <div className="container">
+            <BaseContainer className="picture">
+                picture
+            </BaseContainer>
 
+            <BaseContainer className="details">
+                
+                <BaseContainer className="item" style={{ marginTop: '1em' }}>
+                    <div className="label">Username: </div>
+                    <div className="value">{userId/*getUser()*/} </div> {/* nedim-j: getUser will throw an error, since not yet implemented in backend */}
+                    {isEditing ? (
+                        <input className="input"
+                        type="text"
+                        value={editedUsername}
+                        onChange={(e) => setEditedUsername(e.target.value)}
+                        />
+                    ) : (
+                        <div className="value">
+                        {editedUsername}
+                        </div>
+                    )}
+                </BaseContainer>
 
-          <BaseContainer className="picture">
-              s
-          </BaseContainer>
+                <BaseContainer className="item" style={{ marginBottom: '1em' }}>
+                    <div className="label">Password: </div>
+                    <div className="value">placeholderPass </div> {/* nedim-j: implement functionality */}
+                </BaseContainer>
 
-          <BaseContainer className="details">
-              <div className="label">Username: </div>
-              <BaseContainer className="item">
-                 uname
-              </BaseContainer>
-              <div>Password: </div>
-              <BaseContainer className="item">
-                pass
-              </BaseContainer>
-          </BaseContainer>
+            </BaseContainer>
 
-      </div>
-      </>
-  );
+        </div>
+
+          
+        {isEditing ? (
+            <Button className="editButton"
+            onClick={() => 
+            sendEdit()}>
+            Save
+            </Button>
+        
+        ) : (
+            <Button className="editButton"
+            onClick={() => 
+                setIsEditing(true)}>
+            Edit
+            </Button>
+        )}
+                
+    </div>
+    </>
+
+    );
 };
 
 export default Profile;

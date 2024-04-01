@@ -1,13 +1,13 @@
 @import "../../theme";
 
 /* The '&' is a shorthand for the containing element,
-  so for example a '&.user-list' inside .menu will compile to
-  .menu.user-list
+  so for example a '&.user-list' inside .friends will compile to
+  .friends.user-list
 
   for more information visit https://sass-lang.com/guide
  */
 
-.menu {
+.friends {
   &.container {
     background: $background;
     padding: 1.5em;
@@ -48,7 +48,7 @@
         position: relative;
         
         &:not(:last-child) {
-          border-right: 1px solid #ccc; // Add a border-right to all items except the last one
+          border-right: 1px solid #ccc;
         }
 
         a {
@@ -74,18 +74,8 @@
     box-shadow: $dropShadow;
     width: 100%;
 
-    &.profile {
-
-    }
-    &.leaderboard {
-
-    }
-    &.friends {
-      &.invitations {
-
-      }
-    }
   }
+  
 }
 
 .player {

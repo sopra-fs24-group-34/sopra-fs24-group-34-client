@@ -17,7 +17,6 @@
     align-items: center;
     box-shadow: $dropShadow;
     width: 50%;
-    //height: 200px;
   }
   &.user-list {
     list-style: none;
@@ -32,6 +31,11 @@
   & p,h2 {
     margin: 0.5em 0;
   }
+  .buttonbar {
+    display: flex;
+    //flex-direction: row;
+    width: 100%;
+  }
   &.navbar {
     //background-color: #333;
     background: lighten($background, 5%);
@@ -43,6 +47,7 @@
       padding: 0;
       margin: 0;
       display: flex;
+      color: white;
       li {
         flex: 1;
         position: relative;
@@ -52,7 +57,7 @@
         }
         &.active {
           //color: blue; //doesn't seem to do anything rn
-          font-weight: bold; /* Optionally, add font-weight for emphasis */
+          font-weight: bold;
         }
 
         a {
@@ -60,8 +65,9 @@
           text-decoration: none;
           text-align: center;
           font-size: larger;
+          color: white;
 
-          // doesn't work rn
+          // nedim-j: doesn't work rn
           //color: #ccc; /* Default color for inactive tabs */
           //transition: color 0.3s ease;
           //&:hover { 
@@ -79,10 +85,6 @@
   background: lighten($background, 5%);
   padding: 0;
   border-radius: $borderRadius;
-  //display: flex;
-  //flex-direction: column;
-  //align-items: center;
-  //box-shadow: $dropShadow;
   width: 100%;
 
   }
