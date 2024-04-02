@@ -4,6 +4,8 @@ import {MenuGuard} from "../routeProtectors/MenuGuard";
 import MenuRouter from "./MenuRouter";
 import {LoginGuard} from "../routeProtectors/LoginGuard";
 import Login from "../../views/Login";
+import {LobbyGuard} from "../routeProtectors/LobbyGuard";
+import LobbyRouter from "./LobbyRouter";
 
 /**
  * Main router of your application.
@@ -27,8 +29,12 @@ const AppRouter = () => {
           <Route path="/login" element={<Login/>} />
         </Route>
 
+        <Route path="/lobby/*" element={<LobbyGuard />}>
+          <Route path="/lobby/*" element={<LobbyRouter base="/lobby"/>} />
+        </Route>
+
         <Route path="/" element={
-          <Navigate to="/menu" replace />
+          <Navigate to="/login" replace />
         }/>
 
       </Routes>
@@ -36,7 +42,4 @@ const AppRouter = () => {
   );
 };
 
-/*
-* Don't forget to export your component!
- */
 export default AppRouter;

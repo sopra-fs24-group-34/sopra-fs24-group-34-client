@@ -37,11 +37,15 @@ const Menu = () => {
     navigate("/login");
   };
 
+  const createLobby = (): void => {
+    navigate("/lobby");
+  }
+
   return (
     <BaseContainer className="menu container">
 
         <div className="buttonbar">
-          <Button style={{ flex: '8', marginRight: '1em' }}>
+          <Button style={{ flex: '8', marginRight: '1em' }} onClick={() => createLobby()}>
             Create new Lobby
           </Button>
           <Button style={{ flex: '2' }} onClick={() => logout()}>
@@ -57,7 +61,6 @@ const Menu = () => {
           </ul>
         </nav>
 
-
       <BaseContainer className="view">
         {activeTab === "profile" && <Profile user={{
           id: 0,
@@ -69,7 +72,6 @@ const Menu = () => {
         {activeTab === "friends" && <Friends />}
       </BaseContainer>
       
-      {/*content*/}
     </BaseContainer>
   );
 };

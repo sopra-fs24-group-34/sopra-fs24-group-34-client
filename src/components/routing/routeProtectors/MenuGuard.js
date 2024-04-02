@@ -12,15 +12,14 @@ import PropTypes from "prop-types";
  * @param props
  */
 export const MenuGuard = () => {
-  /*
+  
   if (localStorage.getItem("token")) {
     
     return <Outlet />;
   }
   
   return <Navigate to="/login" replace />;
-  */
-  return <Outlet />; // Workaround for development
+
 };
 
 MenuGuard.propTypes = {
