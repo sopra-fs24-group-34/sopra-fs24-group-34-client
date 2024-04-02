@@ -1,0 +1,105 @@
+@import "../../theme";
+
+/* The '&' is a shorthand for the containing element,
+  so for example a '&.user-list' inside .friends will compile to
+  .friends.user-list
+
+  for more information visit https://sass-lang.com/guide
+ */
+
+.friends {
+  &.container {
+    background: $background;
+    padding: 1.5em;
+    border-radius: $borderRadius;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: $dropShadow;
+    width: 50%;
+    //height: 200px;
+  }
+  &.user-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  &.user-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  & p,h2 {
+    margin: 0.5em 0;
+  }
+  &.navbar {
+    //background-color: #333;
+    background: lighten($background, 5%);
+    width: 100%;
+    margin: 1.5em;
+    border-radius: $borderRadius;
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      li {
+        flex: 1;
+        position: relative;
+        
+        &:not(:last-child) {
+          border-right: 1px solid #ccc;
+        }
+
+        a {
+          display: block;
+          color: white;
+          text-decoration: none;
+          text-align: center;
+          font-size: larger;
+          &:hover {
+            color: #ccc;
+          }
+        }
+      }
+    }
+  }
+  &.view {
+    background: lighten($background, 5%);
+    padding: 1.5em;
+    border-radius: $borderRadius;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: $dropShadow;
+    width: 100%;
+
+  }
+  
+}
+
+.player {
+  &.container {
+    margin: 0.5em 0;
+    width: 20em;
+    padding: 10px;
+    border-radius: $borderRadius;
+    display: flex;
+    align-items: center;
+    background: lighten($background, 5);
+  }
+  &.name {
+    font-weight: 300;
+    margin-left: 5px;
+  }
+  &.username {
+    font-weight: 500;
+    color: $accent;
+  }
+  &.id {
+    margin-left: auto;
+    margin-right: 10px;
+    font-family: $fontMono;
+    font-weight: 300;
+  }
+}

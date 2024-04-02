@@ -40,10 +40,10 @@ const Login = () => {
       const response = await api.post("/login", requestBody);
 
       // Store the token into the local storage.
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("id", response.id);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("id", response.data.id);
 
-      // Login successfully worked --> navigate to the route /game in the GameRouter
+      // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
       alert(
