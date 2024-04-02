@@ -1,9 +1,9 @@
 @import "../theme";
 
-.login {
+.landingPage {
   &.container {
     margin-top: 2em;
-    min-height: 200px;
+    min-height: 250px;
     /* we include the center mixin defined in _theme.scss and save three duplicate lines :) */
     @include center;
     flex-direction: column;
@@ -14,7 +14,7 @@
     justify-content: center;
     width: 50%;
     max-width: 30em;
-    height: 15em;
+    height: 9em;
     font-size: 30px;
     font-weight: 300;
     padding-left: 37px;
@@ -28,44 +28,43 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 1px;
   }
   &.input {
-    height: 50px;
-    padding-left: 15px;
-    margin-left: -4px;
+    @include center;
+    height: 35px;
+    width: 66%;
     border: solid;
     border-color: rgba(45, 44, 44, 0.653);
-    border-radius: 0.75em;
-    margin-bottom: 20px;
+    margin-left: 16.5%;
+    margin-right: 16.5%;
+    margin-top: 10px;
+    
     background: white;
     color: $textColor;
-    
+    text-align: center;
+    border-radius: 0.75em;
   }
   &.label {
     color: $textColor;
     margin-bottom: 10px;
     text-transform: lowercase;
     font-weight: 300;
-  }
-  &.h1 {
-    @include center;
-    font-size: 45px;
+    display: flex;
+    justify-content: center;
   }
   &.button-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 50%;
-    max-width: 30em;
-    height: 5em;
-    font-size: 20px;
+    margin-top:10px;
+    font-size: 40px;
     font-weight: 400;
-    border-radius: 0.75em;
     transition: opacity 0.5s ease, transform 0.5s ease;
   }
   &.button-container {
     @include center;
-    margin-top: 2em;
+    margin-top: 40px;
   }
 }

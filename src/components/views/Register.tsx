@@ -5,7 +5,7 @@ import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {LoginLogo} from "../ui/LoginLogo";
+import {RegisterLogo} from "../ui/RegisterLogo";
 
 
 const FormField = (props) => {
@@ -29,22 +29,22 @@ FormField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>(null);
   const [password, setPassword] = useState<string>(null);
 
-  const doLogin = async () => {
+  const doRegister = async () => {
     try {
       const requestBody = JSON.stringify({ username, password });
-      const response = await api.post("/login", requestBody);
+      const response = await api.post("/register", requestBody);
 
       // Store the token into the local storage.
       localStorage.setItem("token", response.token);
       localStorage.setItem("id", response.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/menu");
+      navigate("/menu"); 
     } catch (error) {
       alert(
         `Something went wrong during the login: \n${handleError(error)}`
@@ -60,7 +60,7 @@ const Login = () => {
     <BaseContainer>
       <div className="login container">
         <div className="login form">
-          <h1 className="login h1">Login</h1>
+          <h1 className="login h1">Registration</h1>
           <FormField
             label="Username"
             value={username}
@@ -85,10 +85,10 @@ const Login = () => {
               style={{ marginLeft: "10px" }}
               disabled={!username || !password}
               width="100%"
-              onClick={() => doLogin()}
+              onClick={() => doRegister()}
             >
-              Sign-In
-              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
+              Register
+              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  
@@ -100,4 +100,4 @@ const Login = () => {
 /**
  * You can get access to the history object's properties via the useLocation, useNavigate, useParams, ... hooks.
  */
-export default Login;
+export default Register;
