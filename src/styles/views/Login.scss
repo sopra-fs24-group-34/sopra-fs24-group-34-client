@@ -3,7 +3,7 @@
 .login {
   &.container {
     margin-top: 2em;
-    min-height: 300px;
+    min-height: 200px;
     /* we include the center mixin defined in _theme.scss and save three duplicate lines :) */
     @include center;
     flex-direction: column;
@@ -12,16 +12,15 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 60%;
+    width: 50%;
     max-width: 30em;
-    height: 20em;
-    font-size: 16px;
+    height: 15em;
+    font-size: 30px;
     font-weight: 300;
     padding-left: 37px;
     padding-right: 37px;
     border-radius: 0.75em;
-    background-color: $background;
-    opacity: 0.7;
+    background-color: transparentize(white, 0.2);
     transition: opacity 0.5s ease, transform 0.5s ease;
     box-shadow: $dropShadow;
   }
@@ -29,17 +28,19 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-top: 15px;
   }
   &.input {
-    height: 35px;
+    height: 50px;
     padding-left: 15px;
     margin-left: -4px;
-    border-color: black;
+    border: solid;
+    border-color: rgba(45, 44, 44, 0.653);
     border-radius: 0.75em;
     margin-bottom: 20px;
-    background: transparentize(white, 0.85);
+    background: white;
     color: $textColor;
-    opacity: 1;
+    
   }
   &.label {
     color: $textColor;
@@ -47,26 +48,24 @@
     text-transform: lowercase;
     font-weight: 300;
   }
+  &.h1 {
+    @include center;
+    font-size: 45px;
+  }
   &.button-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 60%;
+    width: 50%;
     max-width: 30em;
     height: 5em;
     font-size: 20px;
     font-weight: 400;
-    padding-left: 37px;
-    padding-right: 37px;
     border-radius: 0.75em;
-    background-color: "transparent";
     transition: opacity 0.5s ease, transform 0.5s ease;
   }
-
-
   &.button-container {
-    display: flex;
-    justify-content: center;
+    @include center;
     margin-top: 2em;
   }
 }

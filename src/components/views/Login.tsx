@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import User from "models/User";
 import {useNavigate} from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
+import {LoginLogo} from "../ui/LoginLogo";
 
 
 const FormField = (props) => {
@@ -60,6 +60,7 @@ const Login = () => {
     <BaseContainer>
       <div className="login container">
         <div className="login form">
+          <h1 className="login h1">Login</h1>
           <FormField
             label="Username"
             value={username}
@@ -74,17 +75,20 @@ const Login = () => {
         <div className="login button-form">
           <div className="login button-container">
           <Button
+              style={{ marginRight: '10px' }}
               width="100%"
               onClick={doBack}
             >
               Back
             </Button>
             <Button
+              style={{ marginLeft: '10px' }}
               disabled={!username || !password}
               width="100%"
               onClick={() => doLogin()}
             >
-              Login
+              Sign-In
+              <span style={{ marginLeft: '10px' }} ><LoginLogo  width="25px" height="25px"/></span>
             </Button>
           </div>
         </div>  

@@ -5,6 +5,7 @@ import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
+import {RegisterLogo} from "../ui/RegisterLogo";
 
 
 const FormField = (props) => {
@@ -59,6 +60,7 @@ const Register = () => {
     <BaseContainer>
       <div className="login container">
         <div className="login form">
+        <h1 className="login h1">Registration</h1>
           <FormField
             label="Username"
             value={username}
@@ -73,17 +75,20 @@ const Register = () => {
         <div className="login button-form">
           <div className="login button-container">
           <Button
+              style={{ marginRight: '10px' }}
               width="100%"
               onClick={doBack}
             >
               Back
             </Button>
             <Button
+              style={{ marginLeft: '10px' }}
               disabled={!username || !password}
               width="100%"
               onClick={() => doRegister()}
             >
               Register
+              <span style={{ marginLeft: '10px' }}><RegisterLogo width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  
