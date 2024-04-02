@@ -74,21 +74,21 @@ const Login = () => {
         </div>
         <div className="login button-form">
           <div className="login button-container">
-          <Button
-              style={{ marginRight: '10px' }}
+            <Button
+              style={{ marginRight: "10px" }}
               width="100%"
               onClick={doBack}
             >
               Back
             </Button>
             <Button
-              style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               disabled={!username || !password}
               width="100%"
               onClick={() => doLogin()}
             >
               Sign-In
-              <span style={{ marginLeft: '10px' }} ><LoginLogo  width="25px" height="25px"/></span>
+              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
             </Button>
           </div>
         </div>  

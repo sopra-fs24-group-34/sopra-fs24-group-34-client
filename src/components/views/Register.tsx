@@ -60,7 +60,7 @@ const Register = () => {
     <BaseContainer>
       <div className="login container">
         <div className="login form">
-        <h1 className="login h1">Registration</h1>
+          <h1 className="login h1">Registration</h1>
           <FormField
             label="Username"
             value={username}
@@ -74,21 +74,21 @@ const Register = () => {
         </div>
         <div className="login button-form">
           <div className="login button-container">
-          <Button
-              style={{ marginRight: '10px' }}
+            <Button
+              style={{ marginRight: "10px" }}
               width="100%"
               onClick={doBack}
             >
               Back
             </Button>
             <Button
-              style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               disabled={!username || !password}
               width="100%"
               onClick={() => doRegister()}
             >
               Register
-              <span style={{ marginLeft: '10px' }}><RegisterLogo width="24px" height="24px"/></span>
+              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  
