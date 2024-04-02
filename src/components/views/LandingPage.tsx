@@ -6,16 +6,15 @@ import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import {LoginLogo} from "../ui/LoginLogo";
-import {LogoutLogo} from "../ui/LogoutLogo";
 import {RegisterLogo} from "../ui/RegisterLogo";
 
 const FormField = (props) => {
   return (
-    <div className="login field">
-      <label className="login label">{props.label}</label>
+    <div className="landingPage field">
+      <label className="landingPage label">{props.label}</label>
       <input
         type={props.label === "Password" ? "password" : "text"}
-        className="login input"
+        className="landingPage input"
         placeholder="enter here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
@@ -62,14 +61,14 @@ const LandingPage = () => {
 
   return (
     <BaseContainer>
-      <div className="login container">
-        <div className="login form">
+      <div className="landingPage container">
+        <div className="landingPage form">
           <FormField
             label="Lobby Code"
             value={lobbyCode}
             onChange={(code) => setLobbyCode(code)}
           />
-          <div className="login button-container">
+          <div className="landingPage button-container">
           <Button
               disabled={!lobbyCode}
               width="100%"
@@ -79,21 +78,23 @@ const LandingPage = () => {
             </Button>
           </div>
         </div>
-        <div className="login button-form">
-          <div className="login button-container">
+        <div className="landingPage button-form">
+          <div className="landingPage button-container">
           <Button
+              style={{ marginRight: '10px' }}
               width="100%"
               onClick={doLogin}
             >
-              Login  
-              <span ><LoginLogo left-margin="40px" width="24px" height="24px"/></span>
+              Sign-In  
+              <span style={{ marginLeft: '10px' }} ><LoginLogo  width="25px" height="25px"/></span>
             </Button>
             <Button
+            style={{ marginLeft: '10px' }}
               width="100%"
               onClick={doRegister}
             >
               Register
-              <span ><LoginLogo left-margin="40px" width="24px" height="24px"/></span>
+              <span style={{ marginLeft: '10px' }}><RegisterLogo width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  
