@@ -44,7 +44,7 @@ const Register = () => {
       localStorage.setItem("id", response.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/game"); // Something else
+      navigate("/menu"); 
     } catch (error) {
       alert(
         `Something went wrong during the login: \n${handleError(error)}`
