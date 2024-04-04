@@ -1,5 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&family=Roboto+Mono:wght@300;400;500;700&display=swap");
 @import "./theme";
+
+@font-face {
+  font-family: "fontText";
+  src: url("Assets/Bangers/Bangers-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "fontTextTitle";
+  src: url("Assets/Bangers/Bangers-Regular.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "fontTitle";
+  src: url("Assets/Akronim/Akronim-Regular.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
 
 /**
 This file contains the general and shared style of your application.

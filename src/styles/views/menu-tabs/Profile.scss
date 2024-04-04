@@ -1,0 +1,77 @@
+@import "../../theme";
+
+/* The '&' is a shorthand for the containing element,
+  so for example a '&.user-list' inside .menu will compile to
+  .menu.user-list
+
+  for more information visit https://sass-lang.com/guide
+ */
+
+.profile {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+
+    .container {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1em;
+    
+    }   
+    
+    .picture {
+        background: lighten($background, 20%);
+        border-radius: $borderRadius;
+        height: 100px;
+        width: 100px;
+        justify-content: left;
+        align-self: left;
+        margin-right: 1em;
+    }
+
+    .details {
+        background: lighten($background, 20%);
+        border-radius: $borderRadius;
+
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100px;
+   
+        .item {
+            flex: 1;
+            display: flex;
+            margin: 0;
+            align-items: center;
+            justify-content: space-between;
+
+            &.label {
+                margin-left: 0.5em;
+                text-align: left;
+            }
+            &.value {
+                margin-right: 0.5em;
+                text-align: right; 
+            }
+            &.input {
+                border: none;
+                border-radius: 0.75em;
+                width: 50%;
+                background: transparentize(rgb(90, 90, 90), 0.85);
+                color: $textColor;
+              }
+        }
+        
+    }
+
+    &.editButton {
+        flex: 1;
+        align-self: center;
+        justify-self: center;
+        margin-top: 2em;
+        
+    }
+}

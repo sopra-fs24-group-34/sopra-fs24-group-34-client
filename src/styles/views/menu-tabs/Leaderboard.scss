@@ -1,13 +1,13 @@
-@import "../theme";
+@import "../../theme";
 
 /* The '&' is a shorthand for the containing element,
-  so for example a '&.user-list' inside .game will compile to
-  .game.user-list
+  so for example a '&.user-list' inside .menu will compile to
+  .menu.user-list
 
   for more information visit https://sass-lang.com/guide
  */
 
-.game {
+.leaderboard {
   &.container {
     background: $background;
     padding: 1.5em;
@@ -16,6 +16,8 @@
     flex-direction: column;
     align-items: center;
     box-shadow: $dropShadow;
+    width: 50%;
+    //height: 200px;
   }
   &.user-list {
     list-style: none;
@@ -53,7 +55,6 @@
   &.id {
     margin-left: auto;
     margin-right: 10px;
-    font-family: $fontMono;
     font-weight: 300;
   }
 }

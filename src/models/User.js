@@ -7,6 +7,8 @@ class User {
     this.username = null;
     this.token = null;
     this.status = null;
+    this.friendlist = null; // smailalijagic: added
+    this.lobbylist = null; // smailalijagic: added
     Object.assign(this, data);
   }
 }
