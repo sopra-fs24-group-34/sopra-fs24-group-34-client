@@ -10,6 +10,7 @@ import { User } from "types";
 import Profile from "./menu-tabs/Profile";
 import Leaderboard from "./menu-tabs/Leaderboard";
 import Friends from "./menu-tabs/Friends";
+import {LogoutLogo} from "components/ui/LogoutLogo";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -43,24 +44,22 @@ const Menu = () => {
 
   return (
     <BaseContainer className="menu container">
-
-        <div className="buttonbar">
-          <Button style={{ flex: '8', marginRight: '1em' }} onClick={() => createLobby()}>
-            Create new Lobby
-          </Button>
-          <Button style={{ flex: '2' }} onClick={() => logout()}>
-            Logout
-          </Button>
-        </div>
-
-        <nav className="menu navbar">
-          <ul>
-            <li className={activeTab === "profile" ? "active" : ""}><a href="#" onClick={() => handleTabChange("profile")}>Profile</a></li>
-            <li className={activeTab === "leaderboard" ? "active" : ""}><a href="#" onClick={() => handleTabChange("leaderboard")}>Leaderboard</a></li>
-            <li className={activeTab === "friends" ? "active" : ""}><a href="#" onClick={() => handleTabChange("friends")}>Friends</a></li>
-          </ul>
-        </nav>
-
+      <div className="buttonbar">
+        <Button style={{ flex: "8", marginRight: "1em" }} onClick={() => createLobby()}>
+          Create new Lobby
+        </Button>
+        <Button style={{ flex: "2" }} onClick={() => logout()}>
+          Logout
+          <span style={{ marginLeft: "10px" }} ><LogoutLogo  width="25px" height="25px"/></span>
+        </Button>
+      </div>
+      <nav className="menu navbar">
+        <ul>
+          <li className={activeTab === "profile" ? "active" : ""}><a href="#" onClick={() => handleTabChange("profile")}>Profile</a></li>
+          <li className={activeTab === "leaderboard" ? "active" : ""}><a href="#" onClick={() => handleTabChange("leaderboard")}>Leaderboard</a></li>
+          <li className={activeTab === "friends" ? "active" : ""}><a href="#" onClick={() => handleTabChange("friends")}>Friends</a></li>
+        </ul>
+      </nav>
       <BaseContainer className="view">
         {activeTab === "profile" && <Profile user={{
           id: 0,

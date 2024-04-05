@@ -69,7 +69,7 @@ const LandingPage = () => {
             onChange={(code) => setLobbyCode(code)}
           />
           <div className="landingPage button-container">
-          <Button
+            <Button
               disabled={!lobbyCode}
               width="100%"
               onClick={doJoinLobby}
@@ -80,21 +80,21 @@ const LandingPage = () => {
         </div>
         <div className="landingPage button-form">
           <div className="landingPage button-container">
-          <Button
-              style={{ marginRight: '10px' }}
+            <Button
+              style={{ marginRight: "10px" }}
               width="100%"
               onClick={doLogin}
             >
               Sign-In  
-              <span style={{ marginLeft: '10px' }} ><LoginLogo  width="25px" height="25px"/></span>
+              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
             </Button>
             <Button
-            style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               width="100%"
               onClick={doRegister}
             >
               Register
-              <span style={{ marginLeft: '10px' }}><RegisterLogo width="24px" height="24px"/></span>
+              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
             </Button>
           </div>
         </div>  

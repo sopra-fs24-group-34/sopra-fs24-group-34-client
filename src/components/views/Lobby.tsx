@@ -20,18 +20,16 @@ const Lobby = () => {
 
   return (
     <BaseContainer className="lobby container">
-
-        <div className="buttonbar">
-            <Button style={{ flex: '8', marginRight: '1em' }} onClick={() => navigate("/menu")}>
-                Return to Menu
-            </Button>
-
-            <Button style={{ flex: '2' }} onClick={() => logout()}>
-                Logout
-            </Button>
-        </div>
+      <div className="buttonbar">
+        <Button style={{ flex: "8", marginRight: "1em" }} onClick={() => navigate("/menu")}>
+          Return to Menu
+        </Button>
+        <Button style={{ flex: "2" }} onClick={() => logout()}>
+          Logout
+        </Button>
+      </div>
         
-        implement
+      implement
 
     </BaseContainer>
   );
