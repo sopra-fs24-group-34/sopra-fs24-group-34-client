@@ -4,3 +4,9 @@ export type User = {
   status: string;
   password: string;
 };
+
+export type Character = {
+  id: number;
+  image: string;
+  name: string;
+}
