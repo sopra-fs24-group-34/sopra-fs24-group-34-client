@@ -1,0 +1,84 @@
+@import "../theme";
+
+/* The '&' is a shorthand for the containing element,
+  so for example a '&.user-list' inside .menu will compile to
+  .menu.user-list
+
+  for more information visit https://sass-lang.com/guide
+ */
+
+.game {
+  &.container {
+    min-height: 250px;
+    background-color: transparent;
+    /* we include the center mixin defined in _theme.scss and save three duplicate lines :) */
+    display: flex;
+    
+    align-items: flex-start;
+    height: 83vh;
+  }
+  &.characterContainer {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, 10fr);
+    grid-template-rows: repeat(5);
+    border-radius: $borderRadius;
+    border-radius: 0.75em;
+    background-color: transparentize(white, 0.2);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    box-shadow: $dropShadow;
+    padding: 1em; 
+    width: 70%;
+    max-width: 60em;
+    height: 80%;
+    font-size: 30px;
+    font-weight: 300;
+    margin-left: 0;
+    margin-top: 1em;
+    
+  }
+  &.character-item {
+    border-color: white;
+    background-color: black;
+    color: white;
+    @include center;
+
+  }
+  &.log{
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparentize(white, 0.2);
+    height: 80%;
+    width: 25%;
+    border-radius: 0.75em;
+
+    &.chat {
+      margin-top: 10px;
+      width: 100%;
+      height: 80%;
+      background-color: lightgray;
+      margin-bottom: 20px;
+    }
+
+    &.input {
+      width: 100%;
+      height: 15%;
+      background-color: white;
+
+    }
+  }
+
+}
+.character {
+  &.container {
+    display: flex;
+  }
+  &.image {
+    display: flex;
+  }
+  &.name {
+    display: flex;
+  }
+}
