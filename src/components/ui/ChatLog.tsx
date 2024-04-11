@@ -8,28 +8,28 @@ import Character from "./Character";
 
 // Defines the structure of the question field should look like
 const QuestionField = (props) => {
-    return (
-      <div className="game field">
-        <input
-          type="text"
-          className="game input"
-          placeholder="Enter your question here.."
-          value={props.value}
-          onChange={(e) => props.onChange(e.target.value)}
-        />
-      </div>
-    );
-  };
+  return (
+    <div className="game field">
+      <input
+        type="text"
+        className="game input"
+        placeholder="Enter your question here.."
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </div>
+  );
+};
 
 QuestionField.propTypes = {
-    value: PropTypes.string,
-    onChange: PropTypes.func,
-  };
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+};
 
 const ChatLog = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [prompt, setPrompt] = useState<string>("");
-  const [isQuestion, setIsQuestion] = useState<Boolean>(true); 
+  const [isQuestion, setIsQuestion] = useState<Boolean>(true);
 
   // Creates the question field as functional component
   const QField = () => {
@@ -51,12 +51,18 @@ const ChatLog = () => {
     return (
       <div>
         <Button
-          onClick={() => {setPrompt("yes");updateChat();}}
+          onClick={() => {
+            setPrompt("yes");
+            updateChat();
+          }}
         >
           Yes
         </Button>
         <Button
-          onClick={() => {setPrompt("no");updateChat();}}
+          onClick={() => {
+            setPrompt("no");
+            updateChat();
+          }}
         >
           No
         </Button>
@@ -67,7 +73,7 @@ const ChatLog = () => {
   // Updates the game log (always used after )
   const updateChat = async () => {
     try {
-      const response = await api.post(`/something`, {prompt}); // LiamK21: IDK if post/put; change URI
+      const response = await api.post(`/something`, { prompt }); // LiamK21: IDK if post/put; change URI
       setMessages(response.data);
     } catch (error) {
       alert(
@@ -76,25 +82,26 @@ const ChatLog = () => {
     }
   };
   // function to display the current field
-  const displayField = () => { // needs a call to server
+  const displayField = () => {
+    // needs a call to server
     if (isQuestion) {
       setIsQuestion(!isQuestion);
       return QField();
     }
     setIsQuestion(!isQuestion);
     return BoolField();
-  }
+  };
 
   return (
     <BaseContainer className="game log">
-    <BaseContainer className="game log chat">
-      {messages.map((message, index) => (
-        <div key={index}>{message}</div>
-      ))}
+      <BaseContainer className="game log chat">
+        {messages.map((message, index) => (
+          <div key={index}>{message}</div>
+        ))}
+      </BaseContainer>
+      <div>{isQuestion ? QField() : BoolField()}</div>
     </BaseContainer>
-    <div>{isQuestion ? QField() : BoolField()}</div>
-  </BaseContainer>
-  )
+  );
 };
 
 export default ChatLog;
