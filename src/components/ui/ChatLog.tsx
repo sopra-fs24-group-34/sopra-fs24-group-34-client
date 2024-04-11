@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import BaseContainer from "./BaseContainer";
 import Character from "./Character";
 
-// Defines the structure of the question field should look like
+// Defines the structure of the question field
 const QuestionField = (props) => {
   return (
     <div className="game field">
@@ -73,7 +73,8 @@ const ChatLog = () => {
   // Updates the game log (always used after )
   const updateChat = async () => {
     try {
-      const response = await api.post(`/something`, { prompt }); // LiamK21: IDK if post/put; change URI
+      await api.post(`/game/${1}`, { prompt }); // LiamK21: IDK if post/put; change URI
+      const response = await api.get(`/game/${1}`)
       setMessages(response.data);
     } catch (error) {
       alert(
