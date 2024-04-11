@@ -3,6 +3,8 @@ import { api, handleError } from "helpers/api";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
+import CharacterGrid from "components/ui/CharacterGrid"; // import for later usage
+import ChatLog from "components/ui/ChatLog"; // import for later usage
 import PropTypes from "prop-types";
 import "styles/views/Game.scss";
 
@@ -35,6 +37,7 @@ const Game = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [chat, setChat] = useState(null);
 
+  // In "CharacterGrid"
   const getcharacters = async () => {
     try {
       const response = await api.get(`/images/random`);
@@ -46,6 +49,7 @@ const Game = () => {
     }
   };
 
+  // In "ChatLog"
   const QField = () => {
     return (
       <div>
@@ -60,6 +64,7 @@ const Game = () => {
     );
   };
 
+  // In "ChatLog"
   const BoolField = () => {
     return (
       <div>
@@ -83,8 +88,10 @@ const Game = () => {
     );
   };
 
+  // Can be put into "Character" or "CharacterGrid"
   const foldCharacter = (): void => {};
 
+  // In "ChatLog"
   const updateChat = async () => {
     try {
       const response = await api.post(`/something`); // LiamK21: IDK if post/put; change URI
@@ -96,8 +103,10 @@ const Game = () => {
     }
   };
 
+  // Should probably stay here
   const guessCharacter = (): void => {};
 
+  // LiamK21: The return statement needs <Basecontainer > <CharacterGrid> <gameLog>
   return (
     <BaseContainer className="game container">
       <BaseContainer className="game characterContainer">
@@ -121,7 +130,7 @@ const Game = () => {
         <div className="game character-item">18</div>
         <div className="game character-item">19</div>
         <div className="game character-item">20</div>
-      </BaseContainer>
+      </BaseContainer> 
       <BaseContainer className="game log">
         <BaseContainer className="game log chat">lkjlfdsa</BaseContainer>
         {isQuestion ? QField() : BoolField()}

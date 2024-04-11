@@ -1,0 +1,13 @@
+@import "../theme";
+
+.character {
+    border-color: white;
+    background-color: black;
+    width: 70%;
+    color: white;
+    @include center;
+
+    .img {
+      object-fit: cover;
+    }
+  }
