@@ -5,43 +5,96 @@ import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Game.scss";
-import { Character, User } from "types";
 
-const Player = ({ user }: { user: User }) => (
-  <div className="player container">
-    <div className="player username">{user.username}</div>
-    <div className="player id">id: {user.id}</div>
-  </div>
-);
-
-Player.propTypes = {
-  user: PropTypes.object,
+const QuestionField = (props) => {
+  return (
+    <div className="game field">
+      <input
+        type="text"
+        className="game input"
+        placeholder="Enter your question here.."
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
+      />
+    </div>
+  );
 };
 
-const Person = ({ character }: { character: Character }) => (
-  <div className="character container">
-    <div className="characer id">{character.id}</div>
-    <div className="characer image">{character.image}</div>
-    <div className="character name">{character.name}</div>
-  </div>
-);
-
-Person.propTypes = {
-  person: PropTypes.object,
+QuestionField.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
 };
 
 const Game = () => {
   // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
 
+  const [isQuestion, setIsQuestion] = useState<Boolean>(true); // LiamK21: Must be different
+  const [characters, setCharacters] = useState<string>(null);
   const [userPick, setUserPick] = useState<Number>(null);
-  const [question, setQuestion] = useState<Number>(null);
+  const [prompt, setPrompt] = useState<string>("");
+  const [chat, setChat] = useState(null);
+
+  const getcharacters = async () => {
+    try {
+      const response = await api.get(`/images/random`);
+      setCharacters(response.data);
+    } catch (error) {
+      alert(
+        `Something went wrong fetching the characters: \n${handleError(error)}`
+      );
+    }
+  };
+
+  const QField = () => {
+    return (
+      <div>
+        <QuestionField
+          value={prompt}
+          onChange={(q: string) => setPrompt(q)}
+        ></QuestionField>
+        <Button disabled={!prompt} onClick={() => updateChat()}>
+          Send
+        </Button>
+      </div>
+    );
+  };
+
+  const BoolField = () => {
+    return (
+      <div>
+        <Button
+          onClick={() => {
+            setPrompt("yes");
+            updateChat();
+          }}
+        >
+          Yes
+        </Button>
+        <Button
+          onClick={() => {
+            setPrompt("no");
+            updateChat();
+          }}
+        >
+          No
+        </Button>
+      </div>
+    );
+  };
 
   const foldCharacter = (): void => {};
 
-  const sendQuestion = (): void => {};
-
-  const getQuestion = (): void => {};
+  const updateChat = async () => {
+    try {
+      const response = await api.post(`/something`); // LiamK21: IDK if post/put; change URI
+      setChat(response.data);
+    } catch (error) {
+      alert(
+        `Something went wrong fetching the characters: \n${handleError(error)}`
+      );
+    }
+  };
 
   const guessCharacter = (): void => {};
 
@@ -68,14 +121,11 @@ const Game = () => {
         <div className="game character-item">18</div>
         <div className="game character-item">19</div>
         <div className="game character-item">20</div>
-
       </BaseContainer>
       <BaseContainer className="game log">
-        <BaseContainer className="game log chat"></BaseContainer>
-          <input></input>
-          <Button disabled={!question}>Send</Button>
+        <BaseContainer className="game log chat">lkjlfdsa</BaseContainer>
+        {isQuestion ? QField() : BoolField()}
       </BaseContainer>
-      
     </BaseContainer>
   );
 };
