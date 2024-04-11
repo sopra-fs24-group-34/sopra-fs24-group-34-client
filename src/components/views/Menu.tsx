@@ -35,7 +35,7 @@ const Menu = () => {
   const logout = (): void => {
     localStorage.removeItem("token");
     localStorage.removeItem("id");
-    navigate("/login");
+    navigate("/landingPage");
   };
 
   const createLobby = (): void => {
