@@ -82,7 +82,7 @@ const ChatLog = () => {
       );
     }
   };
-  // function to display the current field
+  // function to display the current field; does not work 
   const displayField = () => {
     // needs a call to server
     if (isQuestion) {
