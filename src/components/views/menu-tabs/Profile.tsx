@@ -13,6 +13,7 @@ const Profile = ({ user }: { user: User }) => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUsername, setEditedUsername] = useState(user.username);
+  const [editedPassword, setEditedPassword] = useState(user.password);
 
   const sendEdit = async () => {
     setIsEditing(false);
@@ -20,11 +21,12 @@ const Profile = ({ user }: { user: User }) => {
       const requestBody = JSON.stringify({
         id: userId,
         username: editedUsername,
+        password: editedPassword,
         token: userToken,
       });
-      await api.put("/users", requestBody);
+      await api.put(`/users/${userId}`, requestBody);
 
-      getUser();
+      //getUser();
     } catch (error) {
       setEditedUsername(user.username);
       alert(
@@ -52,8 +54,6 @@ const Profile = ({ user }: { user: User }) => {
           <BaseContainer className="details">
             <BaseContainer className="item" style={{ marginTop: "1em" }}>
               <div className="label">Username: </div>
-              <div className="value">{userId /*getUser()*/} </div>{" "}
-              {/* nedim-j: getUser will throw an error, since not yet implemented in backend */}
               {isEditing ? (
                 <input
                   className="input"
@@ -68,8 +68,16 @@ const Profile = ({ user }: { user: User }) => {
 
             <BaseContainer className="item" style={{ marginBottom: "1em" }}>
               <div className="label">Password: </div>
-              <div className="value">placeholderPass </div>{" "}
-              {/* nedim-j: implement functionality */}
+              {isEditing ? (
+                <input
+                  className="input"
+                  type="password"
+                  value={editedPassword}
+                  onChange={(e) => setEditedPassword(e.target.value)}
+                />
+              ) : (
+                <div className="value">********</div>
+              )}
             </BaseContainer>
           </BaseContainer>
         </div>
