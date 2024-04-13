@@ -45,7 +45,8 @@ const LandingPage = () => {
       localStorage.setItem("id", response.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/game");
+      // navigate("/game"); // smailalijagic: this line is making problems with grid...
+      navigate("/lobby"); // smailalijagic: added this line, guest first enters lobby than game
     } catch (error) {
       alert(
         `Something went wrong during the login: \n${handleError(error)}`
