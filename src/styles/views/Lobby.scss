@@ -43,7 +43,7 @@
   padding: 0;
   border-radius: $borderRadius;
   width: 100%;
-  height:10em;
+  //height:10em;
 
   ul {
     list-style-type: none;
@@ -54,6 +54,7 @@
     li {
       flex: 1;
       position: relative;
+      //width: 33%;
       
       &:not(:last-child) {
         border-right: 1px solid #ccc; // Add a border-right to all items except the last one
@@ -63,30 +64,63 @@
 
   .settings {
     //height:10em;
+    display:flex;
+    flex-direction:column;
+
+    
   }
 
   .main {
-    .lobby-code {
-
+    .code-container {
+      height: 2em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+      display: flex;
+      justify-self: center;
+    }
+    .code {
+      margin-left: auto;
+      padding-left: 15px;
+      margin-right: auto;
+      padding-right: 15px;
+      max-width: $DESKTOP_WIDTH;
+      color: $textColor;
+      text-align: center;
     }
     .players {
-
+      height: 6em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
     }
     .button-row {
       display:flex;
       flex-direction:column;
-      .button {
-        margin: 10px;
-      }
     }
   }
 
   .friends-container {
     .friends {
-
+      height: 6em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
     }
     .username-adder {
 
     }
   }
+}
+
+.button {
+  margin-top: 10px;
+  color: white;
+}
+.input{
+  flex:1;
+  border-radius: 0.75em;
 }

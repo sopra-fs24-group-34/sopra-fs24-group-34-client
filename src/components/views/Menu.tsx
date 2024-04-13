@@ -39,9 +39,10 @@ const Menu = () => {
   };
 
   const createLobby = (): void => {
+    const userId = localStorage.getItem("id");
     async function makeRequest() {
       try {
-        const response = await api.post("/lobbies/create"); //nedim-j: define exact endpoint & need of body with backend
+        const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend
 
         await new Promise((resolve) => setTimeout(resolve, 200));
 
