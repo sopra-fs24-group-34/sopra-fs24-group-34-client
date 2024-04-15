@@ -68,7 +68,6 @@ const LobbyPage = () => {
         }
 
         setUsers(usersArray);
-
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -98,8 +97,19 @@ const LobbyPage = () => {
   }
 
   function handleReturn() {
-    localStorage.removeItem("lobbyId");
     //setData("New Data");
+    console.log(lobbyId);
+    async function closeLobby() {
+      try {
+        await api.delete(`/lobbies/${lobbyId}/start`); //nedim-j: make correct endpoint. seems to require a body atm
+      } catch (error) {
+        console.error(
+          `Something went wrong while fetching data: \n${handleError(error)}`
+        );
+      }
+    }
+    closeLobby();
+    localStorage.removeItem("lobbyId");
     navigate("/menu");
   }
 
