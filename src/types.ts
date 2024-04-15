@@ -1,6 +1,8 @@
 export type User = {
   id: number;
   username: string;
-  status: string;
   password: string;
+  status: string;
+  totalwins: number;
+  totalplayed: number;
 };

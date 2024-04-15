@@ -8,12 +8,18 @@ import PropTypes from "prop-types";
 import { User } from "types";
 import "styles/views/menu-tabs/Leaderboard.scss";
 
-const Player = ({ user }: { user: User }) => (
-  <div className="player container">
-    <div className="player username">{user.username}</div>
-    {/*<div className="player id">id: {user.id}</div>*/}
-  </div>
-);
+const Player = ({ user }: { user: User }) => {
+  const winPercentage = user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
+
+  return (
+    <div className="player container">
+      <div className="player username">{user.username}</div>
+      <div className="player total-wins">{user.totalwins !== null ? user.totalwins : 0}</div>
+      <div className="player total-played">{user.totalplayed !== null ? user.totalplayed : 0}</div>
+      <div className="player win-percentage">{isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%</div>
+    </div>
+  );
+};
 
 const Leaderboard = () => {
 
@@ -50,12 +56,28 @@ const Leaderboard = () => {
     
     fetchData();
   }, []);
+
+  // experimental
+  const handleSort = (criteria: string) => {
+    const sortedUsers = [...users].sort((a, b) => {
+      if (a[criteria] < b[criteria]) return -1;
+      if (a[criteria] > b[criteria]) return 1;
+      return 0;
+    });
+
+    setUsers(sortedUsers);
+  };
     
   let content = <Spinner />;
     
+
   if (users) {
     content = (
       <div className="leaderboard">
+        <div className="sorting">
+          <Button onClick={() => handleSort("username")}>Sort by Username</Button>
+          <Button onClick={() => handleSort("totalwins")}>Sort by Total Wins</Button>
+        </div>
         <ul className="leaderboard user-list">
           {users.map((user: User) => (
             <li key={user.id}>
@@ -63,7 +85,6 @@ const Leaderboard = () => {
             </li>
           ))}
         </ul>
-            
       </div>
     );
   }
