@@ -36,72 +36,91 @@
     //flex-direction: row;
     width: 100%;
   }
-  &.navbar {
-    //background-color: #333;
-    background: lighten($background, 5%);
-    width: 100%;
-    margin: 1.5em;
-    border-radius: $borderRadius;
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      color: white;
-      li {
-        flex: 1;
-        position: relative;
-        
-        &:not(:last-child) {
-          border-right: 1px solid #ccc; // Add a border-right to all items except the last one
-        }
-        &.active {
-          //color: blue; //doesn't seem to do anything rn
-          font-weight: bold;
-        }
-
-        a {
-          display: block;
-          text-decoration: none;
-          text-align: center;
-          font-size: larger;
-          color: white;
-
-          // nedim-j: doesn't work rn
-          //color: #ccc; /* Default color for inactive tabs */
-          //transition: color 0.3s ease;
-          //&:hover { 
-          //  color: #ff0000;
-          //}
-          
-        }
-        
-      }
-    }
-  }
-  
 }
+
 .view {
   background: lighten($background, 5%);
   padding: 0;
   border-radius: $borderRadius;
   width: 100%;
+  //height:10em;
 
-  }
-
-.player {
-  &.container {
-    margin: 0.5em 0;
-    width: 20em;
-    padding: 10px;
-    border-radius: $borderRadius;
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
     display: flex;
-    align-items: center;
-    background: lighten($background, 5);
+    color: white;
+    li {
+      flex: 1;
+      position: relative;
+      //width: 33%;
+      
+      &:not(:last-child) {
+        border-right: 1px solid #ccc; // Add a border-right to all items except the last one
+      }
+    }
   }
-  &.username {
-    font-weight: 500;
-    color: $accent;
+
+  .settings {
+    //height:10em;
+    display:flex;
+    flex-direction:column;
+
+    
   }
- 
+
+  .main {
+    .code-container {
+      height: 2em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+      display: flex;
+      justify-self: center;
+    }
+    .code {
+      margin-left: auto;
+      padding-left: 15px;
+      margin-right: auto;
+      padding-right: 15px;
+      max-width: $DESKTOP_WIDTH;
+      color: $textColor;
+      text-align: center;
+    }
+    .players {
+      height: 6em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+    }
+    .button-row {
+      display:flex;
+      flex-direction:column;
+    }
+  }
+
+  .friends-container {
+    .friends {
+      height: 6em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+    }
+    .username-adder {
+
+    }
+  }
+}
+
+.button {
+  margin-top: 10px;
+  color: white;
+}
+.input{
+  flex:1;
+  border-radius: 0.75em;
 }
