@@ -6,39 +6,69 @@ import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
-import { User } from "types";
+import { User, Lobby } from "types";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    {/*<div className="player id">id: {user.id}</div>*/}
+    {/**nedim-j: add kick button? */}
   </div>
 );
 
-const Lobby = () => {
-  // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
+const LobbyPage = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("id");
   const lobbyId = localStorage.getItem("lobbyId");
   const [users, setUsers] = useState<User[]>(null);
+  //const [data, setData] = useState(""); //nedim-j: refresh page, WIP
 
   useEffect(() => {
     async function fetchData() {
       try {
         //nedim-j: will get network errors at the moment
         /*
-        const lobbyResponse = await api.post(`/lobbies/join/${lobbyId}`);
-        //console.log(lobbyResponse);
-
         const settingsResponse = await api.get(`/lobbies/settings/${lobbyId}`);
         console.log(settingsResponse);
 
         const friendsResponse = await api.get(`/users/${userId}/friends`);
         console.log(friendsResponse);
         */
+
+        const lobbiesResponse = await api.get("/lobbies/");
+        console.log(lobbiesResponse);
         await new Promise((resolve) => setTimeout(resolve, 200));
 
-        //setUsers(lobbyResponse.data);
+        // nedim-j: Find the lobby with the desired ID in /lobbies
+        // create proper endpoint
+        const lobbiesArray = Object.values(lobbiesResponse.data);
+        const lobbyIdAsNum = parseInt(lobbyId);
+        const lobby = lobbiesArray.find(
+          (lobby) => lobby.id === lobbyIdAsNum
+        ) as Lobby;
+
+        console.log(lobbiesArray);
+        console.log(lobby);
+
+        // nedim-j: get profile names for creator and invited player
+        const creatorResponse = await api.get(`/users/${lobby.creator_userid}`);
+        const creatorUser = creatorResponse.data;
+
+        let invitedUser = null;
+        if (lobby.invited_userid !== null) {
+          const invitedResponse = await api.get(
+            `/users/${lobby.invited_userid}`
+          );
+          invitedUser = invitedResponse.data;
+        }
+
+        const usersArray = [];
+        usersArray.push(creatorUser);
+        if (invitedUser !== null) {
+          usersArray.push(invitedUser);
+        }
+
+        setUsers(usersArray);
+
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -53,21 +83,24 @@ const Lobby = () => {
     fetchData();
   }, []);
 
-  //nedim-j: continue adding player containers
-  let content;
+  let players;
 
   if (users) {
-    content = (
-      <div className="lobby">
-        <ul className="lobby user-list">
-          {users.map((user: User) => (
-            <li key={user.id}>
-              <Player user={user} />
-            </li>
-          ))}
-        </ul>
-      </div>
+    players = (
+      <ul className="players list">
+        {users.map((user: User) => (
+          <li key={user.id}>
+            <Player user={user} />
+          </li>
+        ))}
+      </ul>
     );
+  }
+
+  function handleReturn() {
+    localStorage.removeItem("lobbyId");
+    //setData("New Data");
+    navigate("/menu");
   }
 
   return (
@@ -94,12 +127,12 @@ const Lobby = () => {
           </li>
           <li>
             <BaseContainer className="main">
-              <h2>Lobby code:</h2>
+              <h2>Lobby ID:</h2>
               <BaseContainer className="code-container">
-                123-456-789
+                <div className="code">{lobbyId}</div>
               </BaseContainer>
               <h2>Players</h2>
-              <BaseContainer className="players"></BaseContainer>
+              <BaseContainer className="players">{players}</BaseContainer>
               <div className="button-row">
                 <Button className="button" onClick={() => navigate("/game")}>
                   Start Game
@@ -107,7 +140,7 @@ const Lobby = () => {
                 <Button
                   className="button"
                   style={{ marginBottom: "10px" }}
-                  onClick={() => navigate("/menu")}
+                  onClick={() => handleReturn()}
                 >
                   Return to Menu
                 </Button>
@@ -134,4 +167,4 @@ const Lobby = () => {
   );
 };
 
-export default Lobby;
+export default LobbyPage;

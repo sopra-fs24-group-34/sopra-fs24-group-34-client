@@ -38,7 +38,7 @@ const LandingPage = () => {
       // const requestBody = JSON.stringify({ lobbyCode });
       // const response = await api.post("/something", requestBody); // must be defined
       const requestBody = JSON.stringify({ lobbyCode }); // smailalijagic: I think this is not necessary
-      const response = await api.put("/lobbies/join/${lobbyCode}"); // smailalijagic: must be put mapping because lobby is updated
+      const response = await api.put(`/lobbies/join/${lobbyCode}`); // smailalijagic: must be put mapping because lobby is updated
 
       // Store the token into the local storage.
       localStorage.setItem("token", response.token);
