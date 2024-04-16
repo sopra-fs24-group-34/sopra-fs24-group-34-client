@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { Button } from "components/ui/Button";
-import "../../styles/ui/CharacterGrid.scss";
+import "../../styles/ui/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "./BaseContainer";
-import Character from "./Character";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
   return (
-    <div className="game field">
+    <div className="game-log field">
       <input
         type="text"
-        className="game input"
+        className="game-log input"
         placeholder="Enter your question here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
@@ -27,7 +26,7 @@ QuestionField.propTypes = {
 };
 
 const ChatLog = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
 
@@ -74,7 +73,7 @@ const ChatLog = () => {
   const updateChat = async () => {
     try {
       await api.post(`/game/${1}`, { prompt }); // LiamK21: IDK if post/put; change URI
-      const response = await api.get(`/game/${1}`)
+      const response = await api.get(`/game/${1}`);
       setMessages(response.data);
     } catch (error) {
       alert(
@@ -82,20 +81,22 @@ const ChatLog = () => {
       );
     }
   };
-  // function to display the current field; does not work 
+  // function to display the current field; does not work
   const displayField = () => {
     // needs a call to server
     if (isQuestion) {
       setIsQuestion(!isQuestion);
+
       return QField();
     }
     setIsQuestion(!isQuestion);
+    
     return BoolField();
   };
 
   return (
-    <BaseContainer className="game log">
-      <BaseContainer className="game log chat">
+    <BaseContainer className="game-log">
+      <BaseContainer className="game-log chat">
         {messages.map((message, index) => (
           <div key={index}>{message}</div>
         ))}
