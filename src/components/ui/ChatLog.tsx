@@ -39,7 +39,11 @@ const ChatLog = () => {
           value={prompt}
           onChange={(q: string) => setPrompt(q)}
         ></QuestionField>
-        <button className="chat-log-send-button" disabled={!prompt} onClick={() => updateChat()}>
+        <button
+          className="chat-log-send-button"
+          disabled={!prompt}
+          onClick={() => updateChat()}
+        >
           Send
         </button>
       </div>
@@ -50,7 +54,9 @@ const ChatLog = () => {
   const BoolField = () => {
     return (
       <div>
-        <button className="chat-log-send-button"
+        <button
+          className="chat-log-send-button"
+          style={{ backgroundColor: "green" }}
           onClick={() => {
             setPrompt("yes");
             updateChat();
@@ -58,7 +64,9 @@ const ChatLog = () => {
         >
           Yes
         </button>
-        <button className="chat-log-send-button"
+        <button
+          className="chat-log-send-button"
+          style={{ backgroundColor: "red" }}
           onClick={() => {
             setPrompt("no");
             updateChat();
@@ -73,7 +81,9 @@ const ChatLog = () => {
   // Updates the game log (always used after )
   const updateChat = async () => {
     try {
-      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, { prompt }); // LiamK21: IDK if post/put; change URI
+      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
+        prompt,
+      }); // LiamK21: IDK if post/put; change URI
       const response = await api.get(`/game/${1}/chat`);
       setMessages(response.data);
     } catch (error) {
@@ -88,10 +98,14 @@ const ChatLog = () => {
     <BaseContainer className="game-log">
       <BaseContainer className="game-log chat">
         {messages.map((message, index) => (
-          <div className="text" key={index}>{message}</div>
+          <div className="text" key={index}>
+            {message}
+          </div>
         ))}
       </BaseContainer>
-      <div className="chat-log-input-container">{isQuestion ? QField() : BoolField()}</div>
+      <div className="chat-log-input-container">
+        {isQuestion ? QField() : BoolField()}
+      </div>
     </BaseContainer>
   );
 };
