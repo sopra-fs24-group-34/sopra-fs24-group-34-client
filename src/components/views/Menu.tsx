@@ -46,7 +46,7 @@ const Menu = () => {
 
         await new Promise((resolve) => setTimeout(resolve, 200));
 
-        localStorage.setItem("lobbyId", response.data);
+        localStorage.setItem("lobbyId", response.data.lobbyid);
 
         console.log(response);
       } catch (error) {

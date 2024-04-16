@@ -15,6 +15,10 @@ const Profile = ({ user }: { user: User }) => {
   const [editedUsername, setEditedUsername] = useState(user.username);
   const [editedPassword, setEditedPassword] = useState(user.password);
 
+  useEffect(() => {
+    getUser();
+  }, []);
+
   const sendEdit = async () => {
     setIsEditing(false);
     try {
@@ -26,7 +30,7 @@ const Profile = ({ user }: { user: User }) => {
       });
       await api.put(`/users/${userId}`, requestBody);
 
-      //getUser();
+      getUser();
     } catch (error) {
       setEditedUsername(user.username);
       alert(

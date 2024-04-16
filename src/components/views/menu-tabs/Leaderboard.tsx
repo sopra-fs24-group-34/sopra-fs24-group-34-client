@@ -2,36 +2,42 @@ import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { User } from "types";
 import "styles/views/menu-tabs/Leaderboard.scss";
 
 const Player = ({ user }: { user: User }) => {
-  const winPercentage = user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
+  const winPercentage =
+    user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
 
   return (
     <div className="player container">
       <div className="player username">{user.username}</div>
-      <div className="player total-wins">{user.totalwins !== null ? user.totalwins : 0}</div>
-      <div className="player total-played">{user.totalplayed !== null ? user.totalplayed : 0}</div>
-      <div className="player win-percentage">{isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%</div>
+      <div className="player total-wins">
+        {user.totalwins !== null ? user.totalwins : 0}
+      </div>
+      <div className="player total-played">
+        {user.totalplayed !== null ? user.totalplayed : 0}
+      </div>
+      <div className="player win-percentage">
+        {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
+      </div>
     </div>
   );
 };
 
 const Leaderboard = () => {
-
   const [users, setUsers] = useState<User[]>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const response = await api.get("/users");
-    
+
         await new Promise((resolve) => setTimeout(resolve, 200));
-    
+
         // Get the returned users and update the state.
         setUsers(response.data);
 
@@ -39,7 +45,7 @@ const Leaderboard = () => {
         console.log("status code:", response.status);
         console.log("status text:", response.statusText);
         console.log("requested data:", response.data);
-    
+
         console.log(response);
       } catch (error) {
         console.error(
@@ -53,7 +59,7 @@ const Leaderboard = () => {
         );
       }
     }
-    
+
     fetchData();
   }, []);
 
@@ -62,21 +68,25 @@ const Leaderboard = () => {
     const sortedUsers = [...users].sort((a, b) => {
       if (a[criteria] < b[criteria]) return -1;
       if (a[criteria] > b[criteria]) return 1;
+      
       return 0;
     });
 
     setUsers(sortedUsers);
   };
-    
+
   let content = <Spinner />;
-    
 
   if (users) {
     content = (
       <div className="leaderboard">
         <div className="sorting">
-          <Button onClick={() => handleSort("username")}>Sort by Username</Button>
-          <Button onClick={() => handleSort("totalwins")}>Sort by Total Wins</Button>
+          <Button onClick={() => handleSort("username")}>
+            Sort by Username
+          </Button>
+          <Button onClick={() => handleSort("totalwins")}>
+            Sort by Total Wins
+          </Button>
         </div>
         <ul className="leaderboard user-list">
           {users.map((user: User) => (
@@ -89,11 +99,7 @@ const Leaderboard = () => {
     );
   }
 
-  return (
-    <div>
-      {content}
-    </div>
-  );
+  return <div>{content}</div>;
 };
 
 export default Leaderboard;

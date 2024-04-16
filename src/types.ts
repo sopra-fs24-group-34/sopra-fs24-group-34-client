@@ -12,3 +12,8 @@ export type Character = {
   image: string;
   name: string;
 }
+export type Lobby = {
+  id: number;
+  creator_userid: number;
+  invited_userid: number | null;
+};

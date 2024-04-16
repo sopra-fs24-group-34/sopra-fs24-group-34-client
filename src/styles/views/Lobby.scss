@@ -33,7 +33,6 @@
   }
   .buttonbar {
     display: flex;
-    //flex-direction: row;
     width: 100%;
   }
 }
@@ -43,7 +42,6 @@
   padding: 0;
   border-radius: $borderRadius;
   width: 100%;
-  //height:10em;
 
   ul {
     list-style-type: none;
@@ -63,11 +61,8 @@
   }
 
   .settings {
-    //height:10em;
     display:flex;
     flex-direction:column;
-
-    
   }
 
   .main {
@@ -81,20 +76,21 @@
       justify-self: center;
     }
     .code {
-      margin-left: auto;
-      padding-left: 15px;
-      margin-right: auto;
-      padding-right: 15px;
+      margin: auto;
       max-width: $DESKTOP_WIDTH;
       color: $textColor;
       text-align: center;
     }
     .players {
-      height: 6em;
       background: lighten($background, 100%);
       padding: 0;
       border-radius: $borderRadius;
       width: 100%;
+      flex-direction: column;
+      li {
+        margin: 10px;
+        border-right: none;
+      }
     }
     .button-row {
       display:flex;
