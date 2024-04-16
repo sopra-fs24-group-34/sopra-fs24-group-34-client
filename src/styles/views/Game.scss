@@ -9,10 +9,10 @@
 
 .game {
   &.container {
-    min-height: 250px;
     background-color: transparent;
     display: flex;
+    justify-content: column;
     align-items: flex-start;
-    height: 83vh;
+    height: 85vh;
   }
 }

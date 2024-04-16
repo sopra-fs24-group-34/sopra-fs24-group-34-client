@@ -28,20 +28,6 @@ const Game = () => {
       <ChatLog />
     </BaseContainer>
   );
-
-  /*
-  return (
-  <div>
-    <Character id={id} url={url} func={() => setShowInteract(true)} />
-    {showInteract && (
-      <div className="modal">
-        <div className="modal-content">
-          <interactCharacter id={id} onClose={() => setShowInteract(false)} />
-        </div>
-      </div>
-    )}
-  </div>
-); */
 };
 
 export default Game;

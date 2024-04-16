@@ -26,6 +26,7 @@ QuestionField.propTypes = {
 };
 
 const ChatLog = () => {
+  const [gameId, setGameId] = useState<number>(null);
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
@@ -33,14 +34,14 @@ const ChatLog = () => {
   // Creates the question field as functional component
   const QField = () => {
     return (
-      <div>
+      <div className="chat-log-input-container">
         <QuestionField
           value={prompt}
           onChange={(q: string) => setPrompt(q)}
         ></QuestionField>
-        <Button disabled={!prompt} onClick={() => updateChat()}>
+        <button className="chat-log-send-button" disabled={!prompt} onClick={() => updateChat()}>
           Send
-        </Button>
+        </button>
       </div>
     );
   };
@@ -49,22 +50,22 @@ const ChatLog = () => {
   const BoolField = () => {
     return (
       <div>
-        <Button
+        <button className="chat-log-send-button"
           onClick={() => {
             setPrompt("yes");
             updateChat();
           }}
         >
           Yes
-        </Button>
-        <Button
+        </button>
+        <button className="chat-log-send-button"
           onClick={() => {
             setPrompt("no");
             updateChat();
           }}
         >
           No
-        </Button>
+        </button>
       </div>
     );
   };
@@ -72,8 +73,8 @@ const ChatLog = () => {
   // Updates the game log (always used after )
   const updateChat = async () => {
     try {
-      await api.post(`/game/${1}`, { prompt }); // LiamK21: IDK if post/put; change URI
-      const response = await api.get(`/game/${1}`);
+      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, { prompt }); // LiamK21: IDK if post/put; change URI
+      const response = await api.get(`/game/${1}/chat`);
       setMessages(response.data);
     } catch (error) {
       alert(
@@ -82,26 +83,15 @@ const ChatLog = () => {
     }
   };
   // function to display the current field; does not work
-  const displayField = () => {
-    // needs a call to server
-    if (isQuestion) {
-      setIsQuestion(!isQuestion);
-
-      return QField();
-    }
-    setIsQuestion(!isQuestion);
-    
-    return BoolField();
-  };
 
   return (
     <BaseContainer className="game-log">
       <BaseContainer className="game-log chat">
         {messages.map((message, index) => (
-          <div key={index}>{message}</div>
+          <div className="text" key={index}>{message}</div>
         ))}
       </BaseContainer>
-      <div>{isQuestion ? QField() : BoolField()}</div>
+      <div className="chat-log-input-container">{isQuestion ? QField() : BoolField()}</div>
     </BaseContainer>
   );
 };

@@ -14,17 +14,18 @@
       object-fit: cover;
     }
   }
-  
+
   &.fold {
     border-color: white;
     border-radius: 0.75em;
-    background-color: beige;
+    background-color: purple;
     width: 70%;
-    color: white;
+    color: black;
     @include center;
+    align-items: center;
     position: relative;
   }
-
+  
   &.overlay {
     position: absolute;
     top: 0;
