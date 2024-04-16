@@ -5,12 +5,22 @@ import BaseContainer from "components/ui/BaseContainer";
 import CharacterGrid from "components/ui/CharacterGrid"; // import for later usage
 import ChatLog from "components/ui/ChatLog"; // import for later usage
 import "styles/views/Game.scss";
-import { Button } from "components/ui/Button";
-
 
 const Game = () => {
   // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
-  
+
+  // Leave commented for designing purposes
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await api.post(`/game/create`); //or something like that
+  //     } catch (error) {
+  //       alert(`Something went wrong fetching the characters: \n${handleError(error)}`);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
 
   return (
     <BaseContainer className="game container">
