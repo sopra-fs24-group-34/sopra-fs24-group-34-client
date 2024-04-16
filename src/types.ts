@@ -6,3 +6,9 @@ export type User = {
   totalwins: number;
   totalplayed: number;
 };
+
+export type Character = {
+  id: number;
+  image: string;
+  name: string;
+}
