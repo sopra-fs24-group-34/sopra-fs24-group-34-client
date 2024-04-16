@@ -43,6 +43,7 @@ const LandingPage = () => {
       // Store the token into the local storage.
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("id", response.data.id);
+      localStorage.setItem("lobbyId", lobbyCode);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
       // navigate("/game"); // smailalijagic: this line is making problems with grid...

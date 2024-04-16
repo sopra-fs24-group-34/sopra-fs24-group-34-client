@@ -20,7 +20,7 @@ const LobbyPage = () => {
   const userId = localStorage.getItem("id");
   const lobbyId = localStorage.getItem("lobbyId");
   const [users, setUsers] = useState<User[]>(null);
-  //const [data, setData] = useState(""); //nedim-j: refresh page, WIP
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -40,8 +40,13 @@ const LobbyPage = () => {
 
         // nedim-j: Find the lobby with the desired ID in /lobbies
         // create proper endpoint
-        const lobbiesArray = Object.values(lobbiesResponse.data);
+        const lobbiesArray: { id: number }[] = Object.values(
+          lobbiesResponse.data
+        );
+        console.log(lobbiesArray);
+
         const lobbyIdAsNum = parseInt(lobbyId);
+        //nedim-j: problems, disappear when refreshing
         const lobby = lobbiesArray.find(
           (lobby) => lobby.id === lobbyIdAsNum
         ) as Lobby;
@@ -52,6 +57,12 @@ const LobbyPage = () => {
         // nedim-j: get profile names for creator and invited player
         const creatorResponse = await api.get(`/users/${lobby.creator_userid}`);
         const creatorUser = creatorResponse.data;
+
+        //nedim-j: find better solution for checking if one is the host
+        if (parseInt(userId) === creatorUser.id) {
+          setIsCreator(true);
+        }
+        console.log("Is creator? ", isCreator);
 
         let invitedUser = null;
         if (lobby.invited_userid !== null) {
@@ -82,7 +93,7 @@ const LobbyPage = () => {
     fetchData();
   }, []);
 
-  let players;
+  let players = <Spinner />;
 
   if (users) {
     players = (
@@ -98,7 +109,8 @@ const LobbyPage = () => {
 
   function handleReturn() {
     //setData("New Data");
-    console.log(lobbyId);
+    //console.log(lobbyId);
+
     async function closeLobby() {
       try {
         await api.delete(`/lobbies/${lobbyId}/start`); //nedim-j: make correct endpoint. seems to require a body atm
@@ -108,9 +120,39 @@ const LobbyPage = () => {
         );
       }
     }
-    closeLobby();
-    localStorage.removeItem("lobbyId");
-    navigate("/menu");
+
+    //nedim-j: again, find better solution for checking if one is the host
+    if (isCreator) {
+      closeLobby();
+      localStorage.removeItem("lobbyId");
+      navigate("/menu");
+    } else {
+      //nedim-j: probably delete call to users?
+      localStorage.removeItem("lobbyId");
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
+      navigate("/landingPage");
+    }
+  }
+
+  function handleReady() {
+    /**nedim-j: implement */
+  }
+
+  function renderActionButtons() {
+    if (isCreator) {
+      return (
+        <Button className="button" onClick={() => navigate("/game")}>
+          Start Game
+        </Button>
+      );
+    } else {
+      return (
+        <Button className="button" onClick={() => handleReady()}>
+          Ready
+        </Button>
+      );
+    }
   }
 
   return (
@@ -126,12 +168,15 @@ const LobbyPage = () => {
                   className="input"
                   type="text"
                   value="something"
+                  readOnly={!isCreator}
                   onChange={(e) => e} //add function
                 />
-                <Button className="button" onClick={() => navigate("/lobby")}>
-                  {/* add functionality */}
-                  Reset settings
-                </Button>
+                {isCreator && (
+                  <Button className="button" onClick={() => navigate("/lobby")}>
+                    {/**add functionality */}
+                    Reset settings
+                  </Button>
+                )}
               </div>
             </BaseContainer>
           </li>
@@ -144,9 +189,7 @@ const LobbyPage = () => {
               <h2>Players</h2>
               <BaseContainer className="players">{players}</BaseContainer>
               <div className="button-row">
-                <Button className="button" onClick={() => navigate("/game")}>
-                  Start Game
-                </Button>
+                {renderActionButtons()}
                 <Button
                   className="button"
                   style={{ marginBottom: "10px" }}
@@ -166,6 +209,7 @@ const LobbyPage = () => {
                   className="input"
                   type="text"
                   value="Add by username"
+                  readOnly={!isCreator}
                   onChange={(e) => e} //add function
                 />
               </div>
