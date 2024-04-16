@@ -11,38 +11,37 @@ const CharacterGrid = () => {
   const [showInteract, setShowInteract] = useState<Boolean>(false);
   const [characterId, setCharacterId] = useState<number>(null);
 
-  // can be deleted for simple testing purposes
-  useEffect(async () => {
-    try {
-      const response = await api.get(`/images/random`); // frontend sends length
-      setCharacters(response.data); //characters is an array/list
-    } catch (error) {
-      alert(
-        `Something went wrong fetching the characters: \n${handleError(error)}`
-      );
-    }
-  }, []); // Fetch data on component mount
+  // Leave commented for designing purposes
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await api.get(`/images/random`);
+  //       setCharacters(response.data);
+  //     } catch (error) {
+  //       alert(`Something went wrong fetching the characters: \n${handleError(error)}`);
+  //     }
+  //   };
 
-  const pickCharacter = async (id) => {
+  //   fetchData();
+  // }, []); // Fetch data on component mount
+
+  const pickCharacter = async () => {
     try {
       setHasPicked(true);
-      const response = await api.post(`/something`, { id }); // LiamK21: change URI
+      await api.post(`/game/pick`, { characterId }); // LiamK21: change URI¨
     } catch (error) {
-      alert(
-        `Something went wrong choosing your pick: \n${handleError(error)}`
-      );
+      alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
-  }
+  };
 
-  /*const interactCharacter = (id, onClose) => {
+  const interactCharacter = () => {
     return (
       <BaseContainer>
-        <Button onClick={() => foldCharacter(id)}>Fold</Button>
-        <Button onClick={() => guessCharacter(id)}>Guess</Button>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={() => foldCharacter(characterId)}>Fold</Button>
+        <Button onClick={() => guessCharacter(characterId)}>Guess</Button>
       </BaseContainer>
     );
-  };*/
+  };
 
   const foldCharacter = (id) => {};
 
@@ -51,29 +50,37 @@ const CharacterGrid = () => {
 
   const handleCharacterButtonClick = () => {
     if (!hasPicked) {
-      pickCharacter(characterId)
-    }
-    else {
-      setCharacterId(characterId);
-      setShowInteract(true);
+      pickCharacter();
+    } else {
+      interactCharacter();
     }
   };
 
-  return ( //The "1" is replaced by the actual id/idx from below
+  return (
+    //The "1" is replaced by the actual id/idx from below
     <BaseContainer className="character-grid">
-      <Character func={() => {setCharacterId(1); handleCharacterButtonClick()}} /> 
-      {showInteract && (
-      <dialog className="modal">
-        <div className="modal-content">
-              <Button onClick={() => foldCharacter(characterId)}>Fold</Button>
-              <Button onClick={() => guessCharacter(characterId)}>Guess</Button>
-              <Button onClick={() => setShowInteract(false)}>Close</Button>
-        </div>
-      </dialog>
-    )}
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
+      <Character/>
     </BaseContainer>
   );
-
 
   /*return (
     <BaseContainer className="character-grid">
