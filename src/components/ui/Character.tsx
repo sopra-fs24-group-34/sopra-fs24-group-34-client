@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { Button } from "components/ui/Button";
 
 // Each Character receives an id (idx in array) and an img (value in array)
-const Character = ({}) => {
+const Character = ({key, url}) => {
   //This (or another state) needs to be updated by the server to know that both users picked
   const [hasPicked, setHasPicked] = useState<Boolean>(true); 
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
@@ -56,30 +56,31 @@ const Character = ({}) => {
     const response = await api.post(`/game/guess/${characterId}`); // LiamK21: something like that
   };
 
-  return (
-    <div className={`character ${visibleCharacter ? 'container' : 'fold'}`}>
-      {visibleCharacter ? (
-      <div className="character overlay">{interactCharacter()}</div>
-      ): (
-        <div className="character fold">{interactCharacter()}</div>
-      )}
+  // return (
+  //   <div className={`character ${visibleCharacter ? 'container' : 'fold'}`}>
+  //     {visibleCharacter ? (
+  //     <div className="character overlay">{interactCharacter()}</div>
+  //     ): (
+  //       <div className="character fold">{interactCharacter()}</div>
+  //     )}
   
-    </div>
-  );
-  /* Here, interactCharacter might need a parameter id to work
-  This is the actual return statement:
+  //   </div>
+  // );
+  // Here, interactCharacter might need a parameter id to work
+  //This is the actual return statement:
   return (
-  <div className="character container" key={id}>
+  <div className="character container" key={key}>
     <img src={url}></img>
-      <div className"character overlay">
+      <div className="character overlay">
+        {setCharacterId(key)}
         {interactCharacter()}
       </div>
-  </div>);*/
-};
+  </div>)
+}
 
 Character.propTypes = {
-  //id: propTypes.number,
-  //url: propTypes.string,
+  key: PropTypes.number,
+  url: PropTypes.string,
   func: PropTypes.func,
 };
 
