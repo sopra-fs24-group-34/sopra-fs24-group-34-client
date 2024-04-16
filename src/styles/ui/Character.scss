@@ -14,6 +14,16 @@
       object-fit: cover;
     }
   }
+  
+  &.fold {
+    border-color: white;
+    border-radius: 0.75em;
+    background-color: beige;
+    width: 70%;
+    color: white;
+    @include center;
+    position: relative;
+  }
 
   &.overlay {
     position: absolute;

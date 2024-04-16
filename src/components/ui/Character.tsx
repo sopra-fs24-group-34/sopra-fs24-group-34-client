@@ -6,9 +6,10 @@ import { Button } from "components/ui/Button";
 
 // Each Character receives an id (idx in array) and an img (value in array)
 const Character = ({}) => {
-  const [hasPicked, setHasPicked] = useState<Boolean>(true);
+  //This (or another state) needs to be updated by the server to know that both users picked
+  const [hasPicked, setHasPicked] = useState<Boolean>(true); 
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
-  // This state can be eliminated, since "Character" receives an id
+  // This state depends, either we pass it as parameter or use it
   const [characterId, setCharacterId] = useState<number>(null);
 
   // Func to pick a character at the beginning
@@ -47,17 +48,7 @@ const Character = ({}) => {
 
   // Func to fold / unfold a character
   const foldCharacter = () => {
-    if (visibleCharacter) {
-      setvisibleCharacter(!visibleCharacter);
-      return <div className="character-fold">{interactCharacter()}</div>;
-    } else {
-      setvisibleCharacter(!visibleCharacter);
-      return (
-        <div className="character container">
-          <div className="character overlay">{interactCharacter()}</div>
-        </div>
-      );
-    }
+    setvisibleCharacter(!visibleCharacter);
   };
 
   // Func to guess a character
@@ -65,21 +56,18 @@ const Character = ({}) => {
     const response = await api.post(`/game/guess/${characterId}`); // LiamK21: something like that
   };
 
-  // Func that handles the complete functionality of the page
-  const handleCharacterButtonClick = () => {
-    if (!hasPicked) {
-      pickCharacter();
-    } else {
-      interactCharacter();
-    }
-  };
-
   return (
-    <div className="character container">
+    <div className={`character ${visibleCharacter ? 'container' : 'fold'}`}>
+      {visibleCharacter ? (
       <div className="character overlay">{interactCharacter()}</div>
+      ): (
+        <div className="character fold">{interactCharacter()}</div>
+      )}
+  
     </div>
   );
-  /* This is the actual return statement:
+  /* Here, interactCharacter might need a parameter id to work
+  This is the actual return statement:
   return (
   <div className="character container" key={id}>
     <img src={url}></img>
