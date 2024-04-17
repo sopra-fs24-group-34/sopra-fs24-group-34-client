@@ -5,7 +5,11 @@ import PropTypes from "prop-types";
 import { Button } from "components/ui/Button";
 
 // Each Character receives an id (idx in array) and an img (value in array)
+<<<<<<< Updated upstream
 const Character = ({key, url}) => {
+=======
+const Character = ({id, url}) => {
+>>>>>>> Stashed changes
   //This (or another state) needs to be updated by the server to know that both users picked
   const [hasPicked, setHasPicked] = useState<Boolean>(true); 
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
@@ -56,6 +60,7 @@ const Character = ({key, url}) => {
     const response = await api.post(`/game/guess/${characterId}`); // LiamK21: something like that
   };
 
+<<<<<<< Updated upstream
   // return (
   //   <div className={`character ${visibleCharacter ? 'container' : 'fold'}`}>
   //     {visibleCharacter ? (
@@ -77,9 +82,30 @@ const Character = ({key, url}) => {
       </div>
   </div>)
 }
+=======
+
+  // Here, interactCharacter might need a parameter id to work
+  //This is the actual return statement:
+  return (
+
+  <div className={`character ${visibleCharacter ? "container" : "fold"}`} key={id}>
+    <img className="character container img"src={url}></img>
+    {visibleCharacter ? (
+        <div className="character overlay">{interactCharacter()}</div>
+    ) : (
+        <div className="character fold">{interactCharacter()}</div>
+    )}
+  </div>);
+};
+>>>>>>> Stashed changes
+
 
 Character.propTypes = {
+<<<<<<< Updated upstream
   key: PropTypes.number,
+=======
+  id: PropTypes.number,
+>>>>>>> Stashed changes
   url: PropTypes.string,
   func: PropTypes.func,
 };
