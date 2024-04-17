@@ -112,9 +112,12 @@
   }
 }
 
-.button {
+.lobby.button {
   margin-top: 10px;
   color: white;
+  &.bottom {
+    margin-bottom: 10px;
+  } 
 }
 .input{
   flex:1;

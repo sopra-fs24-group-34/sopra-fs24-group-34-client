@@ -36,7 +36,7 @@ const LobbyPage = () => {
 
         const lobbiesResponse = await api.get("/lobbies/");
         console.log(lobbiesResponse);
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // nedim-j: Find the lobby with the desired ID in /lobbies
         // create proper endpoint
@@ -57,12 +57,12 @@ const LobbyPage = () => {
         // nedim-j: get profile names for creator and invited player
         const creatorResponse = await api.get(`/users/${lobby.creator_userid}`);
         const creatorUser = creatorResponse.data;
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         //nedim-j: find better solution for checking if one is the host
         if (parseInt(userId) === creatorUser.id) {
           setIsCreator(true);
         }
-        console.log("Is creator? ", isCreator);
 
         let invitedUser = null;
         if (lobby.invited_userid !== null) {
@@ -92,6 +92,17 @@ const LobbyPage = () => {
 
     fetchData();
   }, []);
+
+  /*
+  useEffect(() => {
+        //console.log("UserID: ", parseInt(userId), " - Creator ID: ", creatorUser.id);
+        async function waitss() {
+        await new Promise((resolve) => setTimeout(resolve, 700));
+        console.log("Is creator? ", isCreator);
+        }
+        waitss();
+        }, []);
+        */
 
   let players = <Spinner />;
 
@@ -142,13 +153,13 @@ const LobbyPage = () => {
   function renderActionButtons() {
     if (isCreator) {
       return (
-        <Button className="button" onClick={() => navigate("/game")}>
+        <Button className="lobby button" onClick={() => navigate("/game")}>
           Start Game
         </Button>
       );
     } else {
       return (
-        <Button className="button" onClick={() => handleReady()}>
+        <Button className="lobby button" onClick={() => handleReady()}>
           Ready
         </Button>
       );
@@ -172,7 +183,10 @@ const LobbyPage = () => {
                   onChange={(e) => e} //add function
                 />
                 {isCreator && (
-                  <Button className="button" onClick={() => navigate("/lobby")}>
+                  <Button
+                    className="lobby button"
+                    onClick={() => navigate("/lobby")}
+                  >
                     {/**add functionality */}
                     Reset settings
                   </Button>
@@ -191,8 +205,7 @@ const LobbyPage = () => {
               <div className="button-row">
                 {renderActionButtons()}
                 <Button
-                  className="button"
-                  style={{ marginBottom: "10px" }}
+                  className="lobby button bottom"
                   onClick={() => handleReturn()}
                 >
                   Return to Menu
