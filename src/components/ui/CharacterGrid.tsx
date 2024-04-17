@@ -10,57 +10,6 @@ const CharacterGrid = () => {
   const [hasPicked, setHasPicked] = useState<Boolean>(false);
   const [characterId, setCharacterId] = useState<number>(null);
 
-<<<<<<< Updated upstream
-  // Leave commented for designing purposes
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const response = await api.get(`/images/random`);
-        setCharacters(response.data);
-      } catch (error) {
-        alert(`Something went wrong fetching the characters: \n${handleError(error)}`);
-      }
-    };
-
-    fetchImages();
-  }, []); // Fetch data on component mount
-
-
-  // return (
-  //   //The "1" is replaced by the actual id/idx from below
-  //   <BaseContainer className="character-grid">
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //     <Character/>
-  //   </BaseContainer>
-  // );
-
-  return (
-    <BaseContainer className="character-grid">
-      {characters.map(([idx, url]) => ( 
-        <Character key={idx} url={url} />
-      ))}
-    </BaseContainer>
-  );
-};
-=======
 
   useEffect(() => {
       const fetchImages = async () => {
@@ -86,7 +35,7 @@ const CharacterGrid = () => {
 
 
     if (!characters) {
-        return <div>Loading...</div>; // or any other loading indicator
+        return <div>Loading...</div>;
     }
           return (
             <BaseContainer className="character-grid">
@@ -96,7 +45,5 @@ const CharacterGrid = () => {
             </BaseContainer>
           );
       };
-
->>>>>>> Stashed changes
 
 export default CharacterGrid;
