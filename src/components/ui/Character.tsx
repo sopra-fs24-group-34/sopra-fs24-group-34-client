@@ -58,6 +58,7 @@ const Character = ({}) => {
 
   return (
     <div className={`character ${visibleCharacter ? "container" : "fold"}`}>
+      <img className="character container img" src="https://www.anthropics.com/portraitpro/img/page-images/homepage/v22/what-can-it-do-2A.jpg"></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (

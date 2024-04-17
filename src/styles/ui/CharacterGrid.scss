@@ -4,19 +4,16 @@
 .character-grid {
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(4, 10fr);
-    grid-template-rows: repeat(5);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
     border-radius: $borderRadius;
     border-radius: 0.75em;
     background-color: transparentize(white, 0.2);
     transition: opacity 0.5s ease, transform 0.5s ease;
     box-shadow: $dropShadow;
     padding: 1em; 
-    width: 70%;
-    max-width: 60em;
-    height: 80%;
+    width: 60%;
+    height: 100%;
     font-size: 30px;
     font-weight: 300;
-    margin-left: 0;
-    margin-top: 1em; 
   }
