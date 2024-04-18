@@ -10,7 +10,7 @@ const CharacterGrid = () => {
   // useEffect(() => {
   //   const fetchImages = async () => {
   //     try {
-  //       const response = await api.get(`/images/random`);
+  //       const response = await api.get("/images/random");
   //       setCharacters(response.data);
   //     } catch (error) {
   //       alert(`Something went wrong fetching the characters: \n${handleError(error)}`);

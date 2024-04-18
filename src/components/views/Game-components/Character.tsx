@@ -16,7 +16,7 @@ const Character = ({}) => {
   const pickCharacter = async () => {
     try {
       setHasPicked(true);
-      await api.post(`/game/pick`, { characterId }); // LiamK21: change URI¨
+      await api.post("/game/pick", { characterId }); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -58,7 +58,10 @@ const Character = ({}) => {
 
   return (
     <div className={`character ${visibleCharacter ? "container" : "fold"}`}>
-      <img className="character container img" src="https://www.anthropics.com/portraitpro/img/page-images/homepage/v22/what-can-it-do-2A.jpg"></img>
+      <img
+        className="character container img"
+        src="https://www.anthropics.com/portraitpro/img/page-images/homepage/v22/what-can-it-do-2A.jpg"
+      ></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (

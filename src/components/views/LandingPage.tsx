@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {LoginLogo} from "../ui/LoginLogo";
-import {RegisterLogo} from "../ui/RegisterLogo";
+import { LoginLogo } from "../ui/LoginLogo";
+import { RegisterLogo } from "../ui/RegisterLogo";
 
 const FormField = (props) => {
   return (
@@ -35,10 +35,18 @@ const LandingPage = () => {
 
   const doJoinLobby = async () => {
     try {
-      // const requestBody = JSON.stringify({ lobbyCode });
-      // const response = await api.post("/something", requestBody); // must be defined
-      const requestBody = JSON.stringify({ lobbyCode }); // smailalijagic: I think this is not necessary
-      const response = await api.put(`/lobbies/join/${lobbyCode}`); // smailalijagic: must be put mapping because lobby is updated
+      const requestGuestBody = JSON.stringify({
+        username: "Guest",
+        password: "12345",
+      });
+      const responseGuest = await api.post(
+        `/guestuser/join/lobbies/${lobbyCode}/`,
+        requestGuestBody
+      );
+      const response = await api.put(
+        `/lobbies/join/${lobbyCode}`,
+        responseGuest.data
+      );
 
       // Store the token into the local storage.
       localStorage.setItem("token", response.data.token);
@@ -49,9 +57,7 @@ const LandingPage = () => {
       // navigate("/game"); // smailalijagic: this line is making problems with grid...
       navigate("/lobby"); // smailalijagic: added this line, guest first enters lobby than game
     } catch (error) {
-      alert(
-        `Something went wrong during the login: \n${handleError(error)}`
-      );
+      alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
   };
 
@@ -73,11 +79,7 @@ const LandingPage = () => {
             onChange={(code) => setLobbyCode(code)}
           />
           <div className="landingPage button-container">
-            <Button
-              disabled={!lobbyCode}
-              width="100%"
-              onClick={doJoinLobby}
-            >
+            <Button disabled={!lobbyCode} width="100%" onClick={doJoinLobby}>
               Join
             </Button>
           </div>
@@ -89,8 +91,10 @@ const LandingPage = () => {
               width="100%"
               onClick={doLogin}
             >
-              Sign-In  
-              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
+              Sign-In
+              <span style={{ marginLeft: "10px" }}>
+                <LoginLogo width="25px" height="25px" />
+              </span>
             </Button>
             <Button
               style={{ marginLeft: "10px" }}
@@ -98,10 +102,12 @@ const LandingPage = () => {
               onClick={doRegister}
             >
               Register
-              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
+              <span style={{ marginLeft: "10px" }}>
+                <RegisterLogo width="24px" height="24px" />
+              </span>
             </Button>
           </div>
-        </div>  
+        </div>
       </div>
     </BaseContainer>
   );
