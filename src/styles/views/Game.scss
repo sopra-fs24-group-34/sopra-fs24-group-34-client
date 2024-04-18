@@ -9,10 +9,11 @@
 
 .game {
   &.container {
-    min-height: 250px;
     background-color: transparent;
     display: flex;
-    align-items: flex-start;
-    height: 83vh;
+    justify-content: space-between;
+    align-items: center;
+    height: 80vh;
+    padding: 20px;
   }
 }
