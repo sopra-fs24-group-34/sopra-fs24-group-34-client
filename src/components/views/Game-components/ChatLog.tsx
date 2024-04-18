@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import { Button } from "components/ui/Button";
+import "../../../styles/views/Game-components/ChatLog.scss";
 import "../../styles/ui/ChatLog.scss";
 import PropTypes from "prop-types";
-import BaseContainer from "./BaseContainer";
+import BaseContainer from "../../ui/BaseContainer";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
-import "../../styles/ui/CharacterGrid.scss";
-import BaseContainer from "./BaseContainer";
-import { Button } from "components/ui/Button";
+import "../../../styles/views/Game-components/CharacterGrid.scss";
+import BaseContainer from "../../ui/BaseContainer";
 import Character from "./Character";
 
 const CharacterGrid = () => {
@@ -22,30 +20,29 @@ const CharacterGrid = () => {
   //   fetchImages();
   // }, []); // Fetch data on component mount
 
-
   return (
     //The "1" is replaced by the actual id/idx from below
     <BaseContainer className="character-grid">
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
-      <Character/>
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
+      <Character />
     </BaseContainer>
   );
 

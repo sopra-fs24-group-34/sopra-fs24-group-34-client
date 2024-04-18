@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../styles/ui/Character.scss";
+import "../../../styles/views/Game-components/Character.scss";
 import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
 import { Button } from "components/ui/Button";
