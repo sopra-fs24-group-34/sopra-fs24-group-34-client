@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import "../../../styles/views/Game-components/ChatLog.scss";
-import "../../styles/ui/ChatLog.scss";
+import "../../../styles/views/Game-components/ChatLog.scss"
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import PusherService from "./PusherService";
@@ -34,15 +33,19 @@ const ChatLog = () => {
   const pusherService = new PusherService();
 
   useEffect(() => {
-      pusherService.subscribeToChannel("chat_channel", "new_message", (response) => {
+    pusherService.subscribeToChannel(
+      "chat_channel",
+      "new_message",
+      (response) => {
         console.log("Received message:", response);
         setMessages(() => [...messages, response]);
-    }); 
-  
-      return () => {
-        pusherService.unsubscribeFromChannel("chat_channel");
-      };
-    }, []);
+      }
+    );
+
+    return () => {
+      pusherService.unsubscribeFromChannel("chat_channel");
+    };
+  }, []);
 
   // This should be the actual one
   // useEffect(() => {
@@ -50,7 +53,7 @@ const ChatLog = () => {
   //     console.log("Received message:", response);
   //     // setMessages(() => [...messages, response]);
   //     setMessages(response); // LiamK21: depends on what is received
-  // }); 
+  // });
 
   //   return () => {
   //     pusherService.unsubscribeFromChannel("chat");
@@ -61,7 +64,8 @@ const ChatLog = () => {
   const updateChat = async () => {
     try {
       await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
-        prompt}); // LiamK21: IDK if post/put; change URI
+        prompt,
+      }); // LiamK21: IDK if post/put; change URI
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
@@ -115,7 +119,6 @@ const ChatLog = () => {
       </div>
     );
   };
-
 
   return (
     <BaseContainer className="game-log">
