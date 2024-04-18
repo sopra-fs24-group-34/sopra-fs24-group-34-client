@@ -5,8 +5,8 @@ class PusherService {
 
   // constructor
   constructor() {
-    this.pusher = new Pusher('YOUR_PUSHER_APP_KEY', {
-      cluster: 'YOUR_PUSHER_CLUSTER',
+    this.pusher = new Pusher("19cbfeaeb11cb7adbda4", {
+      cluster: "eu",
     });
   }
 
