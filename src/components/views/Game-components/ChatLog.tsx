@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import { Button } from "components/ui/Button";
-import "../../styles/ui/ChatLog.scss";
+import "../../../styles/views/Game-components/ChatLog.scss"
 import PropTypes from "prop-types";
-import BaseContainer from "./BaseContainer";
+import BaseContainer from "../../ui/BaseContainer";
+import PusherService from "./PusherService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -30,6 +30,48 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
+  const pusherService = new PusherService();
+
+  useEffect(() => {
+    pusherService.subscribeToChannel(
+      "chat_channel",
+      "new_message",
+      (response) => {
+        console.log("Received message:", response);
+        setMessages(() => [...messages, response]);
+      }
+    );
+
+    return () => {
+      pusherService.unsubscribeFromChannel("chat_channel");
+    };
+  }, []);
+
+  // This should be the actual one
+  // useEffect(() => {
+  //   pusherService.subscribeToChannel(`GameChat${gameId}`, "new-message", (response) => {
+  //     console.log("Received message:", response);
+  //     // setMessages(() => [...messages, response]);
+  //     setMessages(response); // LiamK21: depends on what is received
+  // });
+
+  //   return () => {
+  //     pusherService.unsubscribeFromChannel("chat");
+  //   };
+  // }, []);
+
+  // Updates the game log (needs to be changed)
+  const updateChat = async () => {
+    try {
+      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
+        prompt,
+      }); // LiamK21: IDK if post/put; change URI
+    } catch (error) {
+      alert(
+        `Something went wrong fetching the game chat: \n${handleError(error)}`
+      );
+    }
+  };
 
   // Creates the question field as functional component
   const QField = () => {
@@ -77,22 +119,6 @@ const ChatLog = () => {
       </div>
     );
   };
-
-  // Updates the game log (always used after )
-  const updateChat = async () => {
-    try {
-      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
-        prompt,
-      }); // LiamK21: IDK if post/put; change URI
-      const response = await api.get(`/game/${1}/chat`);
-      setMessages(response.data);
-    } catch (error) {
-      alert(
-        `Something went wrong fetching the game chat: \n${handleError(error)}`
-      );
-    }
-  };
-  // function to display the current field; does not work
 
   return (
     <BaseContainer className="game-log">
