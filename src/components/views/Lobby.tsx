@@ -139,7 +139,7 @@ const LobbyPage = () => {
           user_invited: userInvited,
         });
         //console.log("REQUEST DELETE: ", requestDelete);
-        await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
+        //await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -180,7 +180,7 @@ const LobbyPage = () => {
           user_invited: userInvited,
         });
         //console.log("REQUEST START: ", requestStart);
-        await api.delete(`/lobbies/${lobbyId}/start`, requestStart);
+        //await api.delete(`/lobbies/${lobbyId}/start`, requestStart);
         //nedim-j: need to check if function in backend is correct.
         //maybe other endpoint better suited, maybe post "/lobbies/{lobbyId}/startgame"
         navigate("/game");
