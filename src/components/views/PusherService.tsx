@@ -1,4 +1,4 @@
-import Pusher, { Channel } from "pusher-js";
+import Pusher from "pusher-js";
 
 class PusherService {
   private pusher: Pusher;

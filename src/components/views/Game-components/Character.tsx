@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import PusherService from "./PusherService";
 
 // Each Character receives an id (idx in array) and an img (value in array)
-const Character = ({}) => {
+const Character = ({ id, url }) => {
   const [gameId, setGameId] = useState<Number>(null);
   //This (or another state) needs to be updated by the server to know that both users picked
   const [currentRound, setCurrentRound] = useState<String>("Pick");
@@ -16,11 +16,14 @@ const Character = ({}) => {
   const pusherService = new PusherService();
 
   useEffect(() => {
-    pusherService.subscribeToChannel(`gameRound${gameId}`, "round-update", (response: string) => {
-      console.log("Received information:", response);
-      setCurrentRound(response);
-      
-  }); // LiamK21: change function
+    pusherService.subscribeToChannel(
+      `gameRound${gameId}`,
+      "round-update",
+      (response: string) => {
+        console.log("Received information:", response);
+        setCurrentRound(response);
+      }
+    ); // LiamK21: change function
 
     return () => {
       pusherService.unsubscribeFromChannel("game");
@@ -30,7 +33,7 @@ const Character = ({}) => {
   const pickCharacter = async () => {
     try {
       //setCurrentRound(true);
-      await api.post(`/game/pick`, { characterId }); // LiamK21: change URI¨
+      await api.post("/game/pick", { characterId }); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -71,11 +74,11 @@ const Character = ({}) => {
   };
 
   return (
-    <div className={`character ${visibleCharacter ? "container" : "fold"}`}>
-      <img
-        className="character container img"
-        src="https://www.anthropics.com/portraitpro/img/page-images/homepage/v22/what-can-it-do-2A.jpg"
-      ></img>
+    <div
+      className={`character ${visibleCharacter ? "container" : "fold"}`}
+      key={id}
+    >
+      <img className="character container img" src={url}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (
@@ -83,20 +86,11 @@ const Character = ({}) => {
       )}
     </div>
   );
-  /* Here, interactCharacter might need a parameter id to work
-  This is the actual return statement:
-  return (
-  <div className="character container" key={id}>
-    <img src={url}></img>
-      <div className"character overlay">
-        {interactCharacter()}
-      </div>
-  </div>);*/
 };
 
 Character.propTypes = {
-  //id: propTypes.number,
-  //url: propTypes.string,
+  id: PropTypes.number,
+  url: PropTypes.string,
   func: PropTypes.func,
 };
 

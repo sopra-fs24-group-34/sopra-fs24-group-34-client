@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import "../../../styles/views/Game-components/ChatLog.scss"
+import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import PusherService from "./PusherService";
@@ -47,20 +47,6 @@ const ChatLog = () => {
     };
   }, []);
 
-  // This should be the actual one
-  // useEffect(() => {
-  //   pusherService.subscribeToChannel(`GameChat${gameId}`, "new-message", (response) => {
-  //     console.log("Received message:", response);
-  //     // setMessages(() => [...messages, response]);
-  //     setMessages(response); // LiamK21: depends on what is received
-  // });
-
-  //   return () => {
-  //     pusherService.unsubscribeFromChannel("chat");
-  //   };
-  // }, []);
-
-  // Updates the game log (needs to be changed)
   const updateChat = async () => {
     try {
       await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
