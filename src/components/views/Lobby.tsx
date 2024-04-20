@@ -7,26 +7,46 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User, Lobby } from "types";
+import PusherService from "./PusherService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    {/**nedim-j: add kick button? */}
   </div>
 );
 
 const LobbyPage = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("id");
-  const lobbyId = localStorage.getItem("lobbyId");
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [playersInLobby, setPlayers] = useState(null);
+  const pusherService = new PusherService();
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        //nedim-j: will get network errors at the moment
-        /*
+    const userId = localStorage.getItem("id");
+    const lobbyId = localStorage.getItem("lobbyId");
+
+    if (userId && lobbyId) {
+      fetchData(userId, lobbyId);
+      pusherService.subscribeToChannel(
+        "lobby-events",
+        "user-joined",
+        (data: any) => {
+          setUsers((prevUsers) => [...prevUsers, data]);
+        }
+      );
+      console.log("Users after subscription: ", users);
+    }
+
+    return () => {
+      pusherService.unsubscribeFromChannel("lobby-events");
+    };
+  }, []);
+
+  async function fetchData(userId, lobbyId) {
+    try {
+      //nedim-j: will get network errors at the moment
+      /*
         const settingsResponse = await api.get(`/lobbies/settings/${lobbyId}`);
         console.log(settingsResponse);
 
@@ -34,97 +54,92 @@ const LobbyPage = () => {
         console.log(friendsResponse);
         */
 
-        const lobbiesResponse = await api.get("/lobbies/");
-        console.log(lobbiesResponse);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      console.log("LobbyId: ", lobbyId);
+      const lobbyResponse = (await api.get(`/lobbies/${lobbyId}`)).data;
+      console.log("Lobby: ", lobbyResponse);
 
-        // nedim-j: Find the lobby with the desired ID in /lobbies
-        // create proper endpoint
-        const lobbiesArray: { id: number }[] = Object.values(
-          lobbiesResponse.data
-        );
-        console.log(lobbiesArray);
+      // nedim-j: get profile names for creator and invited player
+      const creatorResponse = await api.get(
+        `/users/${lobbyResponse.creator_userid}`
+      );
+      const creatorUser = creatorResponse.data;
+      console.log("Creator User: ", creatorResponse);
 
-        const lobbyIdAsNum = parseInt(lobbyId);
-        //nedim-j: problems, disappear when refreshing
-        const lobby = lobbiesArray.find(
-          (lobby) => lobby.id === lobbyIdAsNum
-        ) as Lobby;
-
-        console.log(lobbiesArray);
-        console.log(lobby);
-
-        // nedim-j: get profile names for creator and invited player
-        const creatorResponse = await api.get(`/users/${lobby.creator_userid}`);
-        const creatorUser = creatorResponse.data;
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        //nedim-j: find better solution for checking if one is the host
-        if (parseInt(userId) === creatorUser.id) {
-          setIsCreator(true);
-        }
-
-        let invitedUser = null;
-        if (lobby.invited_userid !== null) {
-          const invitedResponse = await api.get(
-            `/users/${lobby.invited_userid}`
-          );
-          invitedUser = invitedResponse.data;
-        }
-
-        const usersArray = [];
-        usersArray.push(creatorUser);
-        if (invitedUser !== null) {
-          usersArray.push(invitedUser);
-        }
-
-        setUsers(usersArray);
-      } catch (error) {
-        console.error(
-          `Something went wrong while fetching data: \n${handleError(error)}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while fetching data! See the console for details."
-        );
+      //nedim-j: find better solution for checking if one is the host
+      if (parseInt(userId) === creatorUser.id) {
+        setIsCreator(true);
       }
+
+      let invitedUser = null;
+      if (lobbyResponse.invited_userid !== null) {
+        const invitedResponse = await api.get(
+          `/users/${lobbyResponse.invited_userid}`
+        );
+        invitedUser = invitedResponse.data;
+      }
+
+      const initialUsers = [creatorUser];
+      if (invitedUser !== null) {
+        initialUsers.push(invitedUser);
+      }
+
+      setUsers(initialUsers);
+    } catch (error) {
+      console.error(
+        `Something went wrong while fetching data: \n${handleError(error)}`
+      );
+      console.error("Details:", error);
+      alert(
+        "Something went wrong while fetching data! See the console for details."
+      );
     }
-
-    fetchData();
-  }, []);
-
-  /*
-  useEffect(() => {
-        //console.log("UserID: ", parseInt(userId), " - Creator ID: ", creatorUser.id);
-        async function waitss() {
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        console.log("Is creator? ", isCreator);
-        }
-        waitss();
-        }, []);
-        */
-
-  let players = <Spinner />;
-
-  if (users) {
-    players = (
-      <ul className="players list">
-        {users.map((user: User) => (
-          <li key={user.id}>
-            <Player user={user} />
-          </li>
-        ))}
-      </ul>
-    );
   }
 
+  //Set players to render
+  useEffect(() => {
+    if (users !== null && users !== undefined) {
+      const playersComponent = (
+        <ul className="players list">
+          {users.map(
+            (user: User) =>
+              user &&
+              user.id !== undefined &&
+              user.username !== undefined && (
+                <li key={user.id}>
+                  <Player user={user} />
+                </li>
+              )
+          )}
+        </ul>
+      );
+      setPlayers(playersComponent);
+    }
+  }, [users]);
+
   function handleReturn() {
-    //setData("New Data");
-    //console.log(lobbyId);
+    pusherService.unsubscribeFromChannel("lobby-events");
+    const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
       try {
-        await api.delete(`/lobbies/${lobbyId}/start`); //nedim-j: make correct endpoint. seems to require a body atm
+        let userCreator = null;
+        let userInvited = null;
+
+        if (users && users.length > 0) {
+          userCreator = users[0];
+          if (users.length > 1) {
+            userInvited = users[1];
+          }
+        }
+
+        const requestDelete = JSON.stringify({
+          id: parseInt(lobbyId),
+          user_creator: userCreator,
+          user_invited: userInvited,
+        });
+        //console.log("REQUEST DELETE: ", requestDelete);
+        await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -146,6 +161,38 @@ const LobbyPage = () => {
     }
   }
 
+  function handleStart() {
+    const lobbyId = localStorage.getItem("lobbyId");
+    async function startGame() {
+      try {
+        let userCreator = null;
+        let userInvited = null;
+
+        if (users && users.length > 0) {
+          userCreator = users[0];
+          if (users.length > 1) {
+            userInvited = users[1];
+          }
+        }
+        const requestStart = JSON.stringify({
+          id: parseInt(lobbyId),
+          user_creator: userCreator,
+          user_invited: userInvited,
+        });
+        //console.log("REQUEST START: ", requestStart);
+        await api.delete(`/lobbies/${lobbyId}/start`, requestStart);
+        //nedim-j: need to check if function in backend is correct.
+        //maybe other endpoint better suited, maybe post "/lobbies/{lobbyId}/startgame"
+        navigate("/game");
+      } catch (error) {
+        console.error(
+          `Something went wrong while starting game: \n${handleError(error)}`
+        );
+      }
+    }
+    startGame();
+  }
+
   function handleReady() {
     /**nedim-j: implement */
   }
@@ -153,7 +200,7 @@ const LobbyPage = () => {
   function renderActionButtons() {
     if (isCreator) {
       return (
-        <Button className="lobby button" onClick={() => navigate("/game")}>
+        <Button className="lobby button" onClick={() => handleStart()}>
           Start Game
         </Button>
       );
@@ -198,10 +245,14 @@ const LobbyPage = () => {
             <BaseContainer className="main">
               <h2>Lobby ID:</h2>
               <BaseContainer className="code-container">
-                <div className="code">{lobbyId}</div>
+                <div className="code">
+                  {/*lobbyId*/ localStorage.getItem("lobbyId")}
+                </div>
               </BaseContainer>
               <h2>Players</h2>
-              <BaseContainer className="players">{players}</BaseContainer>
+              <BaseContainer className="players">
+                {playersInLobby}
+              </BaseContainer>
               <div className="button-row">
                 {renderActionButtons()}
                 <Button
