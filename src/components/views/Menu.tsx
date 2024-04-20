@@ -49,6 +49,8 @@ const Menu = () => {
         localStorage.setItem("lobbyId", response.data.lobbyid);
 
         console.log(response);
+
+        navigate("/lobby");
       } catch (error) {
         console.error(
           `Something went wrong while creating the lobby: \n${handleError(
@@ -63,8 +65,6 @@ const Menu = () => {
     }
 
     makeRequest();
-
-    navigate("/lobby");
   };
 
   return (
@@ -111,7 +111,7 @@ const Menu = () => {
               password: "",
               status: "",
               totalwins: 0,
-              totalplayed:0
+              totalplayed: 0,
             }}
           />
         )}

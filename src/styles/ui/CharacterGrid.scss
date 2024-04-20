@@ -1,0 +1,19 @@
+@import "../../theme";
+
+
+.character-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    border-radius: $borderRadius;
+    border-radius: 0.75em;
+    background-color: transparentize(white, 0.2);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    box-shadow: $dropShadow;
+    padding: 1em; 
+    width: 60%;
+    height: 100%;
+    font-size: 30px;
+    font-weight: 300;
+  }

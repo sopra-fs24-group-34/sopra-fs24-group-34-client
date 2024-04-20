@@ -1,17 +1,23 @@
-import Pusher, { Channel } from 'pusher-js';
+import Pusher, { Channel } from "pusher-js";
 
 class PusherService {
   private pusher: Pusher;
 
   // constructor
   constructor() {
-    this.pusher = new Pusher("19cbfeaeb11cb7adbda4", {
+    Pusher.logToConsole = true;
+    //nedim-j: e499792fd10f53102f20
+    this.pusher = new Pusher("key", {
       cluster: "eu",
     });
   }
 
   // subscribes to a channel and binds a function to an event
-  subscribeToChannel(channelName: string, eventName: string, methhod: Function) {
+  subscribeToChannel(
+    channelName: string,
+    eventName: string,
+    methhod: Function
+  ) {
     const channel = this.pusher.subscribe(channelName);
     channel.bind(eventName, methhod);
   }
