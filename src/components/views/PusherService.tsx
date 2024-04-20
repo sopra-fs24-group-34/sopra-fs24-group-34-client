@@ -7,7 +7,7 @@ class PusherService {
   constructor() {
     Pusher.logToConsole = true;
     //nedim-j: e499792fd10f53102f20
-    this.pusher = new Pusher("key", {
+    this.pusher = new Pusher("19cbfeaeb11cb7adbda4", {
       cluster: "eu",
     });
   }
