@@ -17,31 +17,33 @@ const Player = ({ user }: { user: User }) => (
 
 const LobbyPage = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("id");
-  const lobbyId = localStorage.getItem("lobbyId");
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [playersInLobby, setPlayers] = useState(null);
   const pusherService = new PusherService();
 
   useEffect(() => {
-    pusherService.subscribeToChannel(
-      "lobby-events",
-      "user-joined",
-      (data: any) => {
-        setUsers((prevUsers) => [...prevUsers, data]);
-      }
-    );
-    console.log("Users after subscription: ", users);
+    const userId = localStorage.getItem("id");
+    const lobbyId = localStorage.getItem("lobbyId");
 
-    fetchData();
+    if (userId && lobbyId) {
+      fetchData(userId, lobbyId);
+      pusherService.subscribeToChannel(
+        "lobby-events",
+        "user-joined",
+        (data: any) => {
+          setUsers((prevUsers) => [...prevUsers, data]);
+        }
+      );
+      console.log("Users after subscription: ", users);
+    }
 
     return () => {
       pusherService.unsubscribeFromChannel("lobby-events");
     };
   }, []);
 
-  async function fetchData() {
+  async function fetchData(userId, lobbyId) {
     try {
       //nedim-j: will get network errors at the moment
       /*
@@ -52,6 +54,7 @@ const LobbyPage = () => {
         console.log(friendsResponse);
         */
 
+      await new Promise((resolve) => setTimeout(resolve, 200));
       console.log("LobbyId: ", lobbyId);
       const lobbyResponse = (await api.get(`/lobbies/${lobbyId}`)).data;
       console.log("Lobby: ", lobbyResponse);
@@ -61,7 +64,7 @@ const LobbyPage = () => {
         `/users/${lobbyResponse.creator_userid}`
       );
       const creatorUser = creatorResponse.data;
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log("Creator User: ", creatorResponse);
 
       //nedim-j: find better solution for checking if one is the host
       if (parseInt(userId) === creatorUser.id) {
@@ -116,6 +119,7 @@ const LobbyPage = () => {
 
   function handleReturn() {
     pusherService.unsubscribeFromChannel("lobby-events");
+    const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
       try {
@@ -158,6 +162,7 @@ const LobbyPage = () => {
   }
 
   function handleStart() {
+    const lobbyId = localStorage.getItem("lobbyId");
     async function startGame() {
       try {
         let userCreator = null;
@@ -240,7 +245,9 @@ const LobbyPage = () => {
             <BaseContainer className="main">
               <h2>Lobby ID:</h2>
               <BaseContainer className="code-container">
-                <div className="code">{lobbyId}</div>
+                <div className="code">
+                  {/*lobbyId*/ localStorage.getItem("lobbyId")}
+                </div>
               </BaseContainer>
               <h2>Players</h2>
               <BaseContainer className="players">
