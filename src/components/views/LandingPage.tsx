@@ -35,6 +35,8 @@ const LandingPage = () => {
 
   const doJoinLobby = async () => {
     try {
+
+      //nedim-j: 3 api calls needed, could be simplified
       const requestGuestBody = JSON.stringify({
         username: "Guest",
         password: "12345",
@@ -43,9 +45,12 @@ const LandingPage = () => {
         `/guestuser/join/lobbies/${lobbyCode}/`,
         requestGuestBody
       );
+      console.log("ResponseGuest: ", responseGuest.data);
+      const responseUsers = await api.get(`/users/${responseGuest.data.id}`);
+      console.log("ResponseUsers: ", responseUsers.data);
       const response = await api.put(
         `/lobbies/join/${lobbyCode}`,
-        responseGuest.data
+        responseUsers.data
       );
 
       // Store the token into the local storage.

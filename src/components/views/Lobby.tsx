@@ -7,6 +7,7 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User, Lobby } from "types";
+import PusherService from "./PusherService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -21,12 +22,34 @@ const LobbyPage = () => {
   const lobbyId = localStorage.getItem("lobbyId");
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [playersInLobby, setPlayers] = useState(null);
+
+  const pusherService = new PusherService(); // Initialize PusherService
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        //nedim-j: will get network errors at the moment
-        /*
+    // Subscribe to lobby channel and listen for user join events
+    pusherService.subscribeToChannel(
+      "lobby-events",
+      "user-joined",
+      (data: any) => {
+        // Update users array with the newly joined user
+        setUsers((prevUsers) => [...prevUsers, data]);
+      }
+    );
+    console.log("Users after subscription: ", users);
+
+    fetchData(); // Fetch initial lobby data
+
+    // Clean up subscription on unmount
+    return () => {
+      pusherService.unsubscribeFromChannel("lobby-events");
+    };
+  }, []);
+
+  async function fetchData() {
+    try {
+      //nedim-j: will get network errors at the moment
+      /*
         const settingsResponse = await api.get(`/lobbies/settings/${lobbyId}`);
         console.log(settingsResponse);
 
@@ -34,93 +57,70 @@ const LobbyPage = () => {
         console.log(friendsResponse);
         */
 
-        const lobbiesResponse = await api.get("/lobbies/");
-        console.log(lobbiesResponse);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log("LobbyId: ", lobbyId);
+      const lobbyResponse = (await api.get(`/lobbies/${lobbyId}`)).data;
+      console.log("Lobby: ", lobbyResponse);
 
-        // nedim-j: Find the lobby with the desired ID in /lobbies
-        // create proper endpoint
-        const lobbiesArray: { id: number }[] = Object.values(
-          lobbiesResponse.data
-        );
-        console.log(lobbiesArray);
+      // nedim-j: get profile names for creator and invited player
+      const creatorResponse = await api.get(
+        `/users/${lobbyResponse.creator_userid}`
+      );
+      const creatorUser = creatorResponse.data;
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-        const lobbyIdAsNum = parseInt(lobbyId);
-        //nedim-j: problems, disappear when refreshing
-        const lobby = lobbiesArray.find(
-          (lobby) => lobby.id === lobbyIdAsNum
-        ) as Lobby;
-
-        console.log(lobbiesArray);
-        console.log(lobby);
-
-        // nedim-j: get profile names for creator and invited player
-        const creatorResponse = await api.get(`/users/${lobby.creator_userid}`);
-        const creatorUser = creatorResponse.data;
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        //nedim-j: find better solution for checking if one is the host
-        if (parseInt(userId) === creatorUser.id) {
-          setIsCreator(true);
-        }
-
-        let invitedUser = null;
-        if (lobby.invited_userid !== null) {
-          const invitedResponse = await api.get(
-            `/users/${lobby.invited_userid}`
-          );
-          invitedUser = invitedResponse.data;
-        }
-
-        const usersArray = [];
-        usersArray.push(creatorUser);
-        if (invitedUser !== null) {
-          usersArray.push(invitedUser);
-        }
-
-        setUsers(usersArray);
-      } catch (error) {
-        console.error(
-          `Something went wrong while fetching data: \n${handleError(error)}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while fetching data! See the console for details."
-        );
+      //nedim-j: find better solution for checking if one is the host
+      if (parseInt(userId) === creatorUser.id) {
+        setIsCreator(true);
       }
+
+      let invitedUser = null;
+      if (lobbyResponse.invited_userid !== null) {
+        const invitedResponse = await api.get(
+          `/users/${lobbyResponse.invited_userid}`
+        );
+        invitedUser = invitedResponse.data;
+      }
+
+      const initialUsers = [creatorUser];
+      if (invitedUser !== null) {
+        initialUsers.push(invitedUser);
+      }
+
+      setUsers(initialUsers);
+    } catch (error) {
+      console.error(
+        `Something went wrong while fetching data: \n${handleError(error)}`
+      );
+      console.error("Details:", error);
+      alert(
+        "Something went wrong while fetching data! See the console for details."
+      );
     }
-
-    fetchData();
-  }, []);
-
-  /*
-  useEffect(() => {
-        //console.log("UserID: ", parseInt(userId), " - Creator ID: ", creatorUser.id);
-        async function waitss() {
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        console.log("Is creator? ", isCreator);
-        }
-        waitss();
-        }, []);
-        */
-
-  let players = <Spinner />;
-
-  if (users) {
-    players = (
-      <ul className="players list">
-        {users.map((user: User) => (
-          <li key={user.id}>
-            <Player user={user} />
-          </li>
-        ))}
-      </ul>
-    );
   }
 
+  //Set players to render
+  useEffect(() => {
+    if (users !== null && users !== undefined) {
+      const playersComponent = (
+        <ul className="players list">
+          {users.map(
+            (user: User) =>
+              user &&
+              user.id !== undefined &&
+              user.username !== undefined && (
+                <li key={user.id}>
+                  <Player user={user} />
+                </li>
+              )
+          )}
+        </ul>
+      );
+      setPlayers(playersComponent);
+    }
+  }, [users]);
+
   function handleReturn() {
-    //setData("New Data");
-    //console.log(lobbyId);
+    pusherService.unsubscribeFromChannel("lobby-events");
 
     async function closeLobby() {
       try {
@@ -201,7 +201,9 @@ const LobbyPage = () => {
                 <div className="code">{lobbyId}</div>
               </BaseContainer>
               <h2>Players</h2>
-              <BaseContainer className="players">{players}</BaseContainer>
+              <BaseContainer className="players">
+                {playersInLobby}
+              </BaseContainer>
               <div className="button-row">
                 {renderActionButtons()}
                 <Button

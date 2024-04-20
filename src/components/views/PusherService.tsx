@@ -5,7 +5,8 @@ class PusherService {
 
   // constructor
   constructor() {
-    this.pusher = new Pusher("a80f75b2d4e6f1aa786a", {
+    Pusher.logToConsole = true;
+    this.pusher = new Pusher("e499792fd10f53102f20", {
       cluster: "eu",
     });
   }
