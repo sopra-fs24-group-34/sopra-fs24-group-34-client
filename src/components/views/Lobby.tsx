@@ -12,7 +12,6 @@ import PusherService from "./PusherService";
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    {/**nedim-j: add kick button? */}
   </div>
 );
 
@@ -23,24 +22,20 @@ const LobbyPage = () => {
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [playersInLobby, setPlayers] = useState(null);
-
-  const pusherService = new PusherService(); // Initialize PusherService
+  const pusherService = new PusherService();
 
   useEffect(() => {
-    // Subscribe to lobby channel and listen for user join events
     pusherService.subscribeToChannel(
       "lobby-events",
       "user-joined",
       (data: any) => {
-        // Update users array with the newly joined user
         setUsers((prevUsers) => [...prevUsers, data]);
       }
     );
     console.log("Users after subscription: ", users);
 
-    fetchData(); // Fetch initial lobby data
+    fetchData();
 
-    // Clean up subscription on unmount
     return () => {
       pusherService.unsubscribeFromChannel("lobby-events");
     };
@@ -124,7 +119,23 @@ const LobbyPage = () => {
 
     async function closeLobby() {
       try {
-        await api.delete(`/lobbies/${lobbyId}/start`); //nedim-j: make correct endpoint. seems to require a body atm
+        let userCreator = null;
+        let userInvited = null;
+
+        if (users && users.length > 0) {
+          userCreator = users[0];
+          if (users.length > 1) {
+            userInvited = users[1];
+          }
+        }
+
+        const requestDelete = JSON.stringify({
+          id: parseInt(lobbyId),
+          user_creator: userCreator,
+          user_invited: userInvited,
+        });
+        //console.log("REQUEST DELETE: ", requestDelete);
+        await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -146,6 +157,37 @@ const LobbyPage = () => {
     }
   }
 
+  function handleStart() {
+    async function startGame() {
+      try {
+        let userCreator = null;
+        let userInvited = null;
+
+        if (users && users.length > 0) {
+          userCreator = users[0];
+          if (users.length > 1) {
+            userInvited = users[1];
+          }
+        }
+        const requestStart = JSON.stringify({
+          id: parseInt(lobbyId),
+          user_creator: userCreator,
+          user_invited: userInvited,
+        });
+        //console.log("REQUEST START: ", requestStart);
+        await api.delete(`/lobbies/${lobbyId}/start`, requestStart);
+        //nedim-j: need to check if function in backend is correct.
+        //maybe other endpoint better suited, maybe post "/lobbies/{lobbyId}/startgame"
+        navigate("/game");
+      } catch (error) {
+        console.error(
+          `Something went wrong while starting game: \n${handleError(error)}`
+        );
+      }
+    }
+    startGame();
+  }
+
   function handleReady() {
     /**nedim-j: implement */
   }
@@ -153,7 +195,7 @@ const LobbyPage = () => {
   function renderActionButtons() {
     if (isCreator) {
       return (
-        <Button className="lobby button" onClick={() => navigate("/game")}>
+        <Button className="lobby button" onClick={() => handleStart()}>
           Start Game
         </Button>
       );
