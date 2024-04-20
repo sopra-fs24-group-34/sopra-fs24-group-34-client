@@ -3,7 +3,7 @@ import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import PusherService from "./PusherService";
+import PusherService from "../PusherService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
