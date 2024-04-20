@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../../styles/views/Game-components/Character.scss";
 import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
-import PusherService from "./PusherService";
+import PusherService from "../PusherService";
 
 // Each Character receives an id (idx in array) and an img (value in array)
 const Character = ({ id, url }) => {
