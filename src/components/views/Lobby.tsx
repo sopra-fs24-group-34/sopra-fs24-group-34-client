@@ -20,6 +20,7 @@ const LobbyPage = () => {
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [playersInLobby, setPlayers] = useState(null);
+  const [showExplanation, setShowExplanation] = useState(false);
   const pusherService = new PusherService();
 
   useEffect(() => {
@@ -244,6 +245,12 @@ const LobbyPage = () => {
                     Reset settings
                   </Button>
                 )}
+                <Button
+                    className="lobby button"
+                    onClick={() => setShowExplanation(true)}
+                >
+                  View Explaination
+                </Button>
               </div>
             </BaseContainer>
           </li>
@@ -287,6 +294,24 @@ const LobbyPage = () => {
           </li>
         </ul>
       </BaseContainer>
+      {showExplanation && (
+          <div className="popup-overlay">
+            <div className="popup">
+            <span className="close" onClick={() => setShowExplanation(false)}>
+              &times;
+            </span>
+              <h2>How the game works:</h2>
+              <p> &apos;Who is?&apos; is a turn based 1 vs 1 game, where each player tries to find out, which character
+                their opponent has chosen in the first round.
+                To narrow down the possibilities each player can ask one yes or no question per round.
+                <div className="empty-line"></div>
+                If you think a character isn&apos;t the searched character you can fold it to have an better overview.
+                If you think a character is the searched character you can make a guess, but careful you have a limited amount of guesses/strikes.
+
+              </p>
+            </div>
+          </div>
+      )}
     </BaseContainer>
   );
 };
