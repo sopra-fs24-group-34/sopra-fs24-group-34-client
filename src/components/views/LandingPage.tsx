@@ -35,32 +35,25 @@ const LandingPage = () => {
 
   const doJoinLobby = async () => {
     try {
-
-      //nedim-j: 3 api calls needed, could be simplified
       const requestGuestBody = JSON.stringify({
         username: "Guest",
         password: "12345",
       });
-      const responseGuest = await api.post(
-        `/guestuser/join/lobbies/${lobbyCode}/`,
+
+      const responseCreateGuest = await api.post(
+        "/guestuser/create",
         requestGuestBody
       );
-      console.log("ResponseGuest: ", responseGuest.data);
-      const responseUsers = await api.get(`/users/${responseGuest.data.id}`);
-      console.log("ResponseUsers: ", responseUsers.data);
-      const response = await api.put(
-        `/lobbies/join/${lobbyCode}`,
-        responseUsers.data
+      
+      await api.put(
+        `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
       );
 
-      // Store the token into the local storage.
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("id", response.data.id);
+      localStorage.setItem("token", responseCreateGuest.data.token);
+      localStorage.setItem("id", responseCreateGuest.data.id);
       localStorage.setItem("lobbyId", lobbyCode);
 
-      // Login successfully worked --> navigate to the route /game in the GameRouter
-      // navigate("/game"); // smailalijagic: this line is making problems with grid...
-      navigate("/lobby"); // smailalijagic: added this line, guest first enters lobby than game
+      navigate("/lobby");
     } catch (error) {
       alert(`Something went wrong during the login: \n${handleError(error)}`);
     }

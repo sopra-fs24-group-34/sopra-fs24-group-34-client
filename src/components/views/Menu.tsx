@@ -43,10 +43,10 @@ const Menu = () => {
     async function makeRequest() {
       try {
         const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend
-
+        
         await new Promise((resolve) => setTimeout(resolve, 200));
 
-        localStorage.setItem("lobbyId", response.data.lobbyid);
+        localStorage.setItem("lobbyId", response.data);
 
         console.log(response);
 
