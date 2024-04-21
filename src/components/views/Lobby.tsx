@@ -23,7 +23,7 @@ const LobbyPage = () => {
   const pusherService = new PusherService();
 
   useEffect(() => {
-    const userId = localStorage.getItem("id");
+    const userId = localStorage.getItem("userId");
     const lobbyId = localStorage.getItem("lobbyId");
 
     if (userId && lobbyId) {

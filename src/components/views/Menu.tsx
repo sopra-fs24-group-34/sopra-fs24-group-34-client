@@ -33,13 +33,13 @@ const Menu = () => {
   };
 
   const logout = (): void => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("id");
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userId");
     navigate("/landingPage");
   };
 
   const createLobby = (): void => {
-    const userId = localStorage.getItem("id");
+    const userId = localStorage.getItem("userId");
     async function makeRequest() {
       try {
         const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend

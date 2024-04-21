@@ -49,8 +49,8 @@ const LandingPage = () => {
         `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
       );
 
-      localStorage.setItem("token", responseCreateGuest.data.token);
-      localStorage.setItem("id", responseCreateGuest.data.id);
+      localStorage.setItem("userToken", responseCreateGuest.data.token);
+      localStorage.setItem("userId", responseCreateGuest.data.id);
       localStorage.setItem("lobbyId", lobbyCode);
 
       navigate("/lobby");
