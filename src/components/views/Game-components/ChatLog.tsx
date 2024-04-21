@@ -26,7 +26,8 @@ QuestionField.propTypes = {
 };
 
 const ChatLog = () => {
-  const [gameId, setGameId] = useState<number>(null);
+  const gameId = localStorage.getItem("gameId");
+  const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
@@ -49,7 +50,7 @@ const ChatLog = () => {
 
   const updateChat = async () => {
     try {
-      await api.post(`/game/${gameId}/chat/${localStorage.getItem("id")}`, {
+      await api.post(`/game/${gameId}/chat/${userId}`, {
         prompt,
       }); // LiamK21: IDK if post/put; change URI
     } catch (error) {
