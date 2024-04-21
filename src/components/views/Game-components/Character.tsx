@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useNavigate} from "react-router-dom";
 import "../../../styles/views/Game-components/Character.scss";
 import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
@@ -6,24 +7,29 @@ import PusherService from "../PusherService";
 
 // Each Character receives an id (idx in array) and an img (value in array)
 const Character = ({ id, url }) => {
-  const [gameId, setGameId] = useState<Number>(null);
+  const navigate = useNavigate();
+  const gameId = localStorage.getItem("gameId");
+  const userId = localStorage.getItem("userId");
   //This (or another state) needs to be updated by the server to know that both users picked
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
 
   // This state depends, either we pass it as parameter or use it
-  const [characterId, setCharacterId] = useState<number>(null);
+  const characterId = id;
   const pusherService = new PusherService();
 
   useEffect(() => {
     pusherService.subscribeToChannel(
       `gameRound${gameId}`,
       "round-update",
-      (response: string) => {
+      (response) => {
         console.log("Received information:", response);
         setCurrentRound(response);
+        if (currentRound === "Game-end") {
+          navigate("endscreen")
+        }
       }
-    ); // LiamK21: change function
+    ); 
 
     return () => {
       pusherService.unsubscribeFromChannel("game");
@@ -32,8 +38,8 @@ const Character = ({ id, url }) => {
   // Func to pick a character at the beginning
   const pickCharacter = async () => {
     try {
-      //setCurrentRound(true);
-      await api.post("/game/pick", { characterId }); // LiamK21: change URI¨
+      const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
+      await api.post("/game/character/choose", send ); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -70,7 +76,12 @@ const Character = ({ id, url }) => {
 
   // Func to guess a character
   const guessCharacter = async () => {
-    const response = await api.post(`/game/guess/${characterId}`); // LiamK21: something like that
+    const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
+    const response = await api.post("/game/character/guess", send);
+    if (response.data) {
+      setCurrentRound("Game-ended")
+    }
+
   };
 
   return (
