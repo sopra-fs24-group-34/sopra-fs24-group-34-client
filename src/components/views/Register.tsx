@@ -40,7 +40,7 @@ const Register = () => {
       const response = await api.post("/register", requestBody);
 
       // Store the token into the local storage.
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userToken", response.data.token);
       localStorage.setItem("userId", response.data.id);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter

@@ -4,12 +4,12 @@ import PropTypes from "prop-types";
 
 export const LobbyGuard = () => {
   
-  if (localStorage.getItem("token")) {  // nedim-j: implement checking for lobby token as well
+  if (localStorage.getItem("userToken")) {  // nedim-j: implement checking for lobby token as well
         
     return <Outlet />;
   }
   
-  return <Navigate to="/login" replace />;
+  return <Navigate to="/landingPage" replace />;
   
 };
 
