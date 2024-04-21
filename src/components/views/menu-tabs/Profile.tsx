@@ -8,8 +8,8 @@ import { User } from "types";
 
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
-  const userToken = localStorage.getItem("token");
-  const userId = localStorage.getItem("id");
+  const userToken = localStorage.getItem("userToken");
+  const userId = localStorage.getItem("userId");
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUsername, setEditedUsername] = useState(user.username);

@@ -23,7 +23,7 @@ const LobbyPage = () => {
   const pusherService = new PusherService();
 
   useEffect(() => {
-    const userId = localStorage.getItem("id");
+    const userId = localStorage.getItem("userId");
     const lobbyId = localStorage.getItem("lobbyId");
 
     if (userId && lobbyId) {
@@ -35,7 +35,20 @@ const LobbyPage = () => {
           setUsers((prevUsers) => [...prevUsers, data]);
         }
       );
-      console.log("Users after subscription: ", users);
+
+
+      pusherService.subscribeToChannel(
+        "lobby-events",
+        "game-started",
+        (data: any) => {
+          // Check if current user is not the host
+          if (parseInt(userId) !== data.creatorUserId) {
+            localStorage.setItem("gameId", data.gameId);
+            localStorage.setItem("playerId", data.invitedPlayerId);
+            navigate("/game"); // Redirect to game page
+          }
+        }
+      );
     }
 
     return () => {
@@ -165,25 +178,18 @@ const LobbyPage = () => {
     const lobbyId = localStorage.getItem("lobbyId");
     async function startGame() {
       try {
-        let userCreator = null;
-        let userInvited = null;
+        //nedim-j: add ready status to if clause
+        if (users && users.length === 2) {
+          const lobby = await api.get(`/lobbies/${lobbyId}/`);
+          console.log("REQUEST LOBBY: ", lobby);
+          //nedim-j: perhaps add authentification when trying to start game
+          const response = await api.post(`/game/${lobbyId}/start`, lobby);
+          localStorage.setItem("gameId", response.data.gameId);
+          localStorage.setItem("playerId", response.data.creatorId);
+          console.log("RESPONSE GAME: ", response);
 
-        if (users && users.length > 0) {
-          userCreator = users[0];
-          if (users.length > 1) {
-            userInvited = users[1];
-          }
+          navigate("/game");
         }
-        const requestStart = JSON.stringify({
-          id: parseInt(lobbyId),
-          user_creator: userCreator,
-          user_invited: userInvited,
-        });
-        //console.log("REQUEST START: ", requestStart);
-        //await api.delete(`/lobbies/${lobbyId}/start`, requestStart);
-        //nedim-j: need to check if function in backend is correct.
-        //maybe other endpoint better suited, maybe post "/lobbies/{lobbyId}/startgame"
-        navigate("/game");
       } catch (error) {
         console.error(
           `Something went wrong while starting game: \n${handleError(error)}`
