@@ -249,7 +249,7 @@ const LobbyPage = () => {
                     className="lobby button"
                     onClick={() => setShowExplanation(true)}
                 >
-                  View Explaination
+                  View Game Explaination
                 </Button>
               </div>
             </BaseContainer>
