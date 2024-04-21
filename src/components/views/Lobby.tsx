@@ -43,6 +43,8 @@ const LobbyPage = () => {
         (data: any) => {
           // Check if current user is not the host
           if (parseInt(userId) !== data.creatorUserId) {
+            localStorage.setItem("gameId", data.gameId);
+            localStorage.setItem("playerId", data.invitedPlayerId);
             navigate("/game"); // Redirect to game page
           }
         }
@@ -179,8 +181,11 @@ const LobbyPage = () => {
         //nedim-j: add ready status to if clause
         if (users && users.length === 2) {
           const lobby = await api.get(`/lobbies/${lobbyId}/`);
+          console.log("REQUEST LOBBY: ", lobby);
           //nedim-j: perhaps add authentification when trying to start game
           const response = await api.post(`/game/${lobbyId}/start`, lobby);
+          localStorage.setItem("gameId", response.data.gameId);
+          localStorage.setItem("playerId", response.data.creatorId);
           console.log("RESPONSE GAME: ", response);
 
           navigate("/game");
