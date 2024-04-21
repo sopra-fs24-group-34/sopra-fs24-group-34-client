@@ -14,7 +14,7 @@ const TestGrid = ({ persons }) => {
 
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
-    persons.map(() => true)
+    persons.map((person) => true)
   );
   const pusherService = new PusherService();
 
@@ -43,7 +43,7 @@ const TestGrid = ({ persons }) => {
         playerid: userId,
         imageid: characterId,
       });
-      await api.post("/game/character/choose", send); // LiamK21: change URI¨
+      await api.put("/game/character/choose", send); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -94,7 +94,7 @@ const TestGrid = ({ persons }) => {
 };
 
 TestGrid.propTypes = {
-    persons: PropTypes.array
-  };
+  persons: PropTypes.array,
+};
 
 export default TestGrid;

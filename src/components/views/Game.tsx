@@ -8,7 +8,7 @@ import "styles/views/Game.scss";
 import TestGrid from "./Game-components/testGrid";
 
 const Game = () => {
-  const [characters, setCharacters] = useState<string[]>(null);
+  const [characters, setCharacters] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -37,7 +37,6 @@ const Game = () => {
     <BaseContainer className="game container">
       {console.log(characters)}
       <TestGrid persons={characters} />
-      <CharacterGrid />
       <ChatLog />
     </BaseContainer>
   );
