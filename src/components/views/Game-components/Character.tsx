@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../../../styles/views/Game-components/Character.scss";
 import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
@@ -26,10 +26,10 @@ const Character = ({ id, url }) => {
         console.log("Received information:", response);
         setCurrentRound(response);
         if (currentRound === "Game-end") {
-          navigate("endscreen")
+          navigate("endscreen");
         }
       }
-    ); 
+    );
 
     return () => {
       pusherService.unsubscribeFromChannel("game");
@@ -38,8 +38,12 @@ const Character = ({ id, url }) => {
   // Func to pick a character at the beginning
   const pickCharacter = async () => {
     try {
-      const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
-      await api.post("/game/character/choose", send ); // LiamK21: change URI¨
+      const send = JSON.stringify({
+        gameid: gameId,
+        playerid: userId,
+        imageid: characterId,
+      });
+      await api.post("/game/character/choose", send); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -76,12 +80,15 @@ const Character = ({ id, url }) => {
 
   // Func to guess a character
   const guessCharacter = async () => {
-    const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
+    const send = JSON.stringify({
+      gameid: gameId,
+      playerid: userId,
+      imageid: characterId,
+    });
     const response = await api.post("/game/character/guess", send);
     if (response.data) {
-      setCurrentRound("Game-ended")
+      setCurrentRound("Game-ended");
     }
-
   };
 
   return (

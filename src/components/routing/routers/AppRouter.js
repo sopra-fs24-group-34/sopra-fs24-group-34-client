@@ -11,6 +11,7 @@ import { LobbyGuard } from "../routeProtectors/LobbyGuard";
 import LobbyRouter from "./LobbyRouter";
 import Game from "../../views/Game";
 import { GameGuard } from "../routeProtectors/GameGuard";
+import Endscreen from "../../views/Endscreen";
 
 /**
  * Main router of your application.
@@ -36,6 +37,8 @@ const AppRouter = () => {
         </Route>
 
         <Route path="/landingPage" element={<LandingPage />}></Route>
+
+        <Route path="/endscreen" element={<Endscreen />}></Route>
 
         <Route path="/lobby/*" element={<LobbyGuard />}>
           <Route path="/lobby/*" element={<LobbyRouter base="/lobby" />} />
