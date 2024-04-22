@@ -9,7 +9,7 @@ import LandingPage from "../../views/LandingPage";
 import Register from "../../views/Register";
 import { LobbyGuard } from "../routeProtectors/LobbyGuard";
 import LobbyRouter from "./LobbyRouter";
-import Game from "../../views/Game";
+import GameRouter from "./GameRouter";
 import { GameGuard } from "../routeProtectors/GameGuard";
 
 /**
@@ -25,7 +25,9 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/game" element={<Game />}></Route>
+      <Route path="/game/" element={<GameGuard />}>
+          <Route path="/game/" element={<GameRouter base="/game" />} />
+        </Route>
 
         <Route path="/menu/" element={<MenuGuard />}>
           <Route path="/menu/" element={<MenuRouter base="/menu" />} />
