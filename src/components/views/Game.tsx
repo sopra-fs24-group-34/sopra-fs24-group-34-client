@@ -7,6 +7,7 @@ import ChatLog from "./Game-components/ChatLog"; // import for later usage
 import "styles/views/Game.scss";
 
 const Game = () => {
+  console.log("PLAYER ID: ", localStorage.getItem("playerId"));
   
   return (
     <BaseContainer className="game container">

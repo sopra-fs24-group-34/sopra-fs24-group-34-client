@@ -44,7 +44,7 @@ const LobbyPage = () => {
           // Check if current user is not the host
           if (parseInt(userId) !== data.creatorUserId) {
             localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", data.invitedPlayerId);
+            localStorage.setItem("playerId", userId);
             navigate("/game"); // Redirect to game page
           }
         }
@@ -112,6 +112,8 @@ const LobbyPage = () => {
   //Set players to render
   useEffect(() => {
     if (users !== null && users !== undefined) {
+      console.log("USEEEEEEERS: ", users);
+      localStorage.setItem("users", JSON.stringify(users));
       const playersComponent = (
         <ul className="players list">
           {users.map(
