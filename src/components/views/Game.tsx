@@ -9,6 +9,7 @@ import TestGrid from "./Game-components/testGrid";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
+  const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -33,14 +34,65 @@ const Game = () => {
     fetchImages();
   }, []); // Fetch data on component mount
 
+  // function to display an overlay which should replace a character
+  const ReplaceCharacter = (idx, id) => {
+    return (
+      <div className="character overlay">
+        <button
+          className="character-button"
+          onClick={() => RemoveCharacter(idx, id)}
+        >
+          Replace
+        </button>
+      </div>
+    );
+  };
+
+  // function to remove and set a new character at that place
+  // No idea if this is correct (might need a reload)
+  const RemoveCharacter = async (idx, id) => {
+    const response = await api.delete(`images/${id}`);
+    setCharacters((prevCharacters) => {
+      const newCharacters = [...prevCharacters];
+      newCharacters[idx] = response.data;
+
+      return newCharacters;
+    });
+  };
+
+  // while loop to display grid before the actual game to delete faulty characters
   return (
     <BaseContainer className="game container">
-      {console.log(characters)}
-      <TestGrid persons={characters} />
-      <ChatLog />
+      {hasAccepted ? (
+        <>
+          <TestGrid persons={characters} />
+          <ChatLog />
+        </>
+      ) : (
+        <>
+          <div className="character-grid">
+            {characters.map((character, idx) => (
+              <div className="character container" key={character.id}>
+                <img
+                  className="character container img"
+                  src={character.url}
+                ></img>
+                <div className="character overlay">
+                  {ReplaceCharacter(idx, character.id)}
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            className="accept-character-button"
+            onClick={() => setHasAccepted(true)}
+          >
+            Accept characters
+          </button>
+        </>
+      )}
     </BaseContainer>
   );
-
 };
 
 export default Game;
