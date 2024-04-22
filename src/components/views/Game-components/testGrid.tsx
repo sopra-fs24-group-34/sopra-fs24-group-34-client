@@ -55,6 +55,7 @@ const TestGrid = ({ persons }) => {
       const newVisibleCharacters = [...prevVisibleCharacters];
       newVisibleCharacters[characterIndex] =
         !newVisibleCharacters[characterIndex];
+        
       return newVisibleCharacters;
     });
   };
