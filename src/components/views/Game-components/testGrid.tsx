@@ -43,7 +43,7 @@ const TestGrid = ({ persons }) => {
         playerid: userId,
         imageid: characterId,
       });
-      await api.put("/game/character/choose", send); // LiamK21: change URI¨
+      await api.put("/game/character/choose", send); 
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
