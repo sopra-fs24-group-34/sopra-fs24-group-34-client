@@ -9,13 +9,13 @@ import PusherService from "../PusherService";
 const Character = ({ id, url }) => {
   const navigate = useNavigate();
   const gameId = localStorage.getItem("gameId");
-  const userId = localStorage.getItem("userId");
+  const playerId = localStorage.getItem("playerId");
   //This (or another state) needs to be updated by the server to know that both users picked
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
 
   // This state depends, either we pass it as parameter or use it
-  const characterId = id;
+  const imageId = id;
   const pusherService = new PusherService();
 
   useEffect(() => {
@@ -38,8 +38,8 @@ const Character = ({ id, url }) => {
   // Func to pick a character at the beginning
   const pickCharacter = async () => {
     try {
-      const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
-      await api.post("/game/character/choose", send ); // LiamK21: change URI¨
+      const send = JSON.stringify({ gameId,  playerId, imageId})
+      await api.put("/game/character/choose", {gameId, playerId, imageId} ); // LiamK21: change URI¨
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -76,8 +76,8 @@ const Character = ({ id, url }) => {
 
   // Func to guess a character
   const guessCharacter = async () => {
-    const send = JSON.stringify({"gameid": gameId, "playerid": userId, "imageid": characterId})
-    const response = await api.post("/game/character/guess", send);
+    const send = JSON.stringify({gameId, playerId, imageId})
+    const response = await api.post("/game/character/guess", {gameId, playerId, imageId});
     if (response.data) {
       setCurrentRound("Game-ended")
     }
