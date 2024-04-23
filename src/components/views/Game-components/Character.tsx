@@ -8,14 +8,14 @@ import PusherService from "../PusherService";
 // Each Character receives an id (idx in array) and an img (value in array)
 const Character = ({ id, url }) => {
   const navigate = useNavigate();
-  const gameId = localStorage.getItem("gameId");
-  const playerId = localStorage.getItem("playerId");
+  const gameId = Number(localStorage.getItem("gameId"));
+  const playerId = Number(localStorage.getItem("playerId"))
   //This (or another state) needs to be updated by the server to know that both users picked
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
 
   // This state depends, either we pass it as parameter or use it
-  const imageId = id;
+  const imageId = Number(id);
   const pusherService = new PusherService();
 
   useEffect(() => {
