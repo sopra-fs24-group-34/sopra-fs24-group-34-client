@@ -9,8 +9,8 @@ import PusherService from "../PusherService";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
-  const gameId = localStorage.getItem("gameId");
-  const userId = localStorage.getItem("playerId");
+  const gameId = Number(localStorage.getItem("gameId"));
+  const userId = Number(localStorage.getItem("playerId"));
 
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
@@ -19,23 +19,23 @@ const CharacterGrid = ({ persons }) => {
   const pusherService = new PusherService();
 
   // Leave commented out for the moment
-  // useEffect(() => {
-  //   pusherService.subscribeToChannel(
-  //     `gameRound${gameId}`,
-  //     "round-update",
-  //     (response) => {
-  //       console.log("Received information:", response);
-  //       setCurrentRound(response);
-  //       if (currentRound === "Game-end") {
-  //         navigate("endscreen");
-  //       }
-  //     }
-  //   );
+   useEffect(() => {
+     pusherService.subscribeToChannel(
+       `gameRound${gameId}`,
+       "round-update",
+       (response) => {
+         console.log("Received information:", response);
+         setCurrentRound(response);
+         if (currentRound === "Game-end") {
+           navigate("endscreen");
+         }
+       }
+     );
 
-  //   return () => {
-  //     pusherService.unsubscribeFromChannel("game");
-  //   };
-  // }, []);
+     return () => {
+       pusherService.unsubscribeFromChannel("game");
+     };
+   }, []);
 
   const pickCharacter = async (characterId) => {
     try {
@@ -43,8 +43,10 @@ const CharacterGrid = ({ persons }) => {
       const send = JSON.stringify({
         gameid: gameId,
         playerid: userId,
-        imageid: characterId,
+        imageid: characterId
       });
+      setCurrentRound("Guess");
+      console.log("PICKCHARACTER:", send);
       await api.put("/game/character/choose", send); 
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
@@ -67,7 +69,7 @@ const CharacterGrid = ({ persons }) => {
     const send = JSON.stringify({
       gameid: gameId,
       playerid: userId,
-      imageid: characterId,
+      imageid: characterId
     });
     const response = await api.post("/game/character/guess", send);
     if (response.data) {
