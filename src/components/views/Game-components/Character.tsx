@@ -2,8 +2,8 @@ import React from "react";
 import "../../../styles/views/Game-components/Character.scss";
 import PropTypes from "prop-types";
 
-// Each Character receives an id (idx in array) and an img (value in array)
-const TestCharacter = ({
+// Each Character receives a character object together with functionality
+const Character = ({
   character,
   visibleCharacter,
   pickCharacter,
@@ -12,6 +12,7 @@ const TestCharacter = ({
   currentRound
 }) => {
 
+  // functionality to display an overlay on top of character 
   const interactCharacter = () => {
     if (currentRound === "Pick") {
       return (
@@ -50,7 +51,7 @@ const TestCharacter = ({
   );
 };
 
-TestCharacter.propTypes = {
+Character.propTypes = {
   character: PropTypes.obj,
   visibleCharacter: PropTypes.Func,
   pickCharacter: PropTypes.Func,
@@ -59,4 +60,4 @@ TestCharacter.propTypes = {
   currentRound: PropTypes.String
 };
 
-export default TestCharacter;
+export default Character;
