@@ -44,7 +44,7 @@ const LobbyPage = () => {
           // Check if current user is not the host
           if (parseInt(userId) !== data.creatorUserId) {
             localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", data.invitedPlayerId);
+            localStorage.setItem("playerId", userId);
             navigate("/game"); // Redirect to game page
           }
         }
@@ -82,6 +82,10 @@ const LobbyPage = () => {
       //nedim-j: find better solution for checking if one is the host
       if (parseInt(userId) === creatorUser.id) {
         setIsCreator(true);
+        localStorage.setItem("isCreator", JSON.stringify(true));
+      }
+      else{
+        localStorage.setItem("isCreator", JSON.stringify(false));
       }
 
       let invitedUser = null;
@@ -112,6 +116,8 @@ const LobbyPage = () => {
   //Set players to render
   useEffect(() => {
     if (users !== null && users !== undefined) {
+      console.log("USEEEEEEERS: ", users);
+      localStorage.setItem("users", JSON.stringify(users));
       const playersComponent = (
         <ul className="players list">
           {users.map(
