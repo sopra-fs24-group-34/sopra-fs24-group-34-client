@@ -3,7 +3,7 @@ import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import PusherService from "../PusherService";
+import usePusherClient from "./PusherClient";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -31,22 +31,21 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const pusherService = new PusherService();
+  const pusherClient = usePusherClient();
 
   useEffect(() => {
-    pusherService.subscribeToChannel(
-      "chat_channel",
-      "new_message",
-      (response) => {
-        console.log("Received message:", response);
-        setMessages(() => [...messages, response]);
-      }
-    );
+    const channel = pusherClient.subscribe("chat_channel");
+
+    channel.bind("new_message", (response) => {
+      console.log("Received message:", response);
+      setMessages((prevMessages) => [...prevMessages, response]);
+    });
 
     return () => {
-      pusherService.unsubscribeFromChannel("chat_channel");
+      channel.unbind("new_message");
+      channel.unsubscribe();
     };
-  }, []);
+  }, [pusherClient]);
 
   const updateChat = async () => {
     try {
