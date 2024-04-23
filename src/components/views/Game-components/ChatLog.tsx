@@ -39,7 +39,7 @@ const ChatLog = () => {
       "new_message",
       (response) => {
         console.log("Received message:", response);
-        setMessages(() => [...messages, response]);
+        setMessages((prevMessages) => [...prevMessages, response]);
       }
     );
 
