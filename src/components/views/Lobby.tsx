@@ -82,7 +82,9 @@ const LobbyPage = () => {
       //nedim-j: find better solution for checking if one is the host
       if (parseInt(userId) === creatorUser.id) {
         setIsCreator(true);
+        localStorage.setItem("isCreator", JSON.stringify(true));
       }
+      localStorage.setItem("isCreator", isCreator);
 
       let invitedUser = null;
       if (lobbyResponse.invited_userid !== null) {

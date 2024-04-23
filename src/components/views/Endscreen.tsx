@@ -9,10 +9,10 @@ import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
 
-const Player = ({ user }: { user: User }) => (
+const Player = ({ user, result }: { user: User; result: string }) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    <div className="player id">id: {user.id}</div>
+    <div className="player result">{result}</div>
   </div>
 );
 
@@ -24,17 +24,24 @@ const Endscreen = () => {
   // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
-  const [result, setResult] = useState(null);
+  const [gameResult, setGameResult] = useState<string>("won");
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchUserData() {
       try {
+        const creator = localStorage.getItem("isCreator");
+        setIsCreator(JSON.parse(creator));
+
         const usersString = localStorage.getItem("users");
         if (usersString) {
           const usersArray: User[] = JSON.parse(usersString);
           setUsers(usersArray);
         }
-        setResult("You won");
+
+        //nedim-j: need pusher & api call to determine who really won
+        const randomResult = Math.random() < 0.5 ? "won" : "lost";
+        setGameResult(randomResult);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -92,7 +99,7 @@ const Endscreen = () => {
         <ul className="user-list">
           {users.map((user: User) => (
             <li key={user.id}>
-              <Player user={user} />
+              <Player user={user} result={gameResult} />
             </li>
           ))}
         </ul>
@@ -100,10 +107,11 @@ const Endscreen = () => {
     );
   }
 
-  const logout = (): void => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userTd");
-    navigate("/landingPage");
+  const handleBack = (): void => {
+    localStorage.removeItem("lobbyId");
+    //localStorage.removeItem("userTd");
+    //nedim-j: add api call
+    navigate("/menu");
   };
 
   function handleRegister() {
@@ -113,21 +121,31 @@ const Endscreen = () => {
   return (
     <BaseContainer className="endscreen container">
       <header>
-        <h1>{result}</h1>
+        <h1>You {gameResult}</h1>
       </header>
       <BaseContainer className="players">{players}</BaseContainer>
       <div className="buttonlist">
         <ul>
           <li>
-            <Button className="buttons" onClick={() => handleRegister()}>
-              Register
+            {!isCreator && (
+              <Button className="buttons" onClick={() => handleRegister()}>
+                Register
+                <span style={{ marginLeft: "10px" }}>
+                  <LogoutLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            )}
+          </li>
+          <li>
+            <Button className="buttons" onClick={() => navigate("/lobby")}>
+              Back to Lobby
               <span style={{ marginLeft: "10px" }}>
                 <LogoutLogo width="25px" height="25px" />
               </span>
             </Button>
           </li>
           <li>
-            <Button className="buttons" onClick={() => logout()}>
+            <Button className="buttons" onClick={() => handleBack()}>
               Return to Menu
               <span style={{ marginLeft: "10px" }}>
                 <LogoutLogo width="25px" height="25px" />
