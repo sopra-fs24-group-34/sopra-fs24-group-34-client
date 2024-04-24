@@ -25,7 +25,8 @@ const CharacterGrid = ({ persons }) => {
       "round-update",
       (response) => {
         console.log("Received information:", response);
-        setCurrentRound(response);
+        //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
+        //setCurrentRound(response);
         if (currentRound === "Game-end") {
           navigate("endscreen");
         }
