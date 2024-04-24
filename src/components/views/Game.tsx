@@ -8,18 +8,15 @@ import "styles/views/Game.scss";
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
+  const gameId = localStorage.getItem(gameId)
 
   // useEffect to fetch images from DB
   useEffect(() => {
     const fetchImages = async () => {
-      try {
-        await api.post("/images/saving");
-        await api.post("/images/saving");
-        const response = await api.get("/images", {
-          params: {
-            count: 20, // Pass the count parameter to fetch 20 images
-          },
-        });
+      try{
+
+        await api.post(`/games/${gameId}/images`);
+        const response = await api.get(`/games/${gameId}/images`);
         setCharacters(response.data);
       } catch (error) {
         alert(
@@ -49,15 +46,26 @@ const Game = () => {
 
   // function to remove and set a new character at that place
   // No idea if this is correct (might need a reload)
-  const RemoveCharacter = async (idx, id) => {
-    const response = await api.delete(`images/${id}`);
-    setCharacters((prevCharacters) => {
+  const RemoveCharacter = async (idx, imageId) => {
+    try {
+      const response = await api.delete(`/games/${gameId}/images/${imageId}`);
+
+      setCharacters((prevCharacters) => {
       const newCharacters = [...prevCharacters];
       newCharacters[idx] = response.data;
 
       return newCharacters;
     });
-  };
+      }
+    catch (error) {
+      alert(
+          `Something went wrong removing the characters: \n${handleError(
+              error
+          )}`
+      );
+    }
+  }
+
 
   // Returns either the grid to potentially replace characters or the actual game
   return (
