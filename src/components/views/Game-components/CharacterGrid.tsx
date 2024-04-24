@@ -10,7 +10,7 @@ import PusherService from "../PusherService";
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
-  const userId = Number(localStorage.getItem("playerId"));
+  const playerId = Number(localStorage.getItem("playerId"));
 
   const [currentRound, setCurrentRound] = useState<String>("Pick");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
@@ -25,12 +25,17 @@ const CharacterGrid = ({ persons }) => {
     pusherService.subscribeToChannel(
       `gameRound${gameId}`,
       "round-update",
-      (response) => {
-        console.log("Received information:", response);
+      (data) => {
+        console.log("Received information:", data);
         //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
         //setCurrentRound(response);
-        if (currentRound === "Game-end") {
-          navigate("endscreen");
+        if (data.guess === true) {
+          if(data.playerId === playerId) {
+            localStorage.setItem("result", "won");
+          } else {
+            localStorage.setItem("result", "lost");
+          }
+          navigate("/endscreen");
         }
       }
     );
@@ -50,13 +55,13 @@ const CharacterGrid = ({ persons }) => {
         "GAMEID",
         gameId,
         "USERID",
-        userId,
+        playerId,
         "CHARACTERID",
         characterId
       );
       const send = JSON.stringify({
         gameid: gameId,
-        playerid: userId,
+        playerid: playerId,
         imageid: characterId,
       });
       setCurrentRound("Guess");
@@ -82,7 +87,7 @@ const CharacterGrid = ({ persons }) => {
   const guessCharacter = async (characterId) => {
     const send = JSON.stringify({
       gameid: gameId,
-      playerid: userId,
+      playerid: playerId,
       imageid: characterId,
     });
     const response = await api.post("/game/character/guess", send);

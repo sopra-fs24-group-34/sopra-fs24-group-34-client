@@ -9,15 +9,27 @@ import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
 
-const Player = ({ user, result }: { user: User; result: string }) => (
+const Player = ({
+  user,
+  result,
+  isCurrentUser,
+}: {
+  user: User;
+  result: string;
+  isCurrentUser: boolean;
+}) => (
   <div className="player container">
     <div className="player username">{user.username}</div>
-    <div className="player result">{result}</div>
+    <div className="player result">
+      {isCurrentUser ? result : result === "won" ? "lost" : "won"}
+    </div>
   </div>
 );
 
 Player.propTypes = {
   user: PropTypes.object,
+  result: PropTypes.string.isRequired,
+  isCurrentUser: PropTypes.bool.isRequired,
 };
 
 const Endscreen = () => {
@@ -39,9 +51,7 @@ const Endscreen = () => {
           setUsers(usersArray);
         }
 
-        //nedim-j: need pusher & api call to determine who really won
-        const randomResult = Math.random() < 0.5 ? "won" : "lost";
-        setGameResult(randomResult);
+        setGameResult(localStorage.getItem("result"));
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -99,7 +109,14 @@ const Endscreen = () => {
         <ul className="user-list">
           {users.map((user: User) => (
             <li key={user.id}>
-              <Player user={user} result={gameResult} />
+              {/* Passed isCurrentUser prop to the Player component */}
+              <Player
+                user={user}
+                result={gameResult}
+                isCurrentUser={
+                  user.id === Number(localStorage.getItem("userId"))
+                }
+              />
             </li>
           ))}
         </ul>
@@ -124,7 +141,7 @@ const Endscreen = () => {
 
   function handleToLobby() {
     localStorage.removeItem("gameId");
-    navigate("/lobby")
+    navigate("/lobby");
   }
 
   return (
