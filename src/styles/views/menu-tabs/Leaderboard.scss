@@ -20,6 +20,7 @@
     //height: 200px;
   }
   &.user-list {
+    font-family: $fontNormal;
     list-style: none;
     display: flex; // Added to make the list items flex containers
     justify-content: space-around; // Added to evenly distribute items horizontally
