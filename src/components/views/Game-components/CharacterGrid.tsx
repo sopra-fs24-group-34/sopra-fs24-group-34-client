@@ -16,6 +16,8 @@ const CharacterGrid = ({ persons }) => {
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
+  const [showModal, setShowModal] = useState<Boolean>(false);
+
   const pusherService = new PusherService();
 
   // Leave commented out for the moment
@@ -38,9 +40,20 @@ const CharacterGrid = ({ persons }) => {
     };
   }, []);
 
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
+
   const pickCharacter = async (characterId) => {
     try {
-      console.log("GAMEID", gameId, "USERID", userId, "CHARACTERID", characterId);
+      console.log(
+        "GAMEID",
+        gameId,
+        "USERID",
+        userId,
+        "CHARACTERID",
+        characterId
+      );
       const send = JSON.stringify({
         gameid: gameId,
         playerid: userId,
@@ -96,6 +109,25 @@ const CharacterGrid = ({ persons }) => {
           guessCharacter={() => guessCharacter(character.id)}
         />
       ))}
+      <div
+        className={`modal-overlay ${showModal ? "show" : ""}`}
+        onClick={() => toggleModal()}
+      >
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Current Instructions</h2>
+            <span className="close-btn" onClick={() => toggleModal()}>
+              &times;
+            </span>
+          </div>
+          <div className="modal-body">
+            {/* Your modal content */}
+            <p>
+              This is the modal content. What happens if i extend this thing 
+            </p>
+          </div>
+        </div>
+      </div>
     </BaseContainer>
   );
 };
