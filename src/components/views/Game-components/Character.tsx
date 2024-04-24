@@ -9,10 +9,9 @@ const Character = ({
   pickCharacter,
   foldCharacter,
   guessCharacter,
-  currentRound
+  currentRound,
 }) => {
-
-  // functionality to display an overlay on top of character 
+  // functionality to display an overlay on top of character
   const interactCharacter = () => {
     if (currentRound === "Pick") {
       return (
@@ -37,15 +36,12 @@ const Character = ({
   };
 
   return (
-    <div
-      className={`character ${visibleCharacter ? "container" : "fold"}`}
-      key={character.id}
-    >
+    <div className={"character container"} key={character.id}>
       <img className="character container img" src={character.url}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (
-        <div className="character fold">{interactCharacter()}</div>
+        <div className="character container fold">{interactCharacter()}</div>
       )}
     </div>
   );
@@ -57,7 +53,7 @@ Character.propTypes = {
   pickCharacter: PropTypes.Func,
   foldCharacter: PropTypes.Func,
   guessCharacter: PropTypes.Func,
-  currentRound: PropTypes.String
+  currentRound: PropTypes.String,
 };
 
 export default Character;

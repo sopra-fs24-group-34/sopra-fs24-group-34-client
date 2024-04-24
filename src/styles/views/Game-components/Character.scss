@@ -9,7 +9,6 @@
     position: relative;
     width: 75%;
     height: 100%; // Set the height to 0 initially
-    
 
     &.img {
       position: absolute;
@@ -19,20 +18,22 @@
       height: 100%;
       object-fit: cover;
     }
-  }
 
-  &.fold {
-    border-color: white;
-    border-radius: 0.75em;
-    background-color: purple;
-    width: inherit;
-    @include center;
-    align-items: center;
-    position: relative;
-    width: 75%;
-    height: 100%;
+    &.fold {
+      border-color: white;
+      border-radius: 0.75em;
+      background-color: burlywood;
+      @include center;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
-  
   &.overlay {
     position: absolute;
     top: 0;
