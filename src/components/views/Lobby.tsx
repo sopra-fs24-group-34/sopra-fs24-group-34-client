@@ -42,9 +42,11 @@ const LobbyPage = () => {
         "game-started",
         (data: any) => {
           // Check if current user is not the host
-          if (parseInt(userId) !== data.creatorUserId) {
+          const pId = localStorage.getItem("playerId");
+          if (pId && parseInt(pId) !== data.creatorId) {
+            console.log("PUSHER GAME DATA: ", data);
             localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", userId);
+            localStorage.setItem("playerId", data.invitedplayerId);
             navigate("/game"); // Redirect to game page
           }
         }
