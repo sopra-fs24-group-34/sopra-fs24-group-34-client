@@ -3,7 +3,7 @@ import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import PusherService from "../PusherService";
+import usePusherClient from "./PusherClient";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -31,28 +31,31 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const pusherService = new PusherService();
+  const pusherClient = usePusherClient();
 
   useEffect(() => {
-    pusherService.subscribeToChannel(
-      "chat_channel",
-      "new_message",
-      (response) => {
-        console.log("Received message:", response);
-        setMessages(() => [...messages, response]);
-      }
-    );
+    const channel = pusherClient.subscribe("chat_channel");
+
+    channel.bind("new_message", (response) => {
+      console.log("Received message:", response);
+      setMessages((prevMessages) => [...prevMessages, response]);
+    });
 
     return () => {
-      pusherService.unsubscribeFromChannel("chat_channel");
+      channel.unbind("new_message");
+      channel.unsubscribe();
     };
-  }, []);
+  }, [pusherClient]);
 
   const updateChat = async () => {
     try {
-      await api.post(`/game/${gameId}/chat/${userId}`, {
-        prompt,
-      }); // LiamK21: IDK if post/put; change URI
+      const request = JSON.stringify(prompt);
+      
+      console.log("MESSAGE: ", prompt);
+      console.log("REQUEST: ", request);
+      await api.post(`/game/${gameId}/chat/${userId}`, 
+        request
+      ); // LiamK21: IDK if post/put; change URI
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`

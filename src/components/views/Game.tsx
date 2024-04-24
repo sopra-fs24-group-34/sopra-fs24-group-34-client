@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
-import CharacterGrid from "./Game-components/CharacterGrid"; // import for later usage
-import ChatLog from "./Game-components/ChatLog"; // import for later usage
+import CharacterGrid from "./Game-components/CharacterGrid"; 
+import ChatLog from "./Game-components/ChatLog"; 
 import "styles/views/Game.scss";
-import TestGrid from "./Game-components/testGrid";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
 
+  // useEffect to fetch images from DB
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -32,7 +31,7 @@ const Game = () => {
     };
 
     fetchImages();
-  }, []); // Fetch data on component mount
+  }, []); 
 
   // function to display an overlay which should replace a character
   const ReplaceCharacter = (idx, id) => {
@@ -60,13 +59,13 @@ const Game = () => {
     });
   };
 
-  // while loop to display grid before the actual game to delete faulty characters
+  // Returns either the grid to potentially replace characters or the actual game
   return (
     <BaseContainer className="game container">
       {hasAccepted ? (
         <>
-          <TestGrid persons={characters} />
-          <ChatLog />
+          <CharacterGrid persons={characters} />
+          <ChatLog/>
         </>
       ) : (
         <>
