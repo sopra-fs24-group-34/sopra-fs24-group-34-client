@@ -16,12 +16,22 @@
     flex-direction: column;
     align-items: center;
     box-shadow: $dropShadow;
-    width: 50%;
+    width: 100%;
     //height: 200px;
   }
   &.user-list {
+    font-family: $fontNormal;
     list-style: none;
-    padding-left: 0;
+    display: flex; // Added to make the list items flex containers
+    justify-content: space-around; // Added to evenly distribute items horizontally
+    flex-direction: column;
+    width: 100%;
+  }
+  .sorting {
+    width: 100%; // Added to ensure the sorting buttons span the whole width
+    display: flex; // Added to make the buttons flex containers
+    justify-content: space-around; // Adjusted to evenly distribute buttons
+    margin-bottom: 1em; // Added some margin at the bottom for separation
   }
   &.user-item {
     display: flex;
@@ -36,25 +46,28 @@
 
 .player {
   &.container {
-    margin: 0.5em 0;
-    width: 20em;
+    //margin: 0.5em 0;
+    //width: calc(25% - 1em);
     padding: 10px;
     border-radius: $borderRadius;
     display: flex;
     align-items: center;
     background: lighten($background, 5);
-  }
-  &.name {
-    font-weight: 300;
-    margin-left: 5px;
+    flex:1;
+    flex-direction: row;
+    justify-content:space-between;
+    width: 100%;
+    color: $textColor;
+
   }
   &.username {
     font-weight: 500;
     color: $accent;
+    width: 50%;
   }
-  &.id {
-    margin-left: auto;
-    margin-right: 10px;
-    font-weight: 300;
-  }
+
+}
+.sorting {
+  display:flex;
+  flex-direction: row;
 }

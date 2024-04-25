@@ -19,7 +19,7 @@ const Friends = () => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState<User[]>(null);
-  const userId = localStorage.getItem("id");
+  const userId = localStorage.getItem("userId");
     
   useEffect(() => {
         

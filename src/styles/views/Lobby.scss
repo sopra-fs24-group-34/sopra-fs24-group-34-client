@@ -33,75 +33,137 @@
   }
   .buttonbar {
     display: flex;
-    //flex-direction: row;
     width: 100%;
   }
-  &.navbar {
-    //background-color: #333;
-    background: lighten($background, 5%);
-    width: 100%;
-    margin: 1.5em;
-    border-radius: $borderRadius;
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      color: white;
-      li {
-        flex: 1;
-        position: relative;
-        
-        &:not(:last-child) {
-          border-right: 1px solid #ccc; // Add a border-right to all items except the last one
-        }
-        &.active {
-          //color: blue; //doesn't seem to do anything rn
-          font-weight: bold;
-        }
-
-        a {
-          display: block;
-          text-decoration: none;
-          text-align: center;
-          font-size: larger;
-          color: white;
-
-          // nedim-j: doesn't work rn
-          //color: #ccc; /* Default color for inactive tabs */
-          //transition: color 0.3s ease;
-          //&:hover { 
-          //  color: #ff0000;
-          //}
-          
-        }
-        
-      }
-    }
-  }
-  
 }
+
 .view {
   background: lighten($background, 5%);
   padding: 0;
   border-radius: $borderRadius;
   width: 100%;
 
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    color: white;
+    li {
+      flex: 1;
+      position: relative;
+      //width: 33%;
+      
+      &:not(:last-child) {
+        border-right: 1px solid #ccc; // Add a border-right to all items except the last one
+      }
+    }
   }
 
-.player {
-  &.container {
-    margin: 0.5em 0;
-    width: 20em;
-    padding: 10px;
-    border-radius: $borderRadius;
-    display: flex;
-    align-items: center;
-    background: lighten($background, 5);
+  .settings {
+    display:flex;
+    flex-direction:column;
   }
-  &.username {
-    font-weight: 500;
-    color: $accent;
+
+  .main {
+    .code-container {
+      height: 2em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+      display: flex;
+      justify-self: center;
+    }
+    .code {
+      margin: auto;
+      max-width: $DESKTOP_WIDTH;
+      color: $textColor;
+      text-align: center;
+    }
+    .players {
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+      flex-direction: column;
+      li {
+        margin: 10px;
+        border-right: none;
+      }
+    }
+    .button-row {
+      display:flex;
+      flex-direction:column;
+    }
   }
- 
+
+  .friends-container {
+    .friends {
+      height: 6em;
+      background: lighten($background, 100%);
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+    }
+    .username-adder {
+
+    }
+  }
+}
+
+.lobby.button {
+  margin-top: 10px;
+  color: white;
+  &.bottom {
+    margin-bottom: 10px;
+  } 
+}
+.input{
+  flex:1;
+  border-radius: 0.75em;
+}
+
+.popup-overlay { /*pop features */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  position: relative;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+}
+
+.popup .close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 34px;
+}
+
+.popup h2 {
+  margin-top: 0;
+}
+
+.popup p {
+  font-family: $fontNormal;
+  margin-bottom: 20px;
+}
+
+.popup .close:hover {
+  color: #666;
+}
+.empty-line {
+  height: 20px;
 }

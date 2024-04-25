@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
  * instead of 'export default' at the end of the file.
  */
 export const LandingPageGuard = () => {
-  if (!localStorage.getItem("token")) {
+  if (!localStorage.getItem("userToken")) {
     
     return <Outlet />;
   }

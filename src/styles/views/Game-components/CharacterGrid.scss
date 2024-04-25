@@ -1,0 +1,74 @@
+@import "../../theme";
+
+.character-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  border-radius: $borderRadius;
+  border-radius: 0.75em;
+  background-color: transparentize(white, 0.2);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  box-shadow: $dropShadow;
+  padding: 1em;
+  width: 60%;
+  height: 100%;
+  font-size: 30px;
+  font-weight: 300;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Modal Content
+.modal-content {
+  position: relative;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+}
+
+// Modal Header
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h2 {
+    margin: 0;
+  }
+
+  .close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 34px;
+  }
+  .close-btn:hover {
+    color: #666;
+  }
+}
+
+// Modal Body
+.modal-body {
+  font-family: $fontNormal;
+  font-size: 20px;
+}

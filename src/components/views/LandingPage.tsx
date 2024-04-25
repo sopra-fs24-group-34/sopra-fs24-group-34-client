@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {LoginLogo} from "../ui/LoginLogo";
-import {RegisterLogo} from "../ui/RegisterLogo";
+import { LoginLogo } from "../ui/LoginLogo";
+import { RegisterLogo } from "../ui/RegisterLogo";
 
 const FormField = (props) => {
   return (
@@ -15,7 +15,7 @@ const FormField = (props) => {
       <input
         type={props.label === "Password" ? "password" : "text"}
         className="landingPage input"
-        placeholder="enter here.."
+        placeholder="Enter here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       />
@@ -35,19 +35,27 @@ const LandingPage = () => {
 
   const doJoinLobby = async () => {
     try {
-      const requestBody = JSON.stringify({ lobbyCode });
-      const response = await api.post("/something", requestBody); // must be defined
+      const requestGuestBody = JSON.stringify({
+        username: "Guest",
+        password: "12345",
+      });
 
-      // Store the token into the local storage.
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("id", response.id);
-
-      // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/game");
-    } catch (error) {
-      alert(
-        `Something went wrong during the login: \n${handleError(error)}`
+      const responseCreateGuest = await api.post(
+        "/guestuser/create",
+        requestGuestBody
       );
+      
+      await api.put(
+        `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
+      );
+
+      localStorage.setItem("userToken", responseCreateGuest.data.token);
+      localStorage.setItem("userId", responseCreateGuest.data.id);
+      localStorage.setItem("lobbyId", lobbyCode);
+
+      navigate("/lobby");
+    } catch (error) {
+      alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
   };
 
@@ -69,11 +77,7 @@ const LandingPage = () => {
             onChange={(code) => setLobbyCode(code)}
           />
           <div className="landingPage button-container">
-            <Button
-              disabled={!lobbyCode}
-              width="100%"
-              onClick={doJoinLobby}
-            >
+            <Button disabled={!lobbyCode} width="100%" onClick={doJoinLobby}>
               Join
             </Button>
           </div>
@@ -85,8 +89,10 @@ const LandingPage = () => {
               width="100%"
               onClick={doLogin}
             >
-              Sign-In  
-              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
+              Sign-In
+              <span style={{ marginLeft: "10px" }}>
+                <LoginLogo width="25px" height="25px" />
+              </span>
             </Button>
             <Button
               style={{ marginLeft: "10px" }}
@@ -94,10 +100,12 @@ const LandingPage = () => {
               onClick={doRegister}
             >
               Register
-              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
+              <span style={{ marginLeft: "10px" }}>
+                <RegisterLogo width="24px" height="24px" />
+              </span>
             </Button>
           </div>
-        </div>  
+        </div>
       </div>
     </BaseContainer>
   );

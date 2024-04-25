@@ -26,6 +26,8 @@ Finally, `npm run build` builds the app for production to the `build` folder.<br
 It correctly bundles React in production mode and optimizes the build for the best performance:\
 The build is minified, and the filenames include hashes.<br>
 
+### DockerHub
+Link: https://hub.docker.com/repository/docker/sopragroup34/client/general
 
 ## Web Page
 Link: https://sopra-fs24-group-34-client.oa.r.appspot.com/

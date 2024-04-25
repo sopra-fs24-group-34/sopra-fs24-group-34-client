@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
  */
 export const MenuGuard = () => {
   
-  if (localStorage.getItem("token")) {
+  if (localStorage.getItem("userToken")) {
     
     return <Outlet />;
   }
