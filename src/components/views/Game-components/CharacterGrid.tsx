@@ -6,6 +6,10 @@ import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import Character from "./Character";
 import PusherService from "../PusherService";
+import ModalDisplay from "./modalContent/ModalDisplay";
+import ModalFirstInstructions from "./modalContent/ModalFirstInstructions";
+import ModalGuessInformation from "./modalContent/ModalGuessInformation";
+import ModalPickInformation from "./modalContent/ModalPickInformation";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
@@ -16,8 +20,7 @@ const CharacterGrid = ({ persons }) => {
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
-  const [showModal, setShowModal] = useState<Boolean>(false);
-
+    const [modalContent, setModalContent] = useState(<ModalFirstInstructions />);
   const pusherService = new PusherService();
 
   // Leave commented out for the moment
@@ -45,11 +48,7 @@ const CharacterGrid = ({ persons }) => {
     };
   }, []);
 
-  const toggleModal = () => {
-    setShowModal(!showModal);
-  };
-
-  const pickCharacter = async (characterId) => {
+  const pickCharacter = async (characterId, idx) => {
     try {
       console.log(
         "GAMEID",
@@ -67,6 +66,9 @@ const CharacterGrid = ({ persons }) => {
       //setCurrentRound("GUESSING");
       console.log("PICKCHARACTER:", send);
       await api.put("/game/character/choose", send);
+      setModalContent(
+        <ModalPickInformation characterUrl={persons[idx][characterId]} />
+      );
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -84,7 +86,7 @@ const CharacterGrid = ({ persons }) => {
   };
 
   // Func to guess a character
-  const guessCharacter = async (characterId) => {
+  const guessCharacter = async (characterId, idx) => {
     const send = JSON.stringify({
       gameid: gameId,
       playerid: playerId,
@@ -111,32 +113,12 @@ const CharacterGrid = ({ persons }) => {
           character={character}
           visibleCharacter={visibleCharacters[idx]}
           currentRound={currentRound}
-          pickCharacter={() => pickCharacter(character.id)}
+          pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
-          guessCharacter={() => guessCharacter(character.id)}
+          guessCharacter={() => guessCharacter(character.id, idx)}
         />
       ))}
-      {/*
-      <div
-        className={`modal-overlay ${showModal ? "show" : ""}`}
-        onClick={() => toggleModal()}
-      >
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h2>Current Instructions</h2>
-            <span className="close-btn" onClick={() => toggleModal()}>
-              &times;
-            </span>
-          </div>
-          <div className="modal-body">
-            {}
-            <p>
-              This is the modal content. What happens if i extend this thing 
-            </p>
-          </div>
-        </div>
-      </div>
-      */}
+      {<ModalDisplay content={modalContent} />}
     </BaseContainer>
   );
 };

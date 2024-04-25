@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import BaseContainer from "components/ui/BaseContainer";
-import CharacterGrid from "./Game-components/CharacterGrid"; 
-import ChatLog from "./Game-components/ChatLog"; 
+import CharacterGrid from "./Game-components/CharacterGrid";
+import ChatLog from "./Game-components/ChatLog";
 import "styles/views/Game.scss";
+import "styles/views/Game-components/CharacterGrid.scss";
+import GameModalContent from "./GameModalContent";
+import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -31,7 +34,7 @@ const Game = () => {
     };
 
     fetchImages();
-  }, []); 
+  }, []);
 
   // function to display an overlay which should replace a character
   const ReplaceCharacter = (idx, id) => {
@@ -65,7 +68,7 @@ const Game = () => {
       {hasAccepted ? (
         <>
           <CharacterGrid persons={characters} />
-          <ChatLog/>
+          <ChatLog />
         </>
       ) : (
         <>
@@ -90,6 +93,7 @@ const Game = () => {
           </button>
         </>
       )}
+      {<ModalDisplay content={<GameModalContent/>}/>}
     </BaseContainer>
   );
 };
