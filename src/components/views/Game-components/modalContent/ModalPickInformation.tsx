@@ -16,8 +16,5 @@ const ModalPickInformation = () => {
   );
 };
 
-ModalPickInformation.propTypes = {
-  characterUrl: PropTypes.String,
-};
 
 export default ModalPickInformation;
