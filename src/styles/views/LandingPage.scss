@@ -29,6 +29,7 @@
     flex-direction: column;
     justify-content: center;
     margin-top: 1px;
+    font-family: $fontNormal;
   }
   &.input {
     @include center;
@@ -39,7 +40,6 @@
     margin-left: 16.5%;
     margin-right: 16.5%;
     margin-top: 10px;
-    
     background: white;
     color: $textColor;
     text-align: center;
@@ -48,7 +48,6 @@
   &.label {
     color: $textColor;
     margin-bottom: 10px;
-    text-transform: lowercase;
     font-weight: 300;
     display: flex;
     justify-content: center;
