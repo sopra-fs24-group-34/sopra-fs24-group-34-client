@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # auto-generated
+      DOCKER_BUILDKIT: 1
       
     steps:
     # checkout repository code
@@ -32,13 +33,26 @@ jobs:
         username: ${{ secrets.dockerhub_username }}
         password: ${{ secrets.dockerhub_password }}
         
-    # docker build and push
-    - name: Build and push (including latest tag)
+    # docker build & push amd64
+    - name: Build and push for x64_86 processor architecture
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:${{github.sha}},${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:latest
+        tags: ${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:intel
+        platforms: linux/amd64
+        cache-from: type=registry,ref=${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:cache
+        cache-to: type=inline,mode=max
+        
+    # docker build & push arm64
+    - name: Build and push for arm64 (Apple M-series) processor architecture
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:apple
+        platforms: linux/arm64/v8
         cache-from: type=registry,ref=${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:cache
         cache-to: type=inline,mode=max
