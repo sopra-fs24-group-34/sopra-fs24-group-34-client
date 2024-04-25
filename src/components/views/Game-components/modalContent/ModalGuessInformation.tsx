@@ -8,18 +8,20 @@ const ModalGuessInformation = ({ characterUrl, strikes }) => {
     <>
       <p>You guessed: </p>
       <div className="character container">
-        <img className="character container img" src={characterUrl}> </img>
+        <img className="character container img" src={characterUrl} />
       </div>
-      <p> Your guess is wrong! 
+      <p>
+        Your guess is wrong!
         <div className="empty line"></div>
-        You have {strikes} strikes left</p>
+        You have {strikes} strikes left
+      </p>
     </>
   );
 };
 
 ModalGuessInformation.propTypes = {
   characterUrl: PropTypes.String,
-  strikes: PropTypes.Number
+  strikes: PropTypes.Number,
 };
 
 export default ModalGuessInformation;
