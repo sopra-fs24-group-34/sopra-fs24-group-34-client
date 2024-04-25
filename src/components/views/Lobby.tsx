@@ -42,9 +42,11 @@ const LobbyPage = () => {
         "game-started",
         (data: any) => {
           // Check if current user is not the host
-          if (parseInt(userId) !== data.creatorUserId) {
+          const pId = localStorage.getItem("playerId");
+          if (parseInt(pId) !== data.creatorId) {
+            console.log("PUSHER GAME DATA: ", data);
             localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", userId);
+            localStorage.setItem("playerId", data.invitedplayerId);
             navigate("/game"); // Redirect to game page
           }
         }
@@ -83,8 +85,7 @@ const LobbyPage = () => {
       if (parseInt(userId) === creatorUser.id) {
         setIsCreator(true);
         localStorage.setItem("isCreator", JSON.stringify(true));
-      }
-      else{
+      } else {
         localStorage.setItem("isCreator", JSON.stringify(false));
       }
 
@@ -254,7 +255,7 @@ const LobbyPage = () => {
                   className="lobby button"
                   onClick={() => setShowExplanation(true)}
                 >
-                  View Game Explaination
+                  View Game Explanation
                 </Button>
               </div>
             </BaseContainer>
@@ -308,15 +309,17 @@ const LobbyPage = () => {
             <h2>How the game works:</h2>
             <p>
               {" "}
-              &apos;Who is?&apos; is a turn based 1 vs 1 game, where each player
-              tries to find out, which character their opponent has chosen in
-              the first round. To narrow down the possibilities each player can
-              ask one yes or no question per round.
+              &apos;Guess Who?&apos; is a turn based 1 vs 1 game, where each
+              player picks a random character from a given set of characters and
+              tries to figure out their opponent&apos;s pick. To narrow down the
+              pool of possible characters each player may ask a yes-no-question
+              regarding the character&apos;s physical features.
               <div className="empty-line"></div>
-              If you think a character isn&apos;t the searched character you can
-              fold it to have an better overview. If you think a character is
-              the searched character you can make a guess, but careful you have
-              a limited amount of guesses/strikes.
+              If you think a character is not your opponent&apos;s pick you can
+              fold it to have a better overview. If you think a character is
+              your opponent&apos;s choice, you can make a guess.
+              <div className="empty-line"></div>
+              But careful! You only have a limited number of guesses.
             </p>
           </div>
         </div>

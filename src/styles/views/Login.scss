@@ -29,6 +29,7 @@
     flex-direction: column;
     justify-content: center;
     margin-top: 15px;
+    font-family: $fontNormal;
   }
   &.input {
     height: 50px;
@@ -41,11 +42,11 @@
     background: white;
     color: $textColor;
     
+    
   }
   &.label {
     color: $textColor;
     margin-bottom: 10px;
-    text-transform: lowercase;
     font-weight: 300;
   }
   &.h1 {

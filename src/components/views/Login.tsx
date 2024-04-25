@@ -15,7 +15,7 @@ const FormField = (props) => {
       <input
         type={props.label === "Password" ? "password" : "text"}
         className="login input"
-        placeholder="enter here.."
+        placeholder="Enter here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       />
