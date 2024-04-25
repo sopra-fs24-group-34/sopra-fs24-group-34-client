@@ -40,6 +40,15 @@ const CharacterGrid = ({ persons }) => {
           }
           navigate("/endscreen");
         }
+
+        if (data.strikes === 3 && data.roundStatus === "END") {
+          if (data.playerId === playerId) {
+            localStorage.setItem("result", "lost");
+          } else {
+            localStorage.setItem("result", "won");
+          }
+          navigate("/endscreen");
+        }
       }
     );
 
