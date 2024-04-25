@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import "styles/views/Game-components/Character.scss";
 
 const ModalDisplay = ({ content }) => {
-  const [showModal, setShowModal] = useState<Boolean>(false);
-  const [modalContent, setModalContent] = useState(content);
+  const [showModal, setShowModal] = useState<Boolean>(true);
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -28,7 +27,7 @@ const ModalDisplay = ({ content }) => {
             &times;
           </span>
         </div>
-        <div className="modal-body">{modalContent}</div>
+        <div className="modal-body">{content}</div>
       </div>
     </div>
   );
