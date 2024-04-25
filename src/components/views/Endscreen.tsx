@@ -60,56 +60,14 @@ const Endscreen = () => {
     fetchUserData();
   }, []);
 
-  /*
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        //nedim-j: set proper api call
-        //const userId = localStorage.getItem("userId");
-        //const response = await api.get(`/users/${userId}`);
-        //nedim-j: where to get other users id from ?
-        //setUsers(response.data);
-        setUsers(localStorage.getItem("users"));
-        console.log("USERS: ", users);
-
-        //nedim-j: add api call
-        setResult("You won");
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    }
-
-    fetchUserData();
-  }, []);
-  */
-
   let players = <Spinner />;
 
-  /*
-    if (users !== null && users !== undefined) {
-      players = (
-        <ul className="players list">
-          {users.map(
-            (user: User) =>
-              user &&
-              user.id !== undefined &&
-              user.username !== undefined && (
-                <li key={user.id}>
-                  <Player user={user} />
-                </li>
-              )
-          )}
-        </ul>
-      );
-    }
-    */
   if (users) {
     players = (
       <div className="players">
         <ul className="user-list">
           {users.map((user: User) => (
             <li key={user.id}>
-              {/* Passed isCurrentUser prop to the Player component */}
               <Player
                 user={user}
                 result={gameResult}
@@ -130,7 +88,8 @@ const Endscreen = () => {
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
-    //localStorage.removeItem("userTd");
+    localStorage.removeItem("result");
+
     //nedim-j: add api call
   };
 
@@ -141,6 +100,10 @@ const Endscreen = () => {
 
   function handleToLobby() {
     localStorage.removeItem("gameId");
+    localStorage.removeItem("users");
+    localStorage.removeItem("playerId");
+    localStorage.removeItem("isCreator");
+    localStorage.removeItem("result");
     navigate("/lobby");
   }
 
