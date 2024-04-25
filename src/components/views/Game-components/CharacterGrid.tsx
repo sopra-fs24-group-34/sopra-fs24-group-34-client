@@ -11,8 +11,8 @@ const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-
-  const [currentRound, setCurrentRound] = useState<String>("Pick");
+  //nedim-j: data.roundStatus can be CHOOSING, GUESSING, END
+  const [currentRound, setCurrentRound] = useState<String>("CHOOSING");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -28,8 +28,8 @@ const CharacterGrid = ({ persons }) => {
       (data) => {
         console.log("Received information:", data);
         //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
-        //setCurrentRound(response);
-        if (data.guess === true) {
+        setCurrentRound(data.roundStatus);
+        if (data.guess === true && data.roundStatus === "END") {
           if(data.playerId === playerId) {
             localStorage.setItem("result", "won");
           } else {
@@ -41,7 +41,7 @@ const CharacterGrid = ({ persons }) => {
     );
 
     return () => {
-      pusherService.unsubscribeFromChannel("game");
+      pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
     };
   }, []);
 
@@ -64,7 +64,7 @@ const CharacterGrid = ({ persons }) => {
         playerid: playerId,
         imageid: characterId,
       });
-      setCurrentRound("Guess");
+      //setCurrentRound("GUESSING");
       console.log("PICKCHARACTER:", send);
       await api.put("/game/character/choose", send);
     } catch (error) {
@@ -91,9 +91,11 @@ const CharacterGrid = ({ persons }) => {
       imageid: characterId,
     });
     const response = await api.post("/game/character/guess", send);
+    /*
     if (response.data) {
       setCurrentRound("Game-ended");
     }
+    */
   };
 
   if (!persons) {
@@ -114,6 +116,7 @@ const CharacterGrid = ({ persons }) => {
           guessCharacter={() => guessCharacter(character.id)}
         />
       ))}
+      {/*
       <div
         className={`modal-overlay ${showModal ? "show" : ""}`}
         onClick={() => toggleModal()}
@@ -126,13 +129,14 @@ const CharacterGrid = ({ persons }) => {
             </span>
           </div>
           <div className="modal-body">
-            {/* Your modal content */}
+            {}
             <p>
               This is the modal content. What happens if i extend this thing 
             </p>
           </div>
         </div>
       </div>
+      */}
     </BaseContainer>
   );
 };

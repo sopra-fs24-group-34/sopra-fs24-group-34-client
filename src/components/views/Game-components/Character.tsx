@@ -13,7 +13,7 @@ const Character = ({
 }) => {
   // functionality to display an overlay on top of character
   const interactCharacter = () => {
-    if (currentRound === "Pick") {
+    if (currentRound === "CHOOSING") {
       return (
         <div className="character overlay">
           <button className="character-button" onClick={() => pickCharacter()}>

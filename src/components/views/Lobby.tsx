@@ -43,7 +43,7 @@ const LobbyPage = () => {
         (data: any) => {
           // Check if current user is not the host
           const pId = localStorage.getItem("playerId");
-          if (pId && parseInt(pId) !== data.creatorId) {
+          if (parseInt(pId) !== data.creatorId) {
             console.log("PUSHER GAME DATA: ", data);
             localStorage.setItem("gameId", data.gameId);
             localStorage.setItem("playerId", data.invitedplayerId);
