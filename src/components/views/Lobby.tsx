@@ -190,8 +190,10 @@ const LobbyPage = () => {
         if (users && users.length === 2) {
           const lobby = await api.get(`/lobbies/${lobbyId}/`);
           console.log("REQUEST LOBBY: ", lobby);
+          const obj = {"creator_userid": lobby.data.creator_userid,"invited_userid": lobby.data.invited_userid}
+          console.log("obj: ", obj)
           //nedim-j: perhaps add authentification when trying to start game
-          const response = await api.post(`/game/${lobbyId}/start`, lobby);
+          const response = await api.post(`/game/${lobbyId}/start`, obj);
           localStorage.setItem("gameId", response.data.gameId);
           localStorage.setItem("playerId", response.data.creatorId);
           console.log("RESPONSE GAME: ", response);
