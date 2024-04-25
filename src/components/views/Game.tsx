@@ -8,13 +8,12 @@ import "styles/views/Game.scss";
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
-  const gameId = localStorage.getItem(gameId)
+  const gameId = localStorage.getItem("gameId");
 
   // useEffect to fetch images from DB
   useEffect(() => {
     const fetchImages = async () => {
       try{
-
         await api.post(`/games/${gameId}/images`);
         const response = await api.get(`/games/${gameId}/images`);
         setCharacters(response.data);
