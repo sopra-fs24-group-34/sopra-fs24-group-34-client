@@ -20,7 +20,7 @@ const CharacterGrid = ({ persons }) => {
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
-    const [modalContent, setModalContent] = useState(<ModalFirstInstructions />);
+  const [modalContent, setModalContent] = useState(<ModalFirstInstructions />);
   const pusherService = new PusherService();
 
   // Leave commented out for the moment
@@ -33,10 +33,19 @@ const CharacterGrid = ({ persons }) => {
         //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
         setCurrentRound(data.roundStatus);
         if (data.guess === true && data.roundStatus === "END") {
-          if(data.playerId === playerId) {
+          if (data.playerId === playerId) {
             localStorage.setItem("result", "won");
           } else {
             localStorage.setItem("result", "lost");
+          }
+          navigate("/endscreen");
+        }
+
+        if (data.strikes === 3 && data.roundStatus === "END") {
+          if (data.playerId === playerId) {
+            localStorage.setItem("result", "lost");
+          } else {
+            localStorage.setItem("result", "won");
           }
           navigate("/endscreen");
         }
