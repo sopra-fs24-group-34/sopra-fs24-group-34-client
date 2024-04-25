@@ -50,14 +50,16 @@ const Game = () => {
   // No idea if this is correct (might need a reload)
   const RemoveCharacter = async (idx, imageId) => {
     try {
-      const response = await api.delete(`/games/${gameId}/images/${imageId}`);
-
+      /* const response = await api.delete(`/games/${gameId}/images/${imageId}`);
       setCharacters((prevCharacters) => {
       const newCharacters = [...prevCharacters];
       newCharacters[idx] = response.data;
 
       return newCharacters;
-    });
+    }); */
+      await api.delete(`/games/${gameId}/images/${imageId}`);
+      const response = await api.get(`/games/${gameId}/images`);
+      setCharacters(response.data);
       }
     catch (error) {
       alert(
