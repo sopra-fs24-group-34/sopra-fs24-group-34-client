@@ -50,15 +50,17 @@ const ChatLog = () => {
     };
   }, [pusherClient]);
   */
-  pusherService.subscribeToChannel(
-    `gameRound${gameId}`,
-    "new_message",
-    (data) => {
-      //console.log("Received information:", data);
-      //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
-      console.log("Received message:", data);
-      setMessages((prevMessages) => [...prevMessages, data]);
-    })
+    pusherService.subscribeToChannel(
+      `gameRound${gameId}`,
+      "new_message",
+      (data) => {
+        //console.log("Received information:", data);
+        //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
+        console.log("Received message:", data);
+        setMessages((prevMessages) => [...prevMessages, data]);
+      }
+    );
+    
     return () => {
       pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
     };
@@ -67,12 +69,10 @@ const ChatLog = () => {
   const updateChat = async () => {
     try {
       const request = JSON.stringify(prompt);
-      
+
       console.log("MESSAGE: ", prompt);
       console.log("REQUEST: ", request);
-      await api.post(`/game/${gameId}/chat/${userId}`, 
-        request
-      ); // LiamK21: IDK if post/put; change URI
+      await api.post(`/game/${gameId}/chat/${userId}`, request); // LiamK21: IDK if post/put; change URI
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
