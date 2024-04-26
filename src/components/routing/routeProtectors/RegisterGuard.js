@@ -8,12 +8,9 @@ import PropTypes from "prop-types";
  * instead of 'export default' at the end of the file.
  */
 export const RegisterGuard = () => {
-  if (!localStorage.getItem("userToken")) {
-    
+
     return <Outlet />;
-  }
-  
-  return <Navigate to="/menu" replace />;
+
 };
 
 RegisterGuard.propTypes = {
