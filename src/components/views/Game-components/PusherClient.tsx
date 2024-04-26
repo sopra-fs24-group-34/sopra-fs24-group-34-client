@@ -5,7 +5,7 @@ const usePusherClient = () => {
   const pusherClient = useMemo(() => {
     Pusher.logToConsole = true;
 
-    return new Pusher("87dd3817ca48322d3e02", {
+    return new Pusher("19cbfeaeb11cb7adbda4", {
       cluster: "eu",
     });
   }, []);
