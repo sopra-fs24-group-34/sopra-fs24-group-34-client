@@ -8,7 +8,7 @@ const ModalGuessInformation = ({ strikes }) => {
     <>
       <p>Your guess is wrong!
         <div className="empty line"></div>
-        You have {strikes} strikes left
+        You have {strikes} / 3 strikes left
       </p>
     </>
   );
