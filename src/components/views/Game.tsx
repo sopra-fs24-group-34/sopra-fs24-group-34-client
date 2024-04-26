@@ -65,7 +65,7 @@ const Game = () => {
       await api.delete(`/games/${gameId}/images/${imageId}`);
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
-      }
+    }
     catch (error) {
       alert(
         `Something went wrong removing the characters: \n${handleError(error)}`
