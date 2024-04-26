@@ -130,17 +130,33 @@ const Endscreen = () => {
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
-    //localStorage.removeItem("userTd");
+    localStorage.removeItem("result");
     //nedim-j: add api call
   };
 
   function handleToRegister() {
     handleBack();
-    throw new Error("Function not implemented.");
+    navigate("/register");
+  }
+
+  function handleToMenu() {
+    handleBack();
+    navigate("/menu");
+  }
+
+  function handleToLandingPage() {
+    handleBack();
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userToken");
+    navigate("/landingPage");
   }
 
   function handleToLobby() {
     localStorage.removeItem("gameId");
+    localStorage.removeItem("users");
+    localStorage.removeItem("playerId");
+    localStorage.removeItem("isCreator");
+    localStorage.removeItem("result");
     navigate("/lobby");
   }
 
@@ -171,18 +187,21 @@ const Endscreen = () => {
             </Button>
           </li>
           <li>
-            <Button
-              className="buttons"
-              onClick={() => {
-                handleBack();
-                navigate("/menu");
-              }}
-            >
-              Return to Menu
-              <span style={{ marginLeft: "10px" }}>
-                <LogoutLogo width="25px" height="25px" />
-              </span>
-            </Button>
+            {isCreator ? (
+              <Button className="buttons" onClick={() => handleToMenu()}>
+                Return to Menu
+                <span style={{ marginLeft: "10px" }}>
+                  <LogoutLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            ) : (
+              <Button className="buttons" onClick={() => handleToLandingPage()}>
+                Return to Landing Page
+                <span style={{ marginLeft: "10px" }}>
+                  <LogoutLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            )}
           </li>
         </ul>
       </div>
