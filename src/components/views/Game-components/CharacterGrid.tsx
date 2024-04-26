@@ -20,7 +20,10 @@ const CharacterGrid = ({ persons }) => {
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
-  const [modalContent, setModalContent] = useState(<ModalFirstInstructions />);
+  const [modalState, setModalState] = useState({
+    isOpen: true,
+    content: <ModalFirstInstructions />,
+  });
   const pusherService = new PusherService();
 
   // Leave commented out for the moment
@@ -59,14 +62,6 @@ const CharacterGrid = ({ persons }) => {
 
   const pickCharacter = async (characterId, idx) => {
     try {
-      console.log(
-        "GAMEID",
-        gameId,
-        "USERID",
-        playerId,
-        "CHARACTERID",
-        characterId
-      );
       const send = JSON.stringify({
         gameid: gameId,
         playerid: playerId,
@@ -75,9 +70,10 @@ const CharacterGrid = ({ persons }) => {
       //setCurrentRound("GUESSING");
       console.log("PICKCHARACTER:", send);
       await api.put("/game/character/choose", send);
-      setModalContent(
-        <ModalPickInformation characterUrl={persons[idx][characterId]} />
-      );
+      setModalState({
+        isOpen: true,
+        content: <ModalPickInformation />,
+      });
     } catch (error) {
       alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
     }
@@ -102,16 +98,19 @@ const CharacterGrid = ({ persons }) => {
       imageid: characterId,
     });
     const response = await api.post("/game/character/guess", send);
-    /*
-    if (response.data) {
-      setCurrentRound("Game-ended");
-    }
-    */
+    setModalState({
+      isOpen: true,
+      content: <ModalGuessInformation strikes={response.data.strikes} />,
+    });
   };
 
   if (!persons) {
     return <div>Loading...</div>;
   }
+
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, content: null });
+  };
 
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
@@ -127,7 +126,13 @@ const CharacterGrid = ({ persons }) => {
           guessCharacter={() => guessCharacter(character.id, idx)}
         />
       ))}
-      {<ModalDisplay content={modalContent} />}
+      {
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
+      }
     </BaseContainer>
   );
 };

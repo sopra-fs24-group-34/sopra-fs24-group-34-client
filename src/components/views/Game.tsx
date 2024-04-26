@@ -13,10 +13,15 @@ const Game = () => {
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
   const gameId = localStorage.getItem("gameId");
 
+  const [modalState, setModalState] = useState({
+    isOpen: true,
+    content: <GameModalContent />,
+  });
+
   // useEffect to fetch images from DB
   useEffect(() => {
     const fetchImages = async () => {
-      try{
+      try {
         await api.post(`/games/${gameId}/images`);
         const response = await api.get(`/games/${gameId}/images`);
         setCharacters(response.data);
@@ -53,21 +58,21 @@ const Game = () => {
       const response = await api.delete(`/games/${gameId}/images/${imageId}`);
 
       setCharacters((prevCharacters) => {
-      const newCharacters = [...prevCharacters];
-      newCharacters[idx] = response.data;
+        const newCharacters = [...prevCharacters];
+        newCharacters[idx] = response.data;
 
-      return newCharacters;
-    });
-      }
-    catch (error) {
+        return newCharacters;
+      });
+    } catch (error) {
       alert(
-          `Something went wrong removing the characters: \n${handleError(
-              error
-          )}`
+        `Something went wrong removing the characters: \n${handleError(error)}`
       );
     }
-  }
+  };
 
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, content: null });
+  };
 
   // Returns either the grid to potentially replace characters or the actual game
   return (
@@ -100,7 +105,13 @@ const Game = () => {
           </button>
         </>
       )}
-      {<ModalDisplay content={<GameModalContent/>}/>}
+      {
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
+      }
     </BaseContainer>
   );
 };
