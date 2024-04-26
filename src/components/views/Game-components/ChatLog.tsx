@@ -4,6 +4,7 @@ import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import usePusherClient from "./PusherClient";
+import PusherService from "../PusherService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -32,8 +33,10 @@ const ChatLog = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
   const pusherClient = usePusherClient();
+  const pusherService = new PusherService();
 
   useEffect(() => {
+    /*
     const channel = pusherClient.subscribe("chat_channel");
 
     channel.bind("new_message", (response) => {
@@ -46,6 +49,20 @@ const ChatLog = () => {
       channel.unsubscribe();
     };
   }, [pusherClient]);
+  */
+  pusherService.subscribeToChannel(
+    `gameRound${gameId}`,
+    "new_message",
+    (data) => {
+      //console.log("Received information:", data);
+      //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
+      console.log("Received message:", data);
+      setMessages((prevMessages) => [...prevMessages, data]);
+    })
+    return () => {
+      pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
+    };
+  }, []);
 
   const updateChat = async () => {
     try {

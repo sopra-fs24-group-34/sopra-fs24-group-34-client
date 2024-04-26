@@ -12,6 +12,7 @@ const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
   const gameId = localStorage.getItem("gameId");
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   const [modalState, setModalState] = useState({
     isOpen: true,
@@ -20,6 +21,9 @@ const Game = () => {
 
   // useEffect to fetch images from DB
   useEffect(() => {
+
+    setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
+
     const fetchImages = async () => {
       try {
         await api.post(`/games/${gameId}/images`);
@@ -94,9 +98,11 @@ const Game = () => {
                   className="character container img"
                   src={character.url}
                 ></img>
-                <div className="character overlay">
-                  {ReplaceCharacter(idx, character.id)}
-                </div>
+                {isCreator && (
+                  <div className="character overlay">
+                    {ReplaceCharacter(idx, character.id)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
