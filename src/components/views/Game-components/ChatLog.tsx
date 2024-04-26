@@ -36,8 +36,8 @@ const ChatLog = () => {
   const pusherService = new PusherService();
 
   useEffect(() => {
-    /*
-    const channel = pusherClient.subscribe("chat_channel");
+    
+    const channel = pusherClient.subscribe(`gameRound${gameId}`);
 
     channel.bind("new_message", (response) => {
       console.log("Received message:", response);
@@ -49,7 +49,7 @@ const ChatLog = () => {
       channel.unsubscribe();
     };
   }, [pusherClient]);
-  */
+  /*
     pusherService.subscribeToChannel(
       `gameRound${gameId}`,
       "new_message",
@@ -64,7 +64,7 @@ const ChatLog = () => {
     return () => {
       pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
     };
-  }, []);
+  }, []);*/
 
   const updateChat = async () => {
     try {
