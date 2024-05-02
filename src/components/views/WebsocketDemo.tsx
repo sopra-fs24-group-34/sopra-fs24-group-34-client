@@ -7,19 +7,29 @@ const WebSocketComponent = () => {
   const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws"); //ebsocket-demo
-    const stompClient = Stomp.over(socket);
-    setStompClient(stompClient);
+    async function ws() {
+      const socket = new SockJS("http://localhost:8080/ws"); //ebsocket-demo
+      const stompClient = Stomp.over(socket);
+      setStompClient(stompClient);
 
-    stompClient.connect({}, () => {
-      console.log("Connected to WebSocket");
-    });
+      await stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+      });
 
-    return () => {
-      if (stompClient !== null) {
-        stompClient.disconnect();
-      }
-    };
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      await stompClient.subscribe("/game/10/receiveMessage", (message) => {
+        console.log("Received message from topic /game/10:", message.body);
+        // Process the received message as needed
+      });
+
+      return () => {
+        if (stompClient !== null) {
+          stompClient.disconnect();
+        }
+      };
+    }
+    ws();
   }, []);
 
   const sendMessage = () => {
