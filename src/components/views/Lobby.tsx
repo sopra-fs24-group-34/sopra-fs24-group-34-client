@@ -7,7 +7,8 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User, Lobby } from "types";
-import PusherService from "./PusherService";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -21,41 +22,53 @@ const LobbyPage = () => {
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const pusherService = new PusherService();
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const lobbyId = localStorage.getItem("lobbyId");
+    async function ws() {
+      const userId = localStorage.getItem("userId");
+      const lobbyId = localStorage.getItem("lobbyId");
 
-    if (userId && lobbyId) {
-      fetchData(userId, lobbyId);
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "user-joined",
-        (data: any) => {
-          setUsers((prevUsers) => [...prevUsers, data]);
-        }
-      );
+      if (userId && lobbyId) {
+        fetchData(userId, lobbyId);
 
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "game-started",
-        (data: any) => {
-          // Check if current user is not the host
-          const pId = localStorage.getItem("playerId");
-          if (parseInt(pId) !== data.creatorId) {
-            console.log("PUSHER GAME DATA: ", data);
-            localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", data.invitedplayerId);
-            navigate("/game"); // Redirect to game page
-          }
+        const socket = new SockJS("http://localhost:8080/ws");
+        const stompClient = Stomp.over(socket);
+        setStompClient(stompClient);
+
+        await stompClient.connect({}, () => {
+          console.log("Connected to WebSocket");
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await stompClient.subscribe(`/lobbies/${lobbyId}`, (message) => {
+          /*
+          console.log(
+            `Received message from topic /lobbies/${lobbyId}:`,
+            message
+          );
+          */
+
+          const invitedUser = JSON.parse(message.body);
+          console.log("Invited User: ", invitedUser);
+          //nedim-j: header not sent, probably backend problem
+          console.log("Whole header:", message.headers);
+          console.log(
+            "Custom header 'event-type':",
+            message.headers["event-type"]
+          );
+          setUsers((prevUsers) => [...prevUsers, invitedUser]);
+        });
+      }
+
+      return () => {
+        if (stompClient !== null) {
+          stompClient.disconnect();
         }
-      );
+      };
     }
 
-    return () => {
-      pusherService.unsubscribeFromChannel("lobby-events");
-    };
+    ws();
   }, []);
 
   async function fetchData(userId, lobbyId) {
@@ -116,29 +129,32 @@ const LobbyPage = () => {
 
   //Set players to render
   useEffect(() => {
-    if (users !== null && users !== undefined) {
-      console.log("USEEEEEEERS: ", users);
-      localStorage.setItem("users", JSON.stringify(users));
-      const playersComponent = (
-        <ul className="players list">
-          {users.map(
-            (user: User) =>
-              user &&
-              user.id !== undefined &&
-              user.username !== undefined && (
-                <li key={user.id}>
-                  <Player user={user} />
-                </li>
-              )
-          )}
-        </ul>
-      );
-      setPlayers(playersComponent);
+    async function loadPlayers() {
+      if (users !== null && users !== undefined) {
+        console.log("USEEEEEEERS: ", users);
+        localStorage.setItem("users", JSON.stringify(users));
+        const playersComponent = (
+          <ul className="players list">
+            {users.map(
+              (user: User) =>
+                user &&
+                user.id !== undefined &&
+                user.username !== undefined && (
+                  <li key={user.id}>
+                    <Player user={user} />
+                  </li>
+                )
+            )}
+          </ul>
+        );
+        setPlayers(playersComponent);
+      }
     }
+    loadPlayers();
   }, [users]);
 
   function handleReturn() {
-    pusherService.unsubscribeFromChannel("lobby-events");
+    //pusherService.unsubscribeFromChannel("lobby-events");
     const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
