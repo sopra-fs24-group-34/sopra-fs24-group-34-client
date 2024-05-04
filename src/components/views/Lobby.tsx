@@ -42,34 +42,39 @@ const LobbyPage = () => {
 
         await new Promise((resolve) => setTimeout(resolve, 500));
         await stompClient.subscribe(`/lobbies/${lobbyId}`, (message) => {
-
           const body = JSON.parse(message.body);
           const header = body["event-type"];
+          const data = body.data;
           console.log("Header: ", header);
-          const invitedUser = body.data;
-          console.log("Invited User: ", invitedUser);
-
-          //nedim-j: header not sent, probably backend problem
-          /*
-          console.log("Whole header:", message.headers);
-          console.log(
-            "Custom header 'event-type':",
-            message.headers["event-type"]
-          );
-          */
-          setUsers((prevUsers) => [...prevUsers, invitedUser]);
+          if (header === "user-joined") {
+            console.log("Invited User: ", data);
+            setUsers((prevUsers) => [...prevUsers, data]);
+          } else if (header === "game-started") {
+            const pId = localStorage.getItem("playerId");
+            if (parseInt(pId) !== data.creatorId) {
+              localStorage.setItem("gameId", data.gameId);
+              localStorage.setItem("playerId", data.invitedplayerId);
+              navigate("/game"); // Redirect to game page
+            }
+          }
         });
       }
 
       return () => {
-        if (stompClient !== null) {
-          stompClient.disconnect();
-        }
+        disconnectWebsocket();
       };
     }
 
     ws();
   }, []);
+
+  function disconnectWebsocket() {
+    console.log("LEFT Lobby PAGE i hope");
+    if (stompClient !== null) {
+      stompClient.disconnect();
+      setStompClient(null);
+    }
+  }
 
   async function fetchData(userId, lobbyId) {
     try {
@@ -154,7 +159,6 @@ const LobbyPage = () => {
   }, [users]);
 
   function handleReturn() {
-    //pusherService.unsubscribeFromChannel("lobby-events");
     const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
@@ -176,6 +180,8 @@ const LobbyPage = () => {
         });
         //console.log("REQUEST DELETE: ", requestDelete);
         //await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
+
+        disconnectWebsocket();
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -210,6 +216,8 @@ const LobbyPage = () => {
           localStorage.setItem("gameId", response.data.gameId);
           localStorage.setItem("playerId", response.data.creatorId);
           console.log("RESPONSE GAME: ", response);
+
+          disconnectWebsocket();
 
           navigate("/game");
         }

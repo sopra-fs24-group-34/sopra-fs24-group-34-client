@@ -1,6 +1,7 @@
 import Pusher from "pusher-js";
 
 class PusherService {
+  /*
   private pusher: Pusher;
 
   // constructor
@@ -27,6 +28,7 @@ class PusherService {
   unsubscribeFromChannel(channelName: string) {
     this.pusher.unsubscribe(channelName);
   }
+  */
 }
 
 export default PusherService;

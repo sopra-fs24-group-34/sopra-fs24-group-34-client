@@ -5,11 +5,12 @@ import "../../../styles/views/Game-components/CharacterGrid.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import Character from "./Character";
-import PusherService from "../PusherService";
 import ModalDisplay from "./modalContent/ModalDisplay";
 import ModalFirstInstructions from "./modalContent/ModalFirstInstructions";
 import ModalGuessInformation from "./modalContent/ModalGuessInformation";
 import ModalPickInformation from "./modalContent/ModalPickInformation";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
@@ -24,8 +25,65 @@ const CharacterGrid = ({ persons }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
-  const pusherService = new PusherService();
+  const [stompClient, setStompClient] = useState(null);
 
+  //nedim-j: websockets
+  useEffect(() => {
+    async function ws() {
+
+      if (playerId && gameId) {
+        const socket = new SockJS("http://localhost:8080/ws");
+        const stompClient = Stomp.over(socket);
+        setStompClient(stompClient);
+
+        await stompClient.connect({}, () => {
+          console.log("Connected to WebSocket");
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await stompClient.subscribe(`/games/${gameId}`, (message) => {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          console.log("Header: ", header);
+          const data = body.data;
+
+          setCurrentRound(data.roundStatus);
+          if (data.guess === true && data.roundStatus === "END") {
+            if (data.playerId === playerId) {
+              localStorage.setItem("result", "won");
+            } else {
+              localStorage.setItem("result", "lost");
+            }
+            navigate("/endscreen");
+          }
+
+          if (data.strikes === 3 && data.roundStatus === "END") {
+            if (data.playerId === playerId) {
+              localStorage.setItem("result", "lost");
+            } else {
+              localStorage.setItem("result", "won");
+            }
+            navigate("/endscreen");
+          }
+        });
+      }
+
+      return () => {
+        disconnectWebsocket();
+      };
+    }
+    ws();
+  }, []);
+
+  function disconnectWebsocket() {
+    console.log("LEFT Game PAGE i hope");
+    if (stompClient !== null) {
+      stompClient.disconnect();
+      setStompClient(null);
+    }
+  }
+
+  /*
   // Leave commented out for the moment
   useEffect(() => {
     pusherService.subscribeToChannel(
@@ -59,6 +117,8 @@ const CharacterGrid = ({ persons }) => {
       pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
     };
   }, []);
+
+  */
 
   const pickCharacter = async (characterId, idx) => {
     try {

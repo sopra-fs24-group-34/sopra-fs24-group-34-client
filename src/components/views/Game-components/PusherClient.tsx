@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import Pusher from "pusher-js";
 
 const usePusherClient = () => {
+  /*
   const pusherClient = useMemo(() => {
     Pusher.logToConsole = true;
 
@@ -11,6 +12,7 @@ const usePusherClient = () => {
   }, []);
 
   return pusherClient;
+  */
 };
 
 export default usePusherClient;

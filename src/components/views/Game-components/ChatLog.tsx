@@ -5,6 +5,8 @@ import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import usePusherClient from "./PusherClient";
 import PusherService from "../PusherService";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -32,9 +34,11 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const pusherClient = usePusherClient();
-  const pusherService = new PusherService();
+  //const pusherClient = usePusherClient();
+  //const pusherService = new PusherService();
+  const [stompClient, setStompClient] = useState(null);
 
+  /*
   useEffect(() => {
     
     const channel = pusherClient.subscribe(`gameRound${gameId}`);
@@ -49,6 +53,7 @@ const ChatLog = () => {
       channel.unsubscribe();
     };
   }, [pusherClient]);
+  */
   /*
     pusherService.subscribeToChannel(
       `gameRound${gameId}`,
