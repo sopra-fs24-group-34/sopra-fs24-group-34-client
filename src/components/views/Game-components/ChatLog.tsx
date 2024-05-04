@@ -3,8 +3,6 @@ import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import usePusherClient from "./PusherClient";
-import PusherService from "../PusherService";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -34,26 +32,53 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  //const pusherClient = usePusherClient();
-  //const pusherService = new PusherService();
   const [stompClient, setStompClient] = useState(null);
 
-  /*
   useEffect(() => {
-    
-    const channel = pusherClient.subscribe(`gameRound${gameId}`);
+    async function ws() {
+      const socket = new SockJS("http://localhost:8080/ws");
+      const stompClient = Stomp.over(socket);
+      setStompClient(stompClient);
 
-    channel.bind("new_message", (response) => {
-      console.log("Received message:", response);
-      setMessages((prevMessages) => [...prevMessages, response]);
-    });
+      await stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+      });
 
-    return () => {
-      channel.unbind("new_message");
-      channel.unsubscribe();
-    };
-  }, [pusherClient]);
-  */
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+        const body = JSON.parse(message.body);
+        const header = body["event-type"];
+        console.log("Header: ", header);
+        const data = body.data;
+
+        console.log("Received message:", data);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
+      });
+
+      /*
+      const channel = pusherClient.subscribe(`gameRound${gameId}`);
+
+      channel.bind("new_message", (response) => {
+        console.log("Received message:", response);
+        setMessages((prevMessages) => [...prevMessages, response]);
+      });
+      */
+
+      return () => {
+        disconnectWebsocket();
+      };
+    }
+    ws();
+  }, []);
+
+  function disconnectWebsocket() {
+    console.log("LEFT Game PAGE i hope");
+    if (stompClient !== null) {
+      stompClient.disconnect();
+      setStompClient(null);
+    }
+  }
+
   /*
     pusherService.subscribeToChannel(
       `gameRound${gameId}`,
@@ -73,11 +98,12 @@ const ChatLog = () => {
 
   const updateChat = async () => {
     try {
-      const request = JSON.stringify(prompt);
+      const request = JSON.stringify({message: prompt, gameId: gameId, userId: userId});
 
-      console.log("MESSAGE: ", prompt);
-      console.log("REQUEST: ", request);
-      await api.post(`/game/${gameId}/chat/${userId}`, request); // LiamK21: IDK if post/put; change URI
+      //console.log("MESSAGE: ", prompt);
+      console.log("CHAT REQUEST: ", request);
+      //await api.post(`/game/${gameId}/chat/${userId}`, request); // LiamK21: IDK if post/put; change URI
+      stompClient.send("/app/sendMessage", {}, request);
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
