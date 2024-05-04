@@ -42,21 +42,21 @@ const LobbyPage = () => {
 
         await new Promise((resolve) => setTimeout(resolve, 500));
         await stompClient.subscribe(`/lobbies/${lobbyId}`, (message) => {
-          /*
-          console.log(
-            `Received message from topic /lobbies/${lobbyId}:`,
-            message
-          );
-          */
 
-          const invitedUser = JSON.parse(message.body);
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          console.log("Header: ", header);
+          const invitedUser = body.data;
           console.log("Invited User: ", invitedUser);
+
           //nedim-j: header not sent, probably backend problem
+          /*
           console.log("Whole header:", message.headers);
           console.log(
             "Custom header 'event-type':",
             message.headers["event-type"]
           );
+          */
           setUsers((prevUsers) => [...prevUsers, invitedUser]);
         });
       }
