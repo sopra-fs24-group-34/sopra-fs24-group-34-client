@@ -5,6 +5,11 @@ import "styles/views/menu-tabs/Profile.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import { Button } from "components/ui/Button";
 import { User } from "types";
+import defaultImage from "images/puck.jpeg";
+import Image1 from "images/Cat.jpeg";
+
+const imageUrls = [defaultImage, Image1]; // Add more images as needed
+
 
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
@@ -15,6 +20,8 @@ const Profile = ({ user }: { user: User }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedUsername, setEditedUsername] = useState(user.username);
   const [editedPassword, setEditedPassword] = useState(user.password);
+  const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
+  const [showImagePicker, setShowImagePicker] = useState(false); // Highlighted change
 
   useEffect(() => {
     getUser();
@@ -28,6 +35,8 @@ const Profile = ({ user }: { user: User }) => {
         username: editedUsername,
         password: editedPassword,
         token: userToken,
+        // profilePicture: profilePicture, // Include profile picture in the request body
+        // dario: I will implement that
       });
       await api.put(`/users/${userId}`, requestBody);
 
@@ -47,6 +56,8 @@ const Profile = ({ user }: { user: User }) => {
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
+      //setProfilePicture(response.data.profilePicture); // Update profile picture from response
+      //dario I will implement that
     } catch (error) {
       alert(`Something went wrong fetching the user: \n${handleError(error)}`);
     }
@@ -62,11 +73,28 @@ const Profile = ({ user }: { user: User }) => {
     }
   };
 
+  const handleProfilePictureClick = () => {
+    if (isEditing) {
+      // Open image picker when in edit mode
+      setShowImagePicker(true);
+    }
+  };
+  const handleImageSelect = (selectedImage: string) => {
+    setProfilePicture(selectedImage);
+    setShowImagePicker(false);
+  };
+
+
   return (
     <>
       <div className="profile">
         <div className="container">
-          <BaseContainer className="picture">picture</BaseContainer>
+          <BaseContainer className="picture" onClick={handleProfilePictureClick}>
+            <img src={profilePicture} alt="Profile"
+                 style={{ maxWidth: "100%", maxHeight: "100%" }}
+            />
+          </BaseContainer>
+
           <BaseContainer className="details">
             <BaseContainer className="item" style={{ marginTop: "1em" }}>
               <div className="label">Username:</div>
@@ -115,6 +143,29 @@ const Profile = ({ user }: { user: User }) => {
           </>
         )}
       </div>
+
+      {showImagePicker && (
+          <div className="popup-overlay">
+            <div className="popup">
+              <button className="close" onClick={() => setShowImagePicker(false)}>
+                &times;
+              </button>
+              <h2>Choose Profile Picture</h2>
+              <div className="imageGrid">
+                {imageUrls.map((imageUrl, index) => (
+                    <div className="imageContainer" key={index}>
+                      <img
+                          src={imageUrl}
+                          alt={`Image ${index + 1}`}
+                          className="image"
+                          onClick={() => handleImageSelect(imageUrl)}
+                      />
+                    </div>
+                ))}
+              </div>
+            </div>
+          </div>
+      )}
     </>
   );
 };
