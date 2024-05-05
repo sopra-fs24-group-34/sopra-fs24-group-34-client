@@ -8,6 +8,7 @@ import { User } from "types";
 
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
+  const navigate = useNavigate();
   const userToken = localStorage.getItem("userToken");
   const userId = localStorage.getItem("userId");
 
@@ -34,7 +35,9 @@ const Profile = ({ user }: { user: User }) => {
     } catch (error) {
       setEditedUsername(user.username);
       alert(
-        `Something went wrong during updating the profile: \n${handleError(error)}`
+        `Something went wrong during updating the profile: \n${handleError(
+          error
+        )}`
       );
     }
   };
@@ -49,18 +52,27 @@ const Profile = ({ user }: { user: User }) => {
     }
   };
 
+  const deleteUser = async () => {
+    try {
+      await api.delete(`/user/${userId}/delete`);
+      localStorage.clear();
+      navigate("/");
+    } catch (error) {
+      alert(`Something went wrong deleting the user: \n${handleError(error)}`);
+    }
+  };
+
   return (
     <>
       <div className="profile">
         <div className="container">
           <BaseContainer className="picture">picture</BaseContainer>
-
           <BaseContainer className="details">
             <BaseContainer className="item" style={{ marginTop: "1em" }}>
-              <div className="label">Username: </div>
+              <div className="label">Username:</div>
               {isEditing ? (
                 <input
-                  className="input"
+                  className="profile-input"
                   type="text"
                   value={editedUsername}
                   onChange={(e) => setEditedUsername(e.target.value)}
@@ -74,7 +86,7 @@ const Profile = ({ user }: { user: User }) => {
               <div className="label">Password: </div>
               {isEditing ? (
                 <input
-                  className="input"
+                  className="profile-input"
                   type="password"
                   value={editedPassword}
                   onChange={(e) => setEditedPassword(e.target.value)}
@@ -91,9 +103,16 @@ const Profile = ({ user }: { user: User }) => {
             Save
           </Button>
         ) : (
-          <Button className="editButton" onClick={() => setIsEditing(true)}>
-            Edit
-          </Button>
+          <>
+            <Button
+              onClick={() => setIsEditing(true)}
+            >
+              Edit
+            </Button>
+            <Button className="delete-button" onClick={() => deleteUser()}>
+              Delete Account
+            </Button>
+          </>
         )}
       </div>
     </>
