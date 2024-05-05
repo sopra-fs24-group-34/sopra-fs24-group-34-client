@@ -52,26 +52,24 @@
                 margin-left: 0.5em;
                 text-align: left;
             }
-            &.value {
+            .value {
                 margin-right: 0.5em;
                 text-align: right; 
+                font-family: $fontNormal;
             }
-            &.input {
-                border: none;
+            .profile-input {
                 border-radius: 0.75em;
                 width: 50%;
-                background: transparentize(rgb(90, 90, 90), 0.85);
-                color: $textColor;
+                background-color: transparent;
+                font-family: $fontNormal;
+                
               }
         }
         
     }
 
-    &.editButton {
-        flex: 1;
-        align-self: center;
-        justify-self: center;
-        margin-top: 2em;
-        
+    .delete-button {
+        margin-top: 15px;
+        background: #ad3a38;
     }
 }
