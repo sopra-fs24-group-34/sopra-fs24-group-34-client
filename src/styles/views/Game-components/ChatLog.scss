@@ -73,9 +73,11 @@
     color: $textColor;
     text-align: center;
     border-radius: 0.75em;
+    font-family: $fontNormal;
   }
 }
 .text {
   @include center;
   padding: 2px;
+  font-family: $fontNormal;
 }
