@@ -31,7 +31,8 @@
     width: 100%; // Added to ensure the sorting buttons span the whole width
     display: flex; // Added to make the buttons flex containers
     justify-content: space-around; // Adjusted to evenly distribute buttons
-    margin-bottom: 1em; // Added some margin at the bottom for separation
+    margin-top: 0.5em;
+    margin-bottom: 0.5em; // Added some margin at the bottom for separation
   }
   &.user-item {
     display: flex;
