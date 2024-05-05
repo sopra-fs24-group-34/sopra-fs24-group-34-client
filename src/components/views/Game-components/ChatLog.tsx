@@ -26,83 +26,54 @@ QuestionField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const ChatLog = () => {
+const ChatLog = ({ sClient }) => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const [stompClient, setStompClient] = useState(null);
+  const [stompClient, setStompClient] = useState(sClient);
 
   useEffect(() => {
     async function ws() {
-      const socket = new SockJS("http://localhost:8080/ws");
-      const stompClient = Stomp.over(socket);
-      setStompClient(stompClient);
-
-      await stompClient.connect({}, () => {
-        console.log("Connected to WebSocket");
-      });
-
+      //setStompClient(sClient);
       await new Promise((resolve) => setTimeout(resolve, 500));
       await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
         const body = JSON.parse(message.body);
         const header = body["event-type"];
-        console.log("Header: ", header);
+        //console.log("Header: ", header);
         const data = body.data;
 
-        console.log("Received message:", data);
+        console.log("Header: ", header, "\nReceived message: ", data.message);
         setMessages((prevMessages) => [...prevMessages, data.message]);
       });
-
-      /*
-      const channel = pusherClient.subscribe(`gameRound${gameId}`);
-
-      channel.bind("new_message", (response) => {
-        console.log("Received message:", response);
-        setMessages((prevMessages) => [...prevMessages, response]);
-      });
-      */
 
       return () => {
         disconnectWebsocket();
       };
     }
-    ws();
+
+    if (sClient) {
+      ws();
+    }
   }, []);
 
   function disconnectWebsocket() {
-    console.log("LEFT Game PAGE i hope");
     if (stompClient !== null) {
       stompClient.disconnect();
       setStompClient(null);
     }
   }
 
-  /*
-    pusherService.subscribeToChannel(
-      `gameRound${gameId}`,
-      "new_message",
-      (data) => {
-        //console.log("Received information:", data);
-        //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
-        console.log("Received message:", data);
-        setMessages((prevMessages) => [...prevMessages, data]);
-      }
-    );
-    
-    return () => {
-      pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
-    };
-  }, []);*/
-
   const updateChat = async () => {
     try {
-      const request = JSON.stringify({message: prompt, gameId: gameId, userId: userId});
+      const request = JSON.stringify({
+        message: prompt,
+        gameId: gameId,
+        userId: userId,
+      });
 
-      //console.log("MESSAGE: ", prompt);
-      console.log("CHAT REQUEST: ", request);
-      //await api.post(`/game/${gameId}/chat/${userId}`, request); // LiamK21: IDK if post/put; change URI
+      //await api.post(`/game/${gameId}/chat/${userId}`, request);
       stompClient.send("/app/sendMessage", {}, request);
     } catch (error) {
       alert(
@@ -172,6 +143,10 @@ const ChatLog = () => {
       </div>
     </BaseContainer>
   );
+};
+
+ChatLog.propTypes = {
+  sClient: PropTypes.object,
 };
 
 export default ChatLog;

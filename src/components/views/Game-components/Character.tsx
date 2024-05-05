@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 // Each Character receives a character object together with functionality
 const Character = ({
+  key,
   character,
   visibleCharacter,
   pickCharacter,
@@ -48,6 +49,7 @@ const Character = ({
 };
 
 Character.propTypes = {
+  key: PropTypes.number,
   character: PropTypes.obj,
   visibleCharacter: PropTypes.Func,
   pickCharacter: PropTypes.Func,

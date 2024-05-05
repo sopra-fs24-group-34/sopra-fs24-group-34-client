@@ -12,7 +12,7 @@ import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
-const CharacterGrid = ({ persons }) => {
+const CharacterGrid = ({ persons, sClient }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
@@ -25,100 +25,61 @@ const CharacterGrid = ({ persons }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
-  const [stompClient, setStompClient] = useState(null);
+  const [stompClient, setStompClient] = useState(sClient);
 
-  //nedim-j: websockets
   useEffect(() => {
     async function ws() {
-
       if (playerId && gameId) {
-        const socket = new SockJS("http://localhost:8080/ws");
-        const stompClient = Stomp.over(socket);
-        setStompClient(stompClient);
-
-        await stompClient.connect({}, () => {
-          console.log("Connected to WebSocket");
-        });
-
         await new Promise((resolve) => setTimeout(resolve, 500));
-        await stompClient.subscribe(`/games/${gameId}`, (message) => {
-          const body = JSON.parse(message.body);
-          const header = body["event-type"];
-          console.log("Header: ", header);
-          const data = body.data;
+        const messageSubscription = await stompClient.subscribe(
+          `/games/${gameId}`,
+          (message) => {
+            const body = JSON.parse(message.body);
+            const header = body["event-type"];
+            console.log("Header: ", header);
+            const data = body.data;
 
-          setCurrentRound(data.roundStatus);
-          if (data.guess === true && data.roundStatus === "END") {
-            if (data.playerId === playerId) {
-              localStorage.setItem("result", "won");
-            } else {
-              localStorage.setItem("result", "lost");
+            setCurrentRound(data.roundStatus);
+            if (data.guess === true && data.roundStatus === "END") {
+              if (data.playerId === playerId) {
+                localStorage.setItem("result", "won");
+              } else {
+                localStorage.setItem("result", "lost");
+              }
+              disconnectWebsocket();
+              navigate("/endscreen");
             }
-            navigate("/endscreen");
-          }
 
-          if (data.strikes === 3 && data.roundStatus === "END") {
-            if (data.playerId === playerId) {
-              localStorage.setItem("result", "lost");
-            } else {
-              localStorage.setItem("result", "won");
+            //nedim-j: is there a lock in the backend which prevents us from playing on?
+            if (data.strikes === 3 && data.roundStatus === "END") {
+              if (data.playerId === playerId) {
+                localStorage.setItem("result", "lost");
+              } else {
+                localStorage.setItem("result", "won");
+              }
+              disconnectWebsocket();
+              navigate("/endscreen");
             }
-            navigate("/endscreen");
           }
-        });
+        );
+        
+        return () => {
+          messageSubscription.unsubscribe();
+          disconnectWebsocket();
+        };
       }
-
-      return () => {
-        disconnectWebsocket();
-      };
     }
-    ws();
+    if (stompClient) {
+      ws();
+    }
   }, []);
 
   function disconnectWebsocket() {
-    console.log("LEFT Game PAGE i hope");
     if (stompClient !== null) {
       stompClient.disconnect();
       setStompClient(null);
     }
   }
-
-  /*
-  // Leave commented out for the moment
-  useEffect(() => {
-    pusherService.subscribeToChannel(
-      `gameRound${gameId}`,
-      "round-update",
-      (data) => {
-        console.log("Received information:", data);
-        //nedim-j: define first in backend, what gets returned. String with state not ideal, as we probably want more info exchanged than that
-        setCurrentRound(data.roundStatus);
-        if (data.guess === true && data.roundStatus === "END") {
-          if (data.playerId === playerId) {
-            localStorage.setItem("result", "won");
-          } else {
-            localStorage.setItem("result", "lost");
-          }
-          navigate("/endscreen");
-        }
-
-        if (data.strikes === 3 && data.roundStatus === "END") {
-          if (data.playerId === playerId) {
-            localStorage.setItem("result", "lost");
-          } else {
-            localStorage.setItem("result", "won");
-          }
-          navigate("/endscreen");
-        }
-      }
-    );
-
-    return () => {
-      pusherService.unsubscribeFromChannel(`gameRound${gameId}`);
-    };
-  }, []);
-
-  */
 
   const pickCharacter = async (characterId, idx) => {
     try {
@@ -127,8 +88,6 @@ const CharacterGrid = ({ persons }) => {
         playerid: playerId,
         imageid: characterId,
       });
-      //setCurrentRound("GUESSING");
-      console.log("PICKCHARACTER:", send);
       await api.put("/game/character/choose", send);
       setModalState({
         isOpen: true,
@@ -199,6 +158,7 @@ const CharacterGrid = ({ persons }) => {
 
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
+  sClient: PropTypes.object,
 };
 
 export default CharacterGrid;

@@ -12,7 +12,6 @@ import LobbyRouter from "./LobbyRouter";
 import GameRouter from "./GameRouter";
 import { GameGuard } from "../routeProtectors/GameGuard";
 import Endscreen from "../../views/Endscreen";
-import WebSocketComponent from "../../views/WebsocketDemo";
 
 /**
  * Main router of your application.
@@ -42,8 +41,6 @@ const AppRouter = () => {
         <Route path="/landingPage" element={<LandingPage />}></Route>
 
         <Route path="/endscreen" element={<Endscreen />}></Route>
-
-        <Route path="/websocketdemo" element={<WebSocketComponent />}></Route>
 
         <Route path="/lobby/*" element={<LobbyGuard />}>
           <Route path="/lobby/*" element={<LobbyRouter base="/lobby" />} />

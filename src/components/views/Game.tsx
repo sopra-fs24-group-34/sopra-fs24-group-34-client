@@ -7,6 +7,8 @@ import "styles/views/Game.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
 import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -18,10 +20,31 @@ const Game = () => {
     isOpen: true,
     content: <GameModalContent />,
   });
+  const [stompClient, setStompClient] = useState(null);
+
+  useEffect(() => {
+    async function connectWebSocket() {
+      const socket = new SockJS("http://localhost:8080/ws");
+      const stompClient = Stomp.over(socket);
+      setStompClient(stompClient);
+
+      await stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+      });
+    }
+
+    connectWebSocket();
+
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+        setStompClient(null);
+      }
+    };
+  }, []);
 
   // useEffect to fetch images from DB
   useEffect(() => {
-
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
 
     const fetchImages = async () => {
@@ -69,8 +92,7 @@ const Game = () => {
       await api.delete(`/games/${gameId}/images/${imageId}`);
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
-    }
-    catch (error) {
+    } catch (error) {
       alert(
         `Something went wrong removing the characters: \n${handleError(error)}`
       );
@@ -86,8 +108,8 @@ const Game = () => {
     <BaseContainer className="game container">
       {hasAccepted ? (
         <>
-          <CharacterGrid persons={characters} />
-          <ChatLog />
+          <CharacterGrid persons={characters} sClient={stompClient} />
+          <ChatLog sClient={stompClient} />
         </>
       ) : (
         <>
