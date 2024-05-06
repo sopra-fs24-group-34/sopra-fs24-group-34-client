@@ -7,8 +7,11 @@ import { Button } from "components/ui/Button";
 import { User } from "types";
 import defaultImage from "images/puck.jpeg";
 import Image1 from "images/Cat.jpeg";
+import Image2 from "images/Dog.jpeg";
 
-const imageUrls = [defaultImage, Image1]; // Add more images as needed
+const imageUrls = [defaultImage, Image1, Image2];
+// dario: add more images as needed (but first import them)
+// code is only written for jpeg
 
 
 const Profile = ({ user }: { user: User }) => {
@@ -21,12 +24,17 @@ const Profile = ({ user }: { user: User }) => {
   const [editedUsername, setEditedUsername] = useState(user.username);
   const [editedPassword, setEditedPassword] = useState(user.password);
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
-  const [showImagePicker, setShowImagePicker] = useState(false); // Highlighted change
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   useEffect(() => {
     getUser();
-  }, []);
 
+    const storedProfilePicture = localStorage.getItem("profilePicture");
+    if (storedProfilePicture) {
+      setProfilePicture(storedProfilePicture);
+    }
+}, []);
+  
   const sendEdit = async () => {
     setIsEditing(false);
     try {
@@ -35,12 +43,11 @@ const Profile = ({ user }: { user: User }) => {
         username: editedUsername,
         password: editedPassword,
         token: userToken,
-        // profilePicture: profilePicture, // Include profile picture in the request body
-        // dario: I will implement that
+        profilePicture: profilePicture,
       });
       await api.put(`/users/${userId}`, requestBody);
 
-      getUser();
+      await getUser();
     } catch (error) {
       setEditedUsername(user.username);
       alert(
@@ -56,8 +63,7 @@ const Profile = ({ user }: { user: User }) => {
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
-      //setProfilePicture(response.data.profilePicture); // Update profile picture from response
-      //dario I will implement that
+
     } catch (error) {
       alert(`Something went wrong fetching the user: \n${handleError(error)}`);
     }
@@ -75,12 +81,12 @@ const Profile = ({ user }: { user: User }) => {
 
   const handleProfilePictureClick = () => {
     if (isEditing) {
-      // Open image picker when in edit mode
       setShowImagePicker(true);
     }
   };
   const handleImageSelect = (selectedImage: string) => {
     setProfilePicture(selectedImage);
+    localStorage.setItem("profilePicture", selectedImage);
     setShowImagePicker(false);
   };
 
