@@ -13,7 +13,6 @@ const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
 // code is only written for jpeg
 
-
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
@@ -33,7 +32,7 @@ const Profile = ({ user }: { user: User }) => {
     if (storedProfilePicture) {
       setProfilePicture(storedProfilePicture);
     }
-}, []);
+  }, []);
 
   const sendEdit = async () => {
     setIsEditing(false);
@@ -63,7 +62,6 @@ const Profile = ({ user }: { user: User }) => {
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
-
     } catch (error) {
       alert(`Something went wrong fetching the user: \n${handleError(error)}`);
     }
@@ -90,18 +88,20 @@ const Profile = ({ user }: { user: User }) => {
     setShowImagePicker(false);
   };
 
-
   return (
     <>
       <div className="profile">
         <div className="container">
-          <BaseContainer className="picture" onClick={handleProfilePictureClick}>
-            <img src={profilePicture} alt="Profile"
-                 style={{ maxWidth: "100%", maxHeight: "100%" }}
+          <BaseContainer
+            className="picture"
+            onClick={handleProfilePictureClick}
+          >
+            <img
+              src={profilePicture}
+              alt="Profile"
+              style={{ maxWidth: "100%", maxHeight: "100%" }}
             />
-            {isEditing && (
-                <div className="changeTextOverlay">Switch</div>
-            )}
+            {isEditing && <div className="changeTextOverlay">Switch</div>}
           </BaseContainer>
 
           <BaseContainer className="details">
@@ -136,16 +136,16 @@ const Profile = ({ user }: { user: User }) => {
         </div>
 
         {isEditing ? (
-          <Button className="editButton" onClick={() => sendEdit()}>
+          <Button
+            className="editButton"
+            onClick={() => sendEdit()}
+            disabled={!editedUsername || !editedPassword}
+          >
             Save
           </Button>
         ) : (
           <>
-            <Button
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </Button>
+            <Button onClick={() => setIsEditing(true)}>Edit</Button>
             <Button className="delete-button" onClick={() => deleteUser()}>
               Delete Account
             </Button>
@@ -154,26 +154,26 @@ const Profile = ({ user }: { user: User }) => {
       </div>
 
       {showImagePicker && (
-          <div className="popup-overlay">
-            <div className="popup">
-              <button className="close" onClick={() => setShowImagePicker(false)}>
-                &times;
-              </button>
-              <h2>Choose Profile Picture</h2>
-              <div className="imageGrid">
-                {imageUrls.map((imageUrl, index) => (
-                    <div className="imageContainer" key={index}>
-                      <img
-                          src={imageUrl}
-                          alt={`Image ${index + 1}`}
-                          className="image"
-                          onClick={() => handleImageSelect(imageUrl)}
-                      />
-                    </div>
-                ))}
-              </div>
+        <div className="popup-overlay">
+          <div className="popup">
+            <button className="close" onClick={() => setShowImagePicker(false)}>
+              &times;
+            </button>
+            <h2>Choose Profile Picture</h2>
+            <div className="imageGrid">
+              {imageUrls.map((imageUrl, index) => (
+                <div className="imageContainer" key={index}>
+                  <img
+                    src={imageUrl}
+                    alt={`Image ${index + 1}`}
+                    className="image"
+                    onClick={() => handleImageSelect(imageUrl)}
+                  />
+                </div>
+              ))}
             </div>
           </div>
+        </div>
       )}
     </>
   );
