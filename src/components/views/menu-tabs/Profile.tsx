@@ -34,7 +34,7 @@ const Profile = ({ user }: { user: User }) => {
       setProfilePicture(storedProfilePicture);
     }
 }, []);
-  
+
   const sendEdit = async () => {
     setIsEditing(false);
     try {
@@ -99,6 +99,9 @@ const Profile = ({ user }: { user: User }) => {
             <img src={profilePicture} alt="Profile"
                  style={{ maxWidth: "100%", maxHeight: "100%" }}
             />
+            {isEditing && (
+                <div className="changeTextOverlay">Switch</div>
+            )}
           </BaseContainer>
 
           <BaseContainer className="details">
