@@ -30,6 +30,7 @@ FormField.propTypes = {
 };
 
 const LandingPage = () => {
+  localStorage.clear();
   const navigate = useNavigate();
   const [lobbyCode, setLobbyCode] = useState(null);
 
