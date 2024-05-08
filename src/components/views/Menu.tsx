@@ -37,33 +37,22 @@ const Menu = () => {
     navigate("/landingPage");
   };
 
-  const createLobby = (): void => {
+  const createLobby = async () => {
     const userId = localStorage.getItem("userId");
-    async function makeRequest() {
-      try {
-        const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend
-        
-        await new Promise((resolve) => setTimeout(resolve, 200));
+    try {
+      const response = await api.post(`/lobbies/create/${userId}`);
 
-        localStorage.setItem("lobbyId", response.data);
+      localStorage.setItem("lobbyId", response.data);
 
-        console.log(response);
+      console.log(response);
 
-        navigate("/lobby");
-      } catch (error) {
-        console.error(
-          `Something went wrong while creating the lobby: \n${handleError(
-            error
-          )}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while creating the lobby! See the console for details."
-        );
-      }
+      navigate("/lobby");
+    } catch (error) {
+      console.error(
+        `Something went wrong while creating the lobby: \n${handleError(error)}`
+      );
+      console.error("Details:", error);
     }
-
-    makeRequest();
   };
 
   return (
