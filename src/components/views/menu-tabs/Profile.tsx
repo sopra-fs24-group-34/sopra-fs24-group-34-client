@@ -54,7 +54,7 @@ const Profile = ({ user }: { user: User }) => {
 
   const deleteUser = async () => {
     try {
-      await api.delete(`/user/${userId}/delete`);
+      await api.delete(`/users/${userId}/delete`);
       localStorage.clear();
       navigate("/");
     } catch (error) {
