@@ -5,6 +5,7 @@ export type User = {
   status: string;
   totalwins: number;
   totalplayed: number;
+  profilePicture: string;
 };
 
 export type Character = {
