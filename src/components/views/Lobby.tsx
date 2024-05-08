@@ -326,14 +326,7 @@ const LobbyPage = () => {
         </ul>
       </BaseContainer>
       {showExplanation && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <span className="close" onClick={() => setShowExplanation(false)}>
-              &times;
-            </span>
-            <LobbyGameExplanation />
-          </div>
-        </div>
+        <LobbyGameExplanation func={() => setShowExplanation()} />
       )}
     </BaseContainer>
   );
