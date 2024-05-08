@@ -1,21 +1,150 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
-import CharacterGrid from "./Game-components/CharacterGrid"; // import for later usage
-import ChatLog from "./Game-components/ChatLog"; // import for later usage
+import CharacterGrid from "./Game-components/CharacterGrid";
+import ChatLog from "./Game-components/ChatLog";
 import "styles/views/Game.scss";
+import "styles/views/Game-components/CharacterGrid.scss";
+import GameModalContent from "./GameModalContent";
+import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const Game = () => {
-  console.log("PLAYER ID: ", localStorage.getItem("playerId"));
-  
+  const [characters, setCharacters] = useState<string[]>([]);
+  const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
+  const gameId = localStorage.getItem("gameId");
+  const [isCreator, setIsCreator] = useState<boolean>(false);
+
+  const [modalState, setModalState] = useState({
+    isOpen: true,
+    content: <GameModalContent />,
+  });
+  const [stompClient, setStompClient] = useState(null);
+
+  useEffect(() => {
+    async function connectWebSocket() {
+      const socket = new SockJS("http://localhost:8080/ws");
+      const stompClient = Stomp.over(socket);
+      setStompClient(stompClient);
+
+      await stompClient.connect({}, () => {
+        console.log("Connected to WebSocket");
+      });
+    }
+
+    connectWebSocket();
+
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect();
+        setStompClient(null);
+      }
+    };
+  }, []);
+
+  // useEffect to fetch images from DB
+  useEffect(() => {
+    setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
+
+    const fetchImages = async () => {
+      try {
+        await api.post(`/games/${gameId}/images`);
+        const response = await api.get(`/games/${gameId}/images`);
+        setCharacters(response.data);
+      } catch (error) {
+        alert(
+          `Something went wrong fetching the characters: \n${handleError(
+            error
+          )}`
+        );
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  // function to display an overlay which should replace a character
+  const ReplaceCharacter = (idx, id) => {
+    return (
+      <div className="character overlay">
+        <button
+          className="character-button"
+          onClick={() => RemoveCharacter(idx, id)}
+        >
+          Replace
+        </button>
+      </div>
+    );
+  };
+
+  // function to remove and set a new character at that place
+  // No idea if this is correct (might need a reload)
+  const RemoveCharacter = async (idx, imageId) => {
+    try {
+      /* const response = await api.delete(`/games/${gameId}/images/${imageId}`);
+      setCharacters((prevCharacters) => {
+        const newCharacters = [...prevCharacters];
+        newCharacters[idx] = response.data;
+
+      return newCharacters;
+    }); */
+      await api.delete(`/games/${gameId}/images/${imageId}`);
+      const response = await api.get(`/games/${gameId}/images`);
+      setCharacters(response.data);
+    } catch (error) {
+      alert(
+        `Something went wrong removing the characters: \n${handleError(error)}`
+      );
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, content: null });
+  };
+
+  // Returns either the grid to potentially replace characters or the actual game
   return (
     <BaseContainer className="game container">
-      <CharacterGrid />
-      <ChatLog />
+      {hasAccepted ? (
+        <>
+          <CharacterGrid persons={characters} sClient={stompClient} />
+          <ChatLog sClient={stompClient} />
+        </>
+      ) : (
+        <>
+          <div className="character-grid">
+            {characters.map((character, idx) => (
+              <div className="character container" key={character.id}>
+                <img
+                  className="character container img"
+                  src={character.url}
+                ></img>
+                {isCreator && (
+                  <div className="character overlay">
+                    {ReplaceCharacter(idx, character.id)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            className="accept-character-button"
+            onClick={() => setHasAccepted(true)}
+          >
+            Accept characters
+          </button>
+        </>
+      )}
+      {
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
+      }
     </BaseContainer>
   );
-
 };
 
 export default Game;

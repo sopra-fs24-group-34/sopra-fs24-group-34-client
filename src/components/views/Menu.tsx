@@ -33,8 +33,7 @@ const Menu = () => {
   };
 
   const logout = (): void => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userId");
+    localStorage.clear();
     navigate("/landingPage");
   };
 

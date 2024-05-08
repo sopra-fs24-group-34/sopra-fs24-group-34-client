@@ -3,7 +3,8 @@ import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import PusherService from "../PusherService";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -25,34 +26,55 @@ QuestionField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const ChatLog = () => {
+const ChatLog = ({ sClient }) => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const pusherService = new PusherService();
+  const [stompClient, setStompClient] = useState(sClient);
 
   useEffect(() => {
-    pusherService.subscribeToChannel(
-      "chat_channel",
-      "new_message",
-      (response) => {
-        console.log("Received message:", response);
-        setMessages(() => [...messages, response]);
-      }
-    );
+    async function ws() {
+      //setStompClient(sClient);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+        const body = JSON.parse(message.body);
+        const header = body["event-type"];
+        //console.log("Header: ", header);
+        const data = body.data;
 
-    return () => {
-      pusherService.unsubscribeFromChannel("chat_channel");
-    };
+        console.log("Header: ", header, "\nReceived message: ", data.message);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
+      });
+
+      return () => {
+        disconnectWebsocket();
+      };
+    }
+
+    if (sClient) {
+      ws();
+    }
   }, []);
+
+  function disconnectWebsocket() {
+    if (stompClient !== null) {
+      stompClient.disconnect();
+      setStompClient(null);
+    }
+  }
 
   const updateChat = async () => {
     try {
-      await api.post(`/game/${gameId}/chat/${userId}`, {
-        prompt,
-      }); // LiamK21: IDK if post/put; change URI
+      const request = JSON.stringify({
+        message: prompt,
+        gameId: gameId,
+        userId: userId,
+      });
+
+      //await api.post(`/game/${gameId}/chat/${userId}`, request);
+      stompClient.send("/app/sendMessage", {}, request);
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
@@ -121,6 +143,10 @@ const ChatLog = () => {
       </div>
     </BaseContainer>
   );
+};
+
+ChatLog.propTypes = {
+  sClient: PropTypes.object,
 };
 
 export default ChatLog;

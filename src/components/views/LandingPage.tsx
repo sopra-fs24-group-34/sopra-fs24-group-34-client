@@ -15,7 +15,7 @@ const FormField = (props) => {
       <input
         type={props.label === "Password" ? "password" : "text"}
         className="landingPage input"
-        placeholder="enter here.."
+        placeholder="Enter here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       />
@@ -30,6 +30,7 @@ FormField.propTypes = {
 };
 
 const LandingPage = () => {
+  localStorage.clear();
   const navigate = useNavigate();
   const [lobbyCode, setLobbyCode] = useState(null);
 

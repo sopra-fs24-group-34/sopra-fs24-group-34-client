@@ -106,9 +106,7 @@
       border-radius: $borderRadius;
       width: 100%;
     }
-    .username-adder {
-
-    }
+    //.username-adder {}
   }
 }
 
@@ -141,7 +139,7 @@
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  width: 40%;
+  width: 50%;
 }
 
 .popup .close {
@@ -157,6 +155,7 @@
 }
 
 .popup p {
+  font-family: $fontNormal;
   margin-bottom: 20px;
 }
 

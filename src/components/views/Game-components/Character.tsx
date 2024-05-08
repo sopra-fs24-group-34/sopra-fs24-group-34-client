@@ -1,57 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import "../../../styles/views/Game-components/Character.scss";
-import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
-import PusherService from "../PusherService";
 
-// Each Character receives an id (idx in array) and an img (value in array)
-const Character = ({ id, url }) => {
-  const navigate = useNavigate();
-  const gameId = localStorage.getItem("gameId");
-  const userId = localStorage.getItem("userId");
-  //This (or another state) needs to be updated by the server to know that both users picked
-  const [currentRound, setCurrentRound] = useState<String>("Pick");
-  const [visibleCharacter, setvisibleCharacter] = useState<Boolean>(true);
-
-  // This state depends, either we pass it as parameter or use it
-  const characterId = id;
-  const pusherService = new PusherService();
-
-  useEffect(() => {
-    pusherService.subscribeToChannel(
-      `gameRound${gameId}`,
-      "round-update",
-      (response) => {
-        console.log("Received information:", response);
-        setCurrentRound(response);
-        if (currentRound === "Game-end") {
-          navigate("endscreen");
-        }
-      }
-    );
-
-    return () => {
-      pusherService.unsubscribeFromChannel("game");
-    };
-  }, []);
-  // Func to pick a character at the beginning
-  const pickCharacter = async () => {
-    try {
-      const send = JSON.stringify({
-        gameid: gameId,
-        playerid: userId,
-        imageid: characterId,
-      });
-      await api.post("/game/character/choose", send); // LiamK21: change URI¨
-    } catch (error) {
-      alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
-    }
-  };
-
-  // Func to display further functions on the character
+// Each Character receives a character object together with functionality
+const Character = ({
+  key,
+  character,
+  visibleCharacter,
+  pickCharacter,
+  foldCharacter,
+  guessCharacter,
+  currentRound,
+}) => {
+  // functionality to display an overlay on top of character
   const interactCharacter = () => {
-    if (currentRound === "Pick") {
+    if (currentRound === "CHOOSING") {
       return (
         <div className="character overlay">
           <button className="character-button" onClick={() => pickCharacter()}>
@@ -73,43 +36,26 @@ const Character = ({ id, url }) => {
     );
   };
 
-  // Func to fold / unfold a character
-  const foldCharacter = () => {
-    setvisibleCharacter(!visibleCharacter);
-  };
-
-  // Func to guess a character
-  const guessCharacter = async () => {
-    const send = JSON.stringify({
-      gameid: gameId,
-      playerid: userId,
-      imageid: characterId,
-    });
-    const response = await api.post("/game/character/guess", send);
-    if (response.data) {
-      setCurrentRound("Game-ended");
-    }
-  };
-
   return (
-    <div
-      className={`character ${visibleCharacter ? "container" : "fold"}`}
-      key={id}
-    >
-      <img className="character container img" src={url}></img>
+    <div className={"character container"} key={character.id}>
+      <img className="character container img" src={character.url}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (
-        <div className="character fold">{interactCharacter()}</div>
+        <div className="character container fold">{interactCharacter()}</div>
       )}
     </div>
   );
 };
 
 Character.propTypes = {
-  id: PropTypes.number,
-  url: PropTypes.string,
-  func: PropTypes.func,
+  key: PropTypes.number,
+  character: PropTypes.obj,
+  visibleCharacter: PropTypes.Func,
+  pickCharacter: PropTypes.Func,
+  foldCharacter: PropTypes.Func,
+  guessCharacter: PropTypes.Func,
+  currentRound: PropTypes.String,
 };
 
 export default Character;

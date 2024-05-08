@@ -7,7 +7,9 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User, Lobby } from "types";
-import PusherService from "./PusherService";
+import LobbyGameExplanation from "./LobbyGameExplanation";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -21,40 +23,59 @@ const LobbyPage = () => {
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const pusherService = new PusherService();
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const lobbyId = localStorage.getItem("lobbyId");
+    async function ws() {
+      const userId = localStorage.getItem("userId");
+      const lobbyId = localStorage.getItem("lobbyId");
 
-    if (userId && lobbyId) {
-      fetchData(userId, lobbyId);
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "user-joined",
-        (data: any) => {
-          setUsers((prevUsers) => [...prevUsers, data]);
-        }
-      );
+      if (userId && lobbyId) {
+        fetchData(userId, lobbyId);
 
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "game-started",
-        (data: any) => {
-          // Check if current user is not the host
-          if (parseInt(userId) !== data.creatorUserId) {
-            localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", userId);
-            navigate("/game"); // Redirect to game page
+        const socket = new SockJS("http://localhost:8080/ws");
+        const stompClient = Stomp.over(socket);
+        setStompClient(stompClient);
+
+        await stompClient.connect({}, () => {
+          console.log("Connected to WebSocket");
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await stompClient.subscribe(`/lobbies/${lobbyId}`, (message) => {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          const data = body.data;
+          console.log("Header: ", header);
+          if (header === "user-joined") {
+            console.log("Invited User: ", data);
+            setUsers((prevUsers) => [...prevUsers, data]);
+          } else if (header === "game-started") {
+            const pId = localStorage.getItem("playerId");
+            if (parseInt(pId) !== data.creatorId) {
+              localStorage.setItem("gameId", data.gameId);
+              localStorage.setItem("playerId", data.invitedplayerId);
+              navigate("/game"); // Redirect to game page
+            }
           }
-        }
-      );
+        });
+      }
+
+      return () => {
+        disconnectWebsocket();
+      };
     }
 
-    return () => {
-      pusherService.unsubscribeFromChannel("lobby-events");
-    };
+    ws();
   }, []);
+
+  function disconnectWebsocket() {
+    console.log("LEFT Lobby PAGE i hope");
+    if (stompClient !== null) {
+      stompClient.disconnect();
+      setStompClient(null);
+    }
+  }
 
   async function fetchData(userId, lobbyId) {
     try {
@@ -83,6 +104,8 @@ const LobbyPage = () => {
       if (parseInt(userId) === creatorUser.id) {
         setIsCreator(true);
         localStorage.setItem("isCreator", JSON.stringify(true));
+      } else {
+        localStorage.setItem("isCreator", JSON.stringify(false));
       }
       localStorage.setItem("isCreator", isCreator);
 
@@ -113,29 +136,31 @@ const LobbyPage = () => {
 
   //Set players to render
   useEffect(() => {
-    if (users !== null && users !== undefined) {
-      console.log("USEEEEEEERS: ", users);
-      localStorage.setItem("users", JSON.stringify(users));
-      const playersComponent = (
-        <ul className="players list">
-          {users.map(
-            (user: User) =>
-              user &&
-              user.id !== undefined &&
-              user.username !== undefined && (
-                <li key={user.id}>
-                  <Player user={user} />
-                </li>
-              )
-          )}
-        </ul>
-      );
-      setPlayers(playersComponent);
+    async function loadPlayers() {
+      if (users !== null && users !== undefined) {
+        console.log("USEEEEEEERS: ", users);
+        localStorage.setItem("users", JSON.stringify(users));
+        const playersComponent = (
+          <ul className="players list">
+            {users.map(
+              (user: User) =>
+                user &&
+                user.id !== undefined &&
+                user.username !== undefined && (
+                  <li key={user.id}>
+                    <Player user={user} />
+                  </li>
+                )
+            )}
+          </ul>
+        );
+        setPlayers(playersComponent);
+      }
     }
+    loadPlayers();
   }, [users]);
 
   function handleReturn() {
-    pusherService.unsubscribeFromChannel("lobby-events");
     const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
@@ -157,6 +182,8 @@ const LobbyPage = () => {
         });
         //console.log("REQUEST DELETE: ", requestDelete);
         //await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
+
+        disconnectWebsocket();
       } catch (error) {
         console.error(
           `Something went wrong while fetching data: \n${handleError(error)}`
@@ -191,6 +218,8 @@ const LobbyPage = () => {
           localStorage.setItem("gameId", response.data.gameId);
           localStorage.setItem("playerId", response.data.creatorId);
           console.log("RESPONSE GAME: ", response);
+
+          disconnectWebsocket();
 
           navigate("/game");
         }
@@ -252,7 +281,7 @@ const LobbyPage = () => {
                   className="lobby button"
                   onClick={() => setShowExplanation(true)}
                 >
-                  View Game Explaination
+                  View Game Explanation
                 </Button>
               </div>
             </BaseContainer>
@@ -303,19 +332,7 @@ const LobbyPage = () => {
             <span className="close" onClick={() => setShowExplanation(false)}>
               &times;
             </span>
-            <h2>How the game works:</h2>
-            <p>
-              {" "}
-              &apos;Who is?&apos; is a turn based 1 vs 1 game, where each player
-              tries to find out, which character their opponent has chosen in
-              the first round. To narrow down the possibilities each player can
-              ask one yes or no question per round.
-              <div className="empty-line"></div>
-              If you think a character isn&apos;t the searched character you can
-              fold it to have an better overview. If you think a character is
-              the searched character you can make a guess, but careful you have
-              a limited amount of guesses/strikes.
-            </p>
+            <LobbyGameExplanation />
           </div>
         </div>
       )}

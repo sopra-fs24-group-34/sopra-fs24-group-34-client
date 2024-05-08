@@ -13,7 +13,7 @@ export const LandingPageGuard = () => {
     return <Outlet />;
   }
   
-  return <Navigate to="/game" replace />;
+  return <Navigate to="/menu" replace />;
 };
 
 LandingPageGuard.propTypes = {

@@ -15,7 +15,7 @@ const FormField = (props) => {
       <input
         type={props.label === "Password" ? "password" : "text"}
         className="login input"
-        placeholder="enter here.."
+        placeholder="Enter here.."
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       />
@@ -42,6 +42,7 @@ const Login = () => {
       // Store the token into the local storage.
       localStorage.setItem("userToken", response.data.token);
       localStorage.setItem("userId", response.data.id);
+      localStorage.setItem("profilePicture", response.data.profilePicture);
 
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");

@@ -27,8 +27,6 @@ const Friends = () => {
       try {
         const response = await api.get(`/users/${userId}/friends`);
         console.log("GET response: ", response);
-            
-        await new Promise((resolve) => setTimeout(resolve, 200));
     
         // Get the returned users and update the state.
         setUsers(response.data);
