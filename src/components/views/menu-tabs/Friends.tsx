@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
-import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
@@ -9,11 +8,10 @@ import "styles/views/menu-tabs/Friends.scss";
 
 const AddFriendField = (props) => {
   return (
-    <div className="... field">
-      <label className="... label">{props.label}</label>
+    <div className="friends field">
       <input
         type="text"
-        className="... input"
+        className="friends input"
         placeholder="Add Friend by Username"
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
@@ -23,7 +21,6 @@ const AddFriendField = (props) => {
 };
 
 AddFriendField.propTypes = {
-  label: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
 };
@@ -45,6 +42,7 @@ const Friends = () => {
   const [inspectedFriend, setInspectedFriend] = useState<User>(null);
   const [friendId, setFriendId] = useState<Number>(null);
   const [ProfileVisible, setProfileVisible] = useState<boolean>(false);
+  const myList = ["Friend1", "Friend2", "Friend3"];
 
   useEffect(() => {
     async function fetchData() {
@@ -166,42 +164,36 @@ const Friends = () => {
   };
 
   return (
-    <BaseContainer className="friends container">
-      <BaseContainer className="friends">
-        <ul className="friends-list">
-          {friends.map((user: User) => (
-            <li key={user.id}>
-              <Friend user={user} />
-            </li>
+    <BaseContainer className="friends base-container">
+      <div className="friends content-wrapper">
+        <BaseContainer className="friends container">
+          <h1 className="friends h1">Friends</h1>
+          {myList.map((num, idx) => (
+            <ul className="friends list" key={idx}>
+              {num}
+            </ul>
           ))}
-        </ul>
-      </BaseContainer>
+        </BaseContainer>
 
-      <BaseContainer className="friendRequests">
-        <ul className="friendRequests-list">
-          {friendRequests.map((user: User) => (
-            <li key={user.id}>
-              <Friend user={user} />
-            </li>
-          ))}
-        </ul>
-      </BaseContainer>
+        <BaseContainer className="friends requests-container">
+          <h1 className="friends h1">requests</h1>
+          <ul className="friends list">
+            {friendRequests.map((user: User) => (
+              <li key={user.id}>
+                <Friend user={user} />
+              </li>
+            ))}
+          </ul>
+        </BaseContainer>
+      </div>
 
-      <BaseContainer className="addFriend">
+      <div className="friends add-friend-container">
         <AddFriendField
-          label="Add Friend By Username"
           value={newFriendUserName}
-          onChange={(un: string) => setNewFriendUserName(un)}
+          onChange={setNewFriendUserName}
         />
-        <Button
-          style={{ flex: "2" }}
-          onClick={() => {
-            () => addFriend();
-          }}
-        >
-          Add Friend
-        </Button>
-      </BaseContainer>
+        <Button onClick={addFriend}>Add Friend</Button>
+      </div>
     </BaseContainer>
   );
 };

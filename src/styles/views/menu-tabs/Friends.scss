@@ -8,19 +8,72 @@
  */
 
 .friends {
-  &.container {
-    background: $background;
-    padding: 1.5em;
+  &.base-container {
+    background: transparent;
+    padding: 10px;
     border-radius: $borderRadius;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: space-between;
+    align-items: flex-start;
     box-shadow: $dropShadow;
-    width: 50%;
-    //height: 200px;
   }
-  &.user-list {
-    list-style: none;
+
+  &.content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1px;
+  }
+    
+&.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: purple;
+    width: 55%;
+    height: 200px;
+    border-radius: $borderRadius;
+    box-shadow: $dropShadow;
+  }
+
+&.requests-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: green;
+    width: 40%;
+    height: 200px;
+    border-radius: $borderRadius;
+    box-shadow: $dropShadow;
+  }
+
+  &.h1 {
+
+    font-size: 1.5em;
+    font-weight: 300;
+    color: $textColor;
+  }
+
+  &.add-friend-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10%;
+    margin-top: 1em; // Add some spacing between containers and form
+  }
+
+  &.list {
+    display: flex;
+    flex-direction: row;
     padding-left: 0;
   }
   &.user-item {
@@ -29,51 +82,21 @@
     align-items: center;
     justify-content: center;
   }
-  & p,h2 {
-    margin: 0.5em 0;
-  }
-  &.navbar {
-    //background-color: #333;
-    background: lighten($background, 5%);
-    width: 100%;
-    margin: 1.5em;
-    border-radius: $borderRadius;
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      li {
-        flex: 1;
-        position: relative;
-        
-        &:not(:last-child) {
-          border-right: 1px solid #ccc;
-        }
 
-        a {
-          display: block;
-          color: white;
-          text-decoration: none;
-          text-align: center;
-          font-size: larger;
-          &:hover {
-            color: #ccc;
-          }
-        }
-      }
-    }
-  }
-  &.view {
-    background: lighten($background, 5%);
-    padding: 1.5em;
-    border-radius: $borderRadius;
+  &.field {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    box-shadow: $dropShadow;
-    width: 100%;
-
+    justify-content: center;
+    margin-top: 15px;
+    font-family: $fontNormal;
   }
-  
+  &.input {
+    height: 20%;
+    width: 100%;
+    border: solid;
+    border-color: rgba(45, 44, 44, 0.653);
+    border-radius: 0.75em;
+    margin-bottom: 20px;
+    color: $textColor;
+  }
 }
