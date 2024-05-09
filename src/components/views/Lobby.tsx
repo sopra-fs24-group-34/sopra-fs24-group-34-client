@@ -204,31 +204,44 @@ const LobbyPage = () => {
     }
   }
 
-  function handleStart() {
+  async function handleStart() {
     const lobbyId = localStorage.getItem("lobbyId");
-    async function startGame() {
-      try {
-        //nedim-j: add ready status to if clause
-        if (users && users.length === 2) {
-          const lobby = await api.get(`/lobbies/${lobbyId}/`);
-          console.log("REQUEST LOBBY: ", lobby);
-          //nedim-j: perhaps add authentification when trying to start game
-          const response = await api.post(`/game/${lobbyId}/start`, lobby);
-          localStorage.setItem("gameId", response.data.gameId);
-          localStorage.setItem("playerId", response.data.creatorId);
-          console.log("RESPONSE GAME: ", response);
+    const userId = localStorage.getItem("userId");
+    const userToken = localStorage.getItem("userToken");
 
-          disconnectWebsocket();
+    try {
+      //nedim-j: add ready status to if clause
+      if (users && users.length === 2) {
+        const lobby = await api.get(`/lobbies/${lobbyId}/`);
 
-          navigate("/game");
-        }
-      } catch (error) {
-        console.error(
-          `Something went wrong while starting game: \n${handleError(error)}`
-        );
+        const gamePostDto = {
+          creator_userid: lobby.data.creator_userid,
+          invited_userid: lobby.data.invited_userid,
+        };
+        const auth = {
+          id: userId,
+          token: userToken,
+        };
+
+        const requestBody = JSON.stringify({
+          gamePostDTO: gamePostDto,
+          authenticationDTO: auth,
+        });
+
+        const response = await api.post(`/game/${lobbyId}/start`, requestBody);
+        localStorage.setItem("gameId", response.data.gameId);
+        localStorage.setItem("playerId", response.data.creatorId);
+        console.log("RESPONSE GAME: ", response);
+
+        disconnectWebsocket();
+
+        navigate("/game");
       }
+    } catch (error) {
+      console.error(
+        `Something went wrong while starting game: \n${handleError(error)}`
+      );
     }
-    startGame();
   }
 
   function handleReady() {
