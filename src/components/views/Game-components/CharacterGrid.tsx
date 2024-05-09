@@ -16,8 +16,8 @@ const CharacterGrid = ({ persons, sClient }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  //nedim-j: data.roundStatus can be CHOOSING, GUESSING, END
-  const [currentRound, setCurrentRound] = useState<String>("CHOOSING");
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
+  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -39,8 +39,8 @@ const CharacterGrid = ({ persons, sClient }) => {
             console.log("Header: ", header);
             const data = body.data;
 
-            setCurrentRound(data.roundStatus);
-            if (data.guess === true && data.roundStatus === "END") {
+            setGameStatus(data.gameStatus);
+            if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
               } else {
@@ -51,7 +51,7 @@ const CharacterGrid = ({ persons, sClient }) => {
             }
 
             //nedim-j: is there a lock in the backend which prevents us from playing on?
-            if (data.strikes === 3 && data.roundStatus === "END") {
+            if (data.strikes === 3 && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "lost");
               } else {
@@ -139,7 +139,7 @@ const CharacterGrid = ({ persons, sClient }) => {
           key={character.id}
           character={character}
           visibleCharacter={visibleCharacters[idx]}
-          currentRound={currentRound}
+          gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
           guessCharacter={() => guessCharacter(character.id, idx)}
