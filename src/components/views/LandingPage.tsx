@@ -9,15 +9,22 @@ import { LoginLogo } from "../ui/LoginLogo";
 import { RegisterLogo } from "../ui/RegisterLogo";
 
 const FormField = (props) => {
+  const initialValue = /^[0-9\b]+$/.test(props.value) ? props.value : "";
+  
   return (
     <div className="landingPage field">
       <label className="landingPage label">{props.label}</label>
       <input
-        type={props.label === "Password" ? "password" : "text"}
+        type="text"
         className="landingPage input"
         placeholder="Enter here.."
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
+        value={initialValue}
+        onChange={(e) => {
+          const re = /^[0-9\b]+$/; // regular expression to allow only numbers and backspace
+          if (e.target.value === "" || re.test(e.target.value)) {
+            props.onChange(e.target.value);
+          }
+        }}
       />
     </div>
   );
@@ -45,7 +52,7 @@ const LandingPage = () => {
         "/guestuser/create",
         requestGuestBody
       );
-      
+
       await api.put(
         `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
       );
@@ -71,7 +78,14 @@ const LandingPage = () => {
   return (
     <BaseContainer>
       <div className="landingPage container">
-        <div className="landingPage form">
+        <div
+          className="landingPage form"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && lobbyCode) {
+              doJoinLobby();
+            }
+          }}
+        >
           <FormField
             label="Lobby Code"
             value={lobbyCode}
