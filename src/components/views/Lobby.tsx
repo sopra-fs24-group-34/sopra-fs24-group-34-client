@@ -24,6 +24,7 @@ const LobbyPage = () => {
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [stompClient, setStompClient] = useState(null);
+  const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
 
   useEffect(() => {
     async function ws() {
@@ -57,6 +58,17 @@ const LobbyPage = () => {
               localStorage.setItem("playerId", data.invitedPlayerId);
               navigate("/game"); // Redirect to game page
             }
+          } else if (header === "user-statusUpdate") {
+            setUsers((prevUsers) => {
+              const updatedUsers = [...prevUsers];
+              const index = updatedUsers.findIndex(
+                (user) => user.id === data.id
+              ); // Assuming each user has a unique id
+              if (index !== -1) {
+                updatedUsers[index] = data; // Replace the existing user with the updated data
+              }
+              return updatedUsers;
+            });
           }
         });
       }
@@ -98,7 +110,8 @@ const LobbyPage = () => {
         `/users/${lobbyResponse.creator_userid}`
       );
       const creatorUser = creatorResponse.data;
-      console.log("Creator User: ", creatorResponse);
+      console.log("Creator User: ", creatorUser);
+      setUserStatus(creatorUser.status);
 
       //nedim-j: find better solution for checking if one is the host
       if (parseInt(userId) === creatorUser.id) {
@@ -159,7 +172,7 @@ const LobbyPage = () => {
     loadPlayers();
   }, [users]);
 
-  function handleReturn() {
+  async function handleReturn() {
     const lobbyId = localStorage.getItem("lobbyId");
 
     async function closeLobby() {
@@ -212,6 +225,7 @@ const LobbyPage = () => {
     try {
       //nedim-j: add ready status to if clause
       if (users && users.length === 2) {
+        handleReady("INLOBBY_READY");
         const lobby = await api.get(`/lobbies/${lobbyId}/`);
 
         const gamePostDto = {
@@ -244,21 +258,69 @@ const LobbyPage = () => {
     }
   }
 
-  function handleReady() {
+  async function handleReady(readyStatus: string) {
     /**nedim-j: implement */
+    const lobbyId = localStorage.getItem("lobbyId");
+    const userId = localStorage.getItem("userId");
+    const userToken = localStorage.getItem("userToken");
+
+    try {
+      const request = JSON.stringify({
+        readyStatus: readyStatus,
+        lobbyId: lobbyId,
+        userId: userId,
+      });
+
+      stompClient.send("/app/updateReadyStatus", {}, request);
+    } catch (error) {
+      alert(`Something went wrong with ready-status: \n${handleError(error)}`);
+    }
   }
 
   function renderActionButtons() {
-    if (isCreator) {
-      return (
-        <Button className="lobby button" onClick={() => handleStart()}>
-          Start Game
-        </Button>
+    if (isCreator && users) {
+      const currentUserId = localStorage.getItem("userId");
+      //const storedUsers = JSON.parse(localStorage.getItem("users"));
+
+      if(users) {}
+      const invitedUser = users.find(
+        (user) => user.id !== parseInt(currentUserId)
       );
+
+      if (invitedUser && invitedUser.status === "INLOBBY_READY") {
+        return (
+          <Button className="lobby button" onClick={() => handleStart()}>
+            Start Game
+          </Button>
+        );
+      } else {
+        return (
+          <Button className="lobby button" disabled>
+            Waiting for opponent
+          </Button>
+        );
+      }
     } else {
+      let buttonText;
+      let newStatus;
+
+      if (userStatus === "INLOBBY_PREPARING") {
+        buttonText = "Ready";
+        newStatus = "INLOBBY_READY";
+      } else if (userStatus === "INLOBBY_READY") {
+        buttonText = "Not ready";
+        newStatus = "INLOBBY_PREPARING";
+      }
+
       return (
-        <Button className="lobby button" onClick={() => handleReady()}>
-          Ready
+        <Button
+          className="lobby button"
+          onClick={() => {
+            setUserStatus(newStatus);
+            handleReady(newStatus);
+          }}
+        >
+          {buttonText}
         </Button>
       );
     }
