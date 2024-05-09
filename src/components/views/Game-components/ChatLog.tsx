@@ -138,7 +138,14 @@ const ChatLog = ({ sClient }) => {
           </div>
         ))}
       </BaseContainer>
-      <div className="chat-log-input-container">
+      <div
+        className="chat-log-input-container"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && prompt) {
+            updateChat();
+          }
+        }}
+      >
         {isQuestion ? QField() : BoolField()}
       </div>
     </BaseContainer>
