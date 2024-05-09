@@ -17,7 +17,11 @@ const Character = ({
     if (currentRound === "CHOOSING") {
       return (
         <div className="character overlay">
-          <button className="character-button" onClick={() => pickCharacter()}>
+          <button
+            className="character-button"
+            onClick={() => pickCharacter()}
+            style={{ color: "yellow" }}
+          >
             Pick
           </button>
         </div>
@@ -26,10 +30,18 @@ const Character = ({
 
     return (
       <div className="character overlay">
-        <button className="character-button" onClick={() => foldCharacter()}>
+        <button
+          className="character-button"
+          onClick={() => foldCharacter()}
+          style={{ color: "limegreen" }}
+        >
           Fold
         </button>
-        <button className="character-button" onClick={() => guessCharacter()}>
+        <button
+          className="character-button"
+          onClick={() => guessCharacter()}
+          style={{ color: "pink" }}
+        >
           Guess
         </button>
       </div>
