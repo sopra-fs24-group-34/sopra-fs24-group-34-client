@@ -54,7 +54,7 @@ const LobbyPage = () => {
             const pId = localStorage.getItem("playerId");
             if (parseInt(pId) !== data.creatorId) {
               localStorage.setItem("gameId", data.gameId);
-              localStorage.setItem("playerId", data.invitedplayerId);
+              localStorage.setItem("playerId", data.invitedPlayerId);
               navigate("/game"); // Redirect to game page
             }
           }
@@ -230,7 +230,7 @@ const LobbyPage = () => {
 
         const response = await api.post(`/game/${lobbyId}/start`, requestBody);
         localStorage.setItem("gameId", response.data.gameId);
-        localStorage.setItem("playerId", response.data.creatorId);
+        localStorage.setItem("playerId", response.data.creatorPlayerId);
         console.log("RESPONSE GAME: ", response);
 
         disconnectWebsocket();
