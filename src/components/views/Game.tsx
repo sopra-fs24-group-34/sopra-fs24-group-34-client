@@ -21,17 +21,7 @@ const Game = () => {
     isOpen: true,
     content: <GameModalContent />,
   });
-  const [stompClient, setStompClient] = useState(null);
-
-  useEffect(() => {
-
-    async function setStomp() {
-      const sClient = getStompClient();
-      setStompClient(sClient);
-    }
-    setStomp();
-
-  }, []);
+  const [stompClient, setStompClient] = useState(getStompClient());
 
   // useEffect to fetch images from DB
   useEffect(() => {
@@ -98,8 +88,8 @@ const Game = () => {
     <BaseContainer className="game container">
       {hasAccepted ? (
         <>
-          <CharacterGrid persons={characters} sClient={stompClient} />
-          <ChatLog sClient={stompClient} />
+          <CharacterGrid persons={characters} />
+          <ChatLog />
         </>
       ) : (
         <>

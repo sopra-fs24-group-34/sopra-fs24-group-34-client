@@ -10,7 +10,13 @@ import { User, Lobby } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
-import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
+import {
+  connectWebSocket,
+  disconnectWebSocket,
+  getStompClient,
+  makeSubscription,
+  sendMessage,
+} from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -21,11 +27,9 @@ const Player = ({ user }: { user: User }) => (
 const LobbyPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>(null);
-  const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [isCreator, setIsCreator] = useState(null);
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [stompClient, setStompClient] = useState(null);
-  const [wsSubscription, setWsSubscription] = useState(null);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
 
   useEffect(() => {
@@ -34,56 +38,62 @@ const LobbyPage = () => {
       const lobbyId = localStorage.getItem("lobbyId");
 
       if (userId && lobbyId) {
-        fetchData(userId, lobbyId);
-
+        await fetchData(userId, lobbyId);
         const stompClient = await connectWebSocket();
-        await setStompClient(stompClient);
 
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const subscription = await stompClient.subscribe(
-          `/lobbies/${lobbyId}`,
-          (message) => {
-            const body = JSON.parse(message.body);
-            const header = body["event-type"];
-            const data = body.data;
-            console.log("Header: ", header);
-            if (header === "user-joined") {
-              console.log("Invited User: ", data);
-              setUsers((prevUsers) => [...prevUsers, data]);
-            } else if (header === "game-started") {
-              const pId = localStorage.getItem("playerId");
-              if (parseInt(pId) !== data.creatorId) {
-                localStorage.setItem("gameId", data.gameId);
-                localStorage.setItem("playerId", data.invitedPlayerId);
-                subscription.unsubscribe();
-                navigate("/game"); // Redirect to game page
-              }
-            } else if (header === "user-left") {
-              console.log("Implement");
 
-            } else if (header === "user-statusUpdate") {
-              setUsers((prevUsers) => {
-                const updatedUsers = [...prevUsers];
-                const index = updatedUsers.findIndex(
-                  (user) => user.id === data.id
-                ); // Assuming each user has a unique id
-                if (index !== -1) {
-                  updatedUsers[index] = data; // Replace the existing user with the updated data
-                }
-
-                return updatedUsers;
-              });
-            } else if (header === "lobby-closed") {
-              console.log(data);
-              handleReturn();
+        const callback = function (message) {
+          //const subscription = stompClient.subscribe(
+          //`/lobbies/${lobbyId}`,
+          //function (message) {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          const data = body.data;
+          console.log("Header: ", header);
+          if (header === "user-joined") {
+            console.log("Invited User: ", data);
+            setUsers((prevUsers) => [...prevUsers, data]);
+          } else if (header === "game-started") {
+            localStorage.setItem("gameId", data.gameId);
+            //nedim-j: should be fine? small limitation, but the following requests require authentication header anyway
+            const isCr = JSON.parse(localStorage.getItem("isCreator"));
+            if (isCr === true) {
+              localStorage.setItem("playerId", data.creatorPlayerId);
+            } else if (isCr === false) {
+              localStorage.setItem("playerId", data.invitedPlayerId);
             } else {
-              console.log("Unknown message from WS");
-            }
-          }
-        );
-        setWsSubscription(subscription);
-      }
+              alert("isCreator is null");
 
+              return;
+            }
+            subscription.unsubscribe();
+            navigate("/game");
+          } else if (header === "user-left") {
+            console.log("Implement");
+          } else if (header === "user-statusUpdate") {
+            setUsers((prevUsers) => {
+              const updatedUsers = [...prevUsers];
+              const index = updatedUsers.findIndex(
+                (user) => user.id === data.id
+              );
+              if (index !== -1) {
+                updatedUsers[index] = data; // Replace the existing user with the updated data
+              }
+
+              return updatedUsers;
+            });
+          } else if (header === "lobby-closed") {
+            console.log(data);
+            handleReturn();
+          } else {
+            console.log("Unknown message from WS");
+          }
+        };
+        //);
+
+        const subscription = makeSubscription(`/lobbies/${lobbyId}`, callback);
+      }
     }
 
     ws();
@@ -118,6 +128,7 @@ const LobbyPage = () => {
         setIsCreator(true);
         localStorage.setItem("isCreator", JSON.stringify(true));
       } else {
+        setIsCreator(false);
         localStorage.setItem("isCreator", JSON.stringify(false));
       }
 
@@ -175,7 +186,7 @@ const LobbyPage = () => {
   async function handleReturn() {
     if (isCreator) {
       const lobbyId = localStorage.getItem("lobbyId");
-      if(lobbyId !== null || lobbyId !== undefined) {
+      if (lobbyId !== null || lobbyId !== undefined) {
         closeLobby(getStompClient());
       }
       localStorage.removeItem("lobbyId");
@@ -211,19 +222,16 @@ const LobbyPage = () => {
           token: userToken,
         };
 
+        //const response = await api.post(`/game/${lobbyId}/start`, requestBody);
+
         const requestBody = JSON.stringify({
+          lobbyId: lobbyId,
           gamePostDTO: gamePostDto,
           authenticationDTO: auth,
         });
 
-        const response = await api.post(`/game/${lobbyId}/start`, requestBody);
-        localStorage.setItem("gameId", response.data.gameId);
-        localStorage.setItem("playerId", response.data.creatorPlayerId);
-        console.log("RESPONSE GAME: ", response);
-
-        wsSubscription.unsubscribe();
-
-        navigate("/game");
+        //await stompClient.send("/app/startGame", {}, requestBody);
+        sendMessage("/app/startGame", requestBody);
       }
     } catch (error) {
       console.error(
@@ -239,13 +247,14 @@ const LobbyPage = () => {
     const userToken = localStorage.getItem("userToken");
 
     try {
-      const request = JSON.stringify({
+      const requestBody = JSON.stringify({
         readyStatus: readyStatus,
         lobbyId: lobbyId,
         userId: userId,
       });
 
-      stompClient.send("/app/updateReadyStatus", {}, request);
+      //stompClient.send("/app/updateReadyStatus", {}, request);
+      sendMessage("/app/updateReadyStatus", requestBody);
     } catch (error) {
       alert(`Something went wrong with ready-status: \n${handleError(error)}`);
     }
@@ -392,7 +401,7 @@ export async function closeLobby(stompClient) {
   const userToken = localStorage.getItem("userToken");
 
   try {
-    const request = JSON.stringify({
+    const requestBody = JSON.stringify({
       lobbyId: lobbyId,
       authenticationDTO: {
         id: userId,
@@ -400,14 +409,13 @@ export async function closeLobby(stompClient) {
       },
     });
 
-    stompClient.send("/app/closeLobby", {}, request);
-
+    //stompClient.send("/app/closeLobby", {}, requestBody);
+    sendMessage("/app/closeLobby", requestBody);
   } catch (error) {
     console.error(
       `Something went wrong while closing lobby: \n${handleError(error)}`
     );
   }
-
 }
 
 export default LobbyPage;

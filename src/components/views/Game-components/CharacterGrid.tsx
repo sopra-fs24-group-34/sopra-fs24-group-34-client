@@ -11,8 +11,13 @@ import ModalGuessInformation from "./modalContent/ModalGuessInformation";
 import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import {
+  getStompClient,
+  makeSubscription,
+  sendMessage,
+} from "../WebSocketService";
 
-const CharacterGrid = ({ persons, sClient }) => {
+const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
@@ -25,22 +30,22 @@ const CharacterGrid = ({ persons, sClient }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
-  const [stompClient, setStompClient] = useState(sClient);
-  const [wsSubscription, setWsSubscription] = useState(null);
+  //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const subscription = await stompClient.subscribe(
-          `/games/${gameId}`,
-          (message) => {
-            const body = JSON.parse(message.body);
-            const header = body["event-type"];
-            console.log("Header: ", header);
-            const data = body.data;
+        //const subscription = await stompClient.subscribe(`/games/${gameId}`,
+        const callback = function (message) {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          console.log("Header: ", header);
+          const data = body.data;
 
-            setGameStatus(data.gameStatus);
+          setGameStatus(data.gameStatus);
+          console.log(data);
+          if (header === "round-update") {
             if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
@@ -61,36 +66,50 @@ const CharacterGrid = ({ persons, sClient }) => {
               subscription.unsubscribe();
               navigate("/endscreen");
             }
+            
+            if(data.guess === false && data.gameStatus !== "END" && data.playerId === playerId && data.strikes !== 0) {
+              setModalState({
+                isOpen: true,
+                content: <ModalGuessInformation strikes={data.strikes} />,
+              });
+            }
           }
-        );
-        setWsSubscription(subscription);
+        };
+
+        const subscription = makeSubscription(`/games/${gameId}`, callback);
 
         return () => {
           subscription.unsubscribe();
         };
       }
     }
-    if (stompClient) {
-      ws();
-    }
+    ws();
   }, []);
 
-  const pickCharacter = async (characterId, idx) => {
+  async function pickCharacter(characterId, idx) {
     try {
-      const send = JSON.stringify({
+      const guessPostDTO = {
         gameid: gameId,
         playerid: playerId,
         imageid: characterId,
+      };
+      const requestBody = JSON.stringify({
+        guessPostDTO: guessPostDTO,
       });
-      await api.put("/game/character/choose", send);
+      sendMessage("/app/chooseImage", requestBody);
+
       setModalState({
         isOpen: true,
         content: <ModalPickInformation />,
       });
+      setGameStatus("IDLE");
+
     } catch (error) {
-      alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
+      alert(
+        `Something went wrong choosing your character: \n${handleError(error)}`
+      );
     }
-  };
+  }
 
   // Func to fold / unfold a character
   const foldCharacter = (characterIndex) => {
@@ -105,16 +124,21 @@ const CharacterGrid = ({ persons, sClient }) => {
 
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
-    const send = JSON.stringify({
+    const guessPostDTO = {
       gameid: gameId,
       playerid: playerId,
       imageid: characterId,
+    };
+    const requestBody = JSON.stringify({
+      guessPostDTO: guessPostDTO,
     });
-    const response = await api.post("/game/character/guess", send);
+    sendMessage("/app/guessImage", requestBody);
+    /*
     setModalState({
       isOpen: true,
       content: <ModalGuessInformation strikes={response.data.strikes} />,
     });
+    */
   };
 
   if (!persons) {
@@ -152,7 +176,6 @@ const CharacterGrid = ({ persons, sClient }) => {
 
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
-  sClient: PropTypes.object,
 };
 
 export default CharacterGrid;

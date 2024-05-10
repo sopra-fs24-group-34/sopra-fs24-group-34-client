@@ -25,6 +25,18 @@ export function disconnectWebSocket() {
   }
 }
 
+export function makeSubscription(endpoint: string, callback) {
+  return stompClient.subscribe(endpoint, callback);
+}
+
+export function cancelSubscription(subscription) {
+  subscription.unsubscribe();
+}
+
+export function sendMessage(destination: string, body: string) {
+  stompClient.send(destination, {}, body);
+}
+
 export function getStompClient() {
   return stompClient;
 }
