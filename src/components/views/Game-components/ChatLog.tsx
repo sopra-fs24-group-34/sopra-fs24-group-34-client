@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
@@ -33,6 +33,7 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function ws() {
@@ -51,6 +52,12 @@ const ChatLog = () => {
 
     ws();
   }, []);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const updateChat = async () => {
     try {
