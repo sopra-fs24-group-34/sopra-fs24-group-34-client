@@ -16,8 +16,8 @@ const CharacterGrid = ({ persons, sClient }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  //nedim-j: data.roundStatus can be CHOOSING, GUESSING, END
-  const [currentRound, setCurrentRound] = useState<String>("CHOOSING");
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
+  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -26,12 +26,13 @@ const CharacterGrid = ({ persons, sClient }) => {
     content: <ModalFirstInstructions />,
   });
   const [stompClient, setStompClient] = useState(sClient);
+  const [wsSubscription, setWsSubscription] = useState(null);
 
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const messageSubscription = await stompClient.subscribe(
+        const subscription = await stompClient.subscribe(
           `/games/${gameId}`,
           (message) => {
             const body = JSON.parse(message.body);
@@ -39,33 +40,33 @@ const CharacterGrid = ({ persons, sClient }) => {
             console.log("Header: ", header);
             const data = body.data;
 
-            setCurrentRound(data.roundStatus);
-            if (data.guess === true && data.roundStatus === "END") {
+            setGameStatus(data.gameStatus);
+            if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
               } else {
                 localStorage.setItem("result", "lost");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
 
             //nedim-j: is there a lock in the backend which prevents us from playing on?
-            if (data.strikes === 3 && data.roundStatus === "END") {
+            if (data.strikes === 3 && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "lost");
               } else {
                 localStorage.setItem("result", "won");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
           }
         );
-        
+        setWsSubscription(subscription);
+
         return () => {
-          messageSubscription.unsubscribe();
-          disconnectWebsocket();
+          subscription.unsubscribe();
         };
       }
     }
@@ -73,13 +74,6 @@ const CharacterGrid = ({ persons, sClient }) => {
       ws();
     }
   }, []);
-
-  function disconnectWebsocket() {
-    if (stompClient !== null) {
-      stompClient.disconnect();
-      setStompClient(null);
-    }
-  }
 
   const pickCharacter = async (characterId, idx) => {
     try {
@@ -139,7 +133,7 @@ const CharacterGrid = ({ persons, sClient }) => {
           key={character.id}
           character={character}
           visibleCharacter={visibleCharacters[idx]}
-          currentRound={currentRound}
+          gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
           guessCharacter={() => guessCharacter(character.id, idx)}
