@@ -25,24 +25,31 @@ AddFriendField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const Friend = ({ user }: { user: User }) => (
+const Friend = ({ key, profilePicture, username, request }) => (
   <div className="friend container">
-    <BaseContainer className="picture">{user.profilePicture}</BaseContainer>
-    <div className="value">{user.username}</div>
+    <BaseContainer className="picture">{profilePicture}</BaseContainer>
+    <div className="value">{username}</div>
+    {request && "hello"}
   </div>
 );
+
+Friend.propTypes = {
+  key: PropTypes.num,
+  profilePicture: PropTypes.string,
+  username: PropTypes.string,
+  request: PropTypes.bool,
+};
 
 const Friends = () => {
   const userId = localStorage.getItem("userId");
 
-  const [friends, setfriends] = useState<User[]>([]);
-  const [friendRequests, setFriendRequests] = useState<User[]>([]);
+  const [friends, setfriends] = useState([]);
+  const [friendRequests, setFriendRequests] = useState([]);
 
   const [newFriendUserName, setNewFriendUserName] = useState<string>("");
   const [inspectedFriend, setInspectedFriend] = useState<User>(null);
   const [friendId, setFriendId] = useState<Number>(null);
   const [ProfileVisible, setProfileVisible] = useState<boolean>(false);
-  const myList = ["Friend1", "Friend2", "Friend3"];
 
   useEffect(() => {
     async function fetchData() {
@@ -60,12 +67,11 @@ const Friends = () => {
 
         console.log(responseFriends);
 
-        /* Not implemented yet
         const responseFriendRequests = await api.get(
-          `/users/${userId}/friendRequests`
+          `/users/${userId}/friends/requests`
         );
 
-        console.log("GET responseFriends: ", responseFriends);
+        console.log("GET responseFriendRequests: ", responseFriendRequests);
 
         // Get the returned friend requests and update the state.
         setFriendRequests(responseFriendRequests.data);
@@ -78,7 +84,7 @@ const Friends = () => {
         console.log("status text:", responseFriendRequests.statusText);
         console.log("requested data:", responseFriendRequests.data);
 
-        console.log(responseFriends);*/
+        console.log(responseFriendRequests);
       } catch (error) {
         console.error(
           `Something went wrong while fetching the friends: \n${handleError(
@@ -100,7 +106,7 @@ const Friends = () => {
     try {
       const requestBody = JSON.stringify({
         senderId: userId,
-        receiverUsername: newFriendUserName,
+        receiverUserName: newFriendUserName,
       });
       await api.post(`/users/${userId}/friends/add`, requestBody);
 
@@ -168,20 +174,28 @@ const Friends = () => {
       <div className="friends content-wrapper">
         <BaseContainer className="friends container">
           <h1 className="friends h1">Friends</h1>
-          {myList.map((num, idx) => (
-            <ul className="friends list" key={idx}>
-              {num}
-            </ul>
-          ))}
+          <ul className="friends list">
+            {friends.map((friend) => (
+              <Friend
+                key={friend.id}
+                profilePicture={friend.profilePicture}
+                username={friend.username}
+                request={false}
+              />
+            ))}
+          </ul>
         </BaseContainer>
 
         <BaseContainer className="friends requests-container">
           <h1 className="friends h1">requests</h1>
           <ul className="friends list">
-            {friendRequests.map((user: User) => (
-              <li key={user.id}>
-                <Friend user={user} />
-              </li>
+            {friendRequests.map((requests) => (
+              <Friend
+                key={requests.id}
+                profilePicture={requests.profilePicture}
+                username={requests.username}
+                request={true}
+              />
             ))}
           </ul>
         </BaseContainer>
