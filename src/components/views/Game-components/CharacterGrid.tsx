@@ -26,12 +26,13 @@ const CharacterGrid = ({ persons, sClient }) => {
     content: <ModalFirstInstructions />,
   });
   const [stompClient, setStompClient] = useState(sClient);
+  const [wsSubscription, setWsSubscription] = useState(null);
 
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const messageSubscription = await stompClient.subscribe(
+        const subscription = await stompClient.subscribe(
           `/games/${gameId}`,
           (message) => {
             const body = JSON.parse(message.body);
@@ -46,7 +47,7 @@ const CharacterGrid = ({ persons, sClient }) => {
               } else {
                 localStorage.setItem("result", "lost");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
 
@@ -57,15 +58,15 @@ const CharacterGrid = ({ persons, sClient }) => {
               } else {
                 localStorage.setItem("result", "won");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
           }
         );
-        
+        setWsSubscription(subscription);
+
         return () => {
-          messageSubscription.unsubscribe();
-          disconnectWebsocket();
+          subscription.unsubscribe();
         };
       }
     }
@@ -73,13 +74,6 @@ const CharacterGrid = ({ persons, sClient }) => {
       ws();
     }
   }, []);
-
-  function disconnectWebsocket() {
-    if (stompClient !== null) {
-      stompClient.disconnect();
-      setStompClient(null);
-    }
-  }
 
   const pickCharacter = async (characterId, idx) => {
     try {

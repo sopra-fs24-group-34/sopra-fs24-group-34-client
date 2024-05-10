@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
+import { disconnectWebSocket, getStompClient } from "./WebSocketService";
 
 const Player = ({
   user,
@@ -38,6 +39,7 @@ const Endscreen = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [gameResult, setGameResult] = useState<string>("won");
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -58,6 +60,14 @@ const Endscreen = () => {
     }
 
     fetchUserData();
+
+    setStompClient(getStompClient());
+    
+    return () => {
+      if (stompClient) {
+        disconnectWebSocket();
+      }
+    };
   }, []);
 
   let players = <Spinner />;
@@ -89,8 +99,7 @@ const Endscreen = () => {
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
     localStorage.removeItem("result");
-
-    //nedim-j: add api call
+    disconnectWebSocket();
   };
 
   function handleToRegister() {

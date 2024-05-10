@@ -10,6 +10,7 @@ import { User, Lobby } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { connectWebSocket, disconnectWebSocket } from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -24,6 +25,7 @@ const LobbyPage = () => {
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [stompClient, setStompClient] = useState(null);
+  const [wsSubscription, setWsSubscription] = useState(null);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
 
   useEffect(() => {
@@ -34,60 +36,58 @@ const LobbyPage = () => {
       if (userId && lobbyId) {
         fetchData(userId, lobbyId);
 
-        const socket = new SockJS("http://localhost:8080/ws");
-        const stompClient = Stomp.over(socket);
-        setStompClient(stompClient);
-
-        await stompClient.connect({}, () => {
-          console.log("Connected to WebSocket");
-        });
+        const stompClient = await connectWebSocket();
+        await setStompClient(stompClient);
 
         await new Promise((resolve) => setTimeout(resolve, 500));
-        await stompClient.subscribe(`/lobbies/${lobbyId}`, (message) => {
-          const body = JSON.parse(message.body);
-          const header = body["event-type"];
-          const data = body.data;
-          console.log("Header: ", header);
-          if (header === "user-joined") {
-            console.log("Invited User: ", data);
-            setUsers((prevUsers) => [...prevUsers, data]);
-          } else if (header === "game-started") {
-            const pId = localStorage.getItem("playerId");
-            if (parseInt(pId) !== data.creatorId) {
-              localStorage.setItem("gameId", data.gameId);
-              localStorage.setItem("playerId", data.invitedPlayerId);
-              navigate("/game"); // Redirect to game page
-            }
-          } else if (header === "user-statusUpdate") {
-            setUsers((prevUsers) => {
-              const updatedUsers = [...prevUsers];
-              const index = updatedUsers.findIndex(
-                (user) => user.id === data.id
-              ); // Assuming each user has a unique id
-              if (index !== -1) {
-                updatedUsers[index] = data; // Replace the existing user with the updated data
+        const subscription = await stompClient.subscribe(
+          `/lobbies/${lobbyId}`,
+          (message) => {
+            const body = JSON.parse(message.body);
+            const header = body["event-type"];
+            const data = body.data;
+            console.log("Header: ", header);
+            if (header === "user-joined") {
+              console.log("Invited User: ", data);
+              setUsers((prevUsers) => [...prevUsers, data]);
+            } else if (header === "game-started") {
+              const pId = localStorage.getItem("playerId");
+              if (parseInt(pId) !== data.creatorId) {
+                localStorage.setItem("gameId", data.gameId);
+                localStorage.setItem("playerId", data.invitedPlayerId);
+                subscription.unsubscribe();
+                navigate("/game"); // Redirect to game page
               }
-              return updatedUsers;
-            });
+            } else if (header === "user-left") {
+              console.log("Implement");
+
+            } else if (header === "user-statusUpdate") {
+              setUsers((prevUsers) => {
+                const updatedUsers = [...prevUsers];
+                const index = updatedUsers.findIndex(
+                  (user) => user.id === data.id
+                ); // Assuming each user has a unique id
+                if (index !== -1) {
+                  updatedUsers[index] = data; // Replace the existing user with the updated data
+                }
+
+                return updatedUsers;
+              });
+            } else if (header === "lobby-closed") {
+              console.log(data);
+              handleReturn();
+            } else {
+              console.log("Unknown message from WS");
+            }
           }
-        });
+        );
+        setWsSubscription(subscription);
       }
 
-      return () => {
-        disconnectWebsocket();
-      };
     }
 
     ws();
   }, []);
-
-  function disconnectWebsocket() {
-    console.log("LEFT Lobby PAGE i hope");
-    if (stompClient !== null) {
-      stompClient.disconnect();
-      setStompClient(null);
-    }
-  }
 
   async function fetchData(userId, lobbyId) {
     try {
@@ -172,47 +172,55 @@ const LobbyPage = () => {
     loadPlayers();
   }, [users]);
 
-  async function handleReturn() {
+  async function closeLobby() {
     const lobbyId = localStorage.getItem("lobbyId");
+    const userId = localStorage.getItem("userId");
+    const userToken = localStorage.getItem("userToken");
 
-    async function closeLobby() {
-      try {
-        let userCreator = null;
-        let userInvited = null;
+    try {
+      let userCreator = null;
+      let userInvited = null;
 
-        if (users && users.length > 0) {
-          userCreator = users[0];
-          if (users.length > 1) {
-            userInvited = users[1];
-          }
+      if (users && users.length > 0) {
+        userCreator = users[0];
+        if (users.length > 1) {
+          userInvited = users[1];
         }
-
-        const requestDelete = JSON.stringify({
-          id: parseInt(lobbyId),
-          user_creator: userCreator,
-          user_invited: userInvited,
-        });
-        //console.log("REQUEST DELETE: ", requestDelete);
-        //await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
-
-        disconnectWebsocket();
-      } catch (error) {
-        console.error(
-          `Something went wrong while fetching data: \n${handleError(error)}`
-        );
       }
+
+      const request = JSON.stringify({
+        lobbyId: lobbyId,
+        authenticationDTO: {
+          id: userId,
+          token: userToken,
+        },
+      });
+
+      stompClient.send("/app/closeLobby", {}, request);
+
+    } catch (error) {
+      console.error(
+        `Something went wrong while closing lobby: \n${handleError(error)}`
+      );
     }
 
-    //nedim-j: again, find better solution for checking if one is the host
+  }
+
+  async function handleReturn() {
     if (isCreator) {
-      closeLobby();
+      const lobbyId = localStorage.getItem("lobbyId");
+      if(lobbyId !== null || lobbyId !== undefined) {
+        closeLobby();
+      }
       localStorage.removeItem("lobbyId");
+      localStorage.removeItem("isCreator");
+      localStorage.removeItem("users");
+      disconnectWebSocket();
       navigate("/menu");
     } else {
       //nedim-j: probably delete call to users?
-      localStorage.removeItem("lobbyId");
-      localStorage.removeItem("token");
-      localStorage.removeItem("id");
+      localStorage.clear();
+      disconnectWebSocket();
       navigate("/landingPage");
     }
   }
@@ -247,7 +255,7 @@ const LobbyPage = () => {
         localStorage.setItem("playerId", response.data.creatorPlayerId);
         console.log("RESPONSE GAME: ", response);
 
-        disconnectWebsocket();
+        wsSubscription.unsubscribe();
 
         navigate("/game");
       }
@@ -280,9 +288,7 @@ const LobbyPage = () => {
   function renderActionButtons() {
     if (isCreator && users) {
       const currentUserId = localStorage.getItem("userId");
-      //const storedUsers = JSON.parse(localStorage.getItem("users"));
 
-      if(users) {}
       const invitedUser = users.find(
         (user) => user.id !== parseInt(currentUserId)
       );
@@ -304,7 +310,7 @@ const LobbyPage = () => {
       let buttonText;
       let newStatus;
 
-      if (userStatus === "INLOBBY_PREPARING") {
+      if (userStatus === "INLOBBY_PREPARING" || userStatus === "ONLINE") {
         buttonText = "Ready";
         newStatus = "INLOBBY_READY";
       } else if (userStatus === "INLOBBY_READY") {

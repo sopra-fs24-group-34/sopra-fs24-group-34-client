@@ -9,6 +9,7 @@ import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -23,24 +24,13 @@ const Game = () => {
   const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
-    async function connectWebSocket() {
-      const socket = new SockJS("http://localhost:8080/ws");
-      const stompClient = Stomp.over(socket);
-      setStompClient(stompClient);
 
-      await stompClient.connect({}, () => {
-        console.log("Connected to WebSocket");
-      });
+    async function setStomp() {
+      const sClient = getStompClient();
+      setStompClient(sClient);
     }
+    setStomp();
 
-    connectWebSocket();
-
-    return () => {
-      if (stompClient) {
-        stompClient.disconnect();
-        setStompClient(null);
-      }
-    };
   }, []);
 
   // useEffect to fetch images from DB
