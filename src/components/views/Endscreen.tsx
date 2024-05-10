@@ -9,6 +9,7 @@ import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
 import { disconnectWebSocket, getStompClient } from "./WebSocketService";
+import { closeLobby } from "./Lobby";
 
 const Player = ({
   user,
@@ -62,7 +63,7 @@ const Endscreen = () => {
     fetchUserData();
 
     setStompClient(getStompClient());
-    
+
     return () => {
       if (stompClient) {
         disconnectWebSocket();
@@ -93,6 +94,7 @@ const Endscreen = () => {
   }
 
   const handleBack = (): void => {
+    closeLobby(getStompClient());
     localStorage.removeItem("lobbyId");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
@@ -104,6 +106,7 @@ const Endscreen = () => {
 
   function handleToRegister() {
     handleBack();
+    //implement
     navigate("/register");
   }
 

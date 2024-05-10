@@ -10,7 +10,7 @@ import { User, Lobby } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
-import { connectWebSocket, disconnectWebSocket } from "./WebSocketService";
+import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -172,45 +172,11 @@ const LobbyPage = () => {
     loadPlayers();
   }, [users]);
 
-  async function closeLobby() {
-    const lobbyId = localStorage.getItem("lobbyId");
-    const userId = localStorage.getItem("userId");
-    const userToken = localStorage.getItem("userToken");
-
-    try {
-      let userCreator = null;
-      let userInvited = null;
-
-      if (users && users.length > 0) {
-        userCreator = users[0];
-        if (users.length > 1) {
-          userInvited = users[1];
-        }
-      }
-
-      const request = JSON.stringify({
-        lobbyId: lobbyId,
-        authenticationDTO: {
-          id: userId,
-          token: userToken,
-        },
-      });
-
-      stompClient.send("/app/closeLobby", {}, request);
-
-    } catch (error) {
-      console.error(
-        `Something went wrong while closing lobby: \n${handleError(error)}`
-      );
-    }
-
-  }
-
   async function handleReturn() {
     if (isCreator) {
       const lobbyId = localStorage.getItem("lobbyId");
       if(lobbyId !== null || lobbyId !== undefined) {
-        closeLobby();
+        closeLobby(getStompClient());
       }
       localStorage.removeItem("lobbyId");
       localStorage.removeItem("isCreator");
@@ -419,5 +385,29 @@ const LobbyPage = () => {
     </BaseContainer>
   );
 };
+
+export async function closeLobby(stompClient) {
+  const lobbyId = localStorage.getItem("lobbyId");
+  const userId = localStorage.getItem("userId");
+  const userToken = localStorage.getItem("userToken");
+
+  try {
+    const request = JSON.stringify({
+      lobbyId: lobbyId,
+      authenticationDTO: {
+        id: userId,
+        token: userToken,
+      },
+    });
+
+    stompClient.send("/app/closeLobby", {}, request);
+
+  } catch (error) {
+    console.error(
+      `Something went wrong while closing lobby: \n${handleError(error)}`
+    );
+  }
+
+}
 
 export default LobbyPage;
