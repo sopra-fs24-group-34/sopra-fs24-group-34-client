@@ -8,6 +8,8 @@ import PropTypes from "prop-types";
 import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
+import { disconnectWebSocket, getStompClient } from "./WebSocketService";
+import { closeLobby } from "./Lobby";
 
 const Player = ({
   user,
@@ -38,6 +40,7 @@ const Endscreen = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [gameResult, setGameResult] = useState<string>("won");
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -58,58 +61,24 @@ const Endscreen = () => {
     }
 
     fetchUserData();
-  }, []);
 
-  /*
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        //nedim-j: set proper api call
-        //const userId = localStorage.getItem("userId");
-        //const response = await api.get(`/users/${userId}`);
-        //nedim-j: where to get other users id from ?
-        //setUsers(response.data);
-        setUsers(localStorage.getItem("users"));
-        console.log("USERS: ", users);
+    setStompClient(getStompClient());
 
-        //nedim-j: add api call
-        setResult("You won");
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    return () => {
+      if (stompClient) {
+        disconnectWebSocket();
       }
-    }
-
-    fetchUserData();
+    };
   }, []);
-  */
 
   let players = <Spinner />;
 
-  /*
-    if (users !== null && users !== undefined) {
-      players = (
-        <ul className="players list">
-          {users.map(
-            (user: User) =>
-              user &&
-              user.id !== undefined &&
-              user.username !== undefined && (
-                <li key={user.id}>
-                  <Player user={user} />
-                </li>
-              )
-          )}
-        </ul>
-      );
-    }
-    */
   if (users) {
     players = (
       <div className="players">
         <ul className="user-list">
           {users.map((user: User) => (
             <li key={user.id}>
-              {/* Passed isCurrentUser prop to the Player component */}
               <Player
                 user={user}
                 result={gameResult}
@@ -125,22 +94,40 @@ const Endscreen = () => {
   }
 
   const handleBack = (): void => {
+    closeLobby(getStompClient());
     localStorage.removeItem("lobbyId");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
-    //localStorage.removeItem("userTd");
-    //nedim-j: add api call
+    localStorage.removeItem("result");
+    disconnectWebSocket();
   };
 
   function handleToRegister() {
     handleBack();
-    throw new Error("Function not implemented.");
+    //implement
+    navigate("/register");
+  }
+
+  function handleToMenu() {
+    handleBack();
+    navigate("/menu");
+  }
+
+  function handleToLandingPage() {
+    handleBack();
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userToken");
+    navigate("/landingPage");
   }
 
   function handleToLobby() {
     localStorage.removeItem("gameId");
+    localStorage.removeItem("users");
+    localStorage.removeItem("playerId");
+    localStorage.removeItem("isCreator");
+    localStorage.removeItem("result");
     navigate("/lobby");
   }
 
@@ -171,18 +158,21 @@ const Endscreen = () => {
             </Button>
           </li>
           <li>
-            <Button
-              className="buttons"
-              onClick={() => {
-                handleBack();
-                navigate("/menu");
-              }}
-            >
-              Return to Menu
-              <span style={{ marginLeft: "10px" }}>
-                <LogoutLogo width="25px" height="25px" />
-              </span>
-            </Button>
+            {isCreator ? (
+              <Button className="buttons" onClick={() => handleToMenu()}>
+                Return to Menu
+                <span style={{ marginLeft: "10px" }}>
+                  <LogoutLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            ) : (
+              <Button className="buttons" onClick={() => handleToLandingPage()}>
+                Return to Landing Page
+                <span style={{ marginLeft: "10px" }}>
+                  <LogoutLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            )}
           </li>
         </ul>
       </div>

@@ -5,6 +5,7 @@ import MenuRouter from "./MenuRouter";
 import { LoginGuard } from "../routeProtectors/LoginGuard";
 import { RegisterGuard } from "../routeProtectors/RegisterGuard";
 import Login from "../../views/Login";
+import { LandingPageGuard } from "../routeProtectors/LandingPageGuard";
 import LandingPage from "../../views/LandingPage";
 import Register from "../../views/Register";
 import { LobbyGuard } from "../routeProtectors/LobbyGuard";
@@ -26,7 +27,7 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-      <Route path="/game/" element={<GameGuard />}>
+        <Route path="/game/" element={<GameGuard />}>
           <Route path="/game/" element={<GameRouter base="/game" />} />
         </Route>
 
@@ -38,7 +39,9 @@ const AppRouter = () => {
           <Route path="/login" element={<Login />} />
         </Route>
 
-        <Route path="/landingPage" element={<LandingPage />}></Route>
+        <Route path="/landingPage" element={<LandingPageGuard />}>
+          <Route path="/landingPage" element={<LandingPage />}></Route>
+        </Route>
 
         <Route path="/endscreen" element={<Endscreen />}></Route>
 

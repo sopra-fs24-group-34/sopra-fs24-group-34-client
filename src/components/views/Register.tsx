@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {RegisterLogo} from "../ui/RegisterLogo";
-
+import { RegisterLogo } from "../ui/RegisterLogo";
 
 const FormField = (props) => {
   return (
@@ -42,13 +41,12 @@ const Register = () => {
       // Store the token into the local storage.
       localStorage.setItem("userToken", response.data.token);
       localStorage.setItem("userId", response.data.id);
+      localStorage.setItem("profilePicture", response.data.profilePicture);
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
-      navigate("/menu"); 
+      navigate("/menu");
     } catch (error) {
-      alert(
-        `Something went wrong during the login: \n${handleError(error)}`
-      );
+      alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
   };
 
@@ -59,7 +57,14 @@ const Register = () => {
   return (
     <BaseContainer>
       <div className="login container">
-        <div className="login form">
+        <div
+          className="login form"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && username && password) {
+              doRegister();
+            }
+          }}
+        >
           <h1 className="login h1">Registration</h1>
           <FormField
             label="Username"
@@ -67,7 +72,7 @@ const Register = () => {
             onChange={(un: string) => setUsername(un)}
           />
           <FormField
-            label="Password" 
+            label="Password"
             value={password}
             onChange={(n) => setPassword(n)}
           />
@@ -88,10 +93,12 @@ const Register = () => {
               onClick={() => doRegister()}
             >
               Register
-              <span style={{ marginLeft: "10px" }}><RegisterLogo width="24px" height="24px"/></span>
+              <span style={{ marginLeft: "10px" }}>
+                <RegisterLogo width="24px" height="24px" />
+              </span>
             </Button>
           </div>
-        </div>  
+        </div>
       </div>
     </BaseContainer>
   );

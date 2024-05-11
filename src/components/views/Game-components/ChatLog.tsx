@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import usePusherClient from "./PusherClient";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
+import { getStompClient, makeSubscription, sendMessage } from "../WebSocketService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -31,36 +33,47 @@ const ChatLog = () => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const pusherClient = usePusherClient();
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const channel = pusherClient.subscribe("chat_channel");
+    async function ws() {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      //await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+      const callback = function (message) {
+        const body = JSON.parse(message.body);
+        const header = body["event-type"];
+        const data = body.data;
 
-    channel.bind("new_message", (response) => {
-      console.log("Received message:", response);
-      setMessages((prevMessages) => [...prevMessages, response]);
-    });
+        console.log("Header: ", header, "\nReceived message: ", data.message);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
+      };
+      const subscription = makeSubscription(`/games/${gameId}/chat`, callback);
+    }
 
-    return () => {
-      channel.unbind("new_message");
-      channel.unsubscribe();
-    };
-  }, [pusherClient]);
+    ws();
+  }, []);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const updateChat = async () => {
     try {
-      const request = JSON.stringify(prompt);
-      
-      console.log("MESSAGE: ", prompt);
-      console.log("REQUEST: ", request);
-      await api.post(`/game/${gameId}/chat/${userId}`, 
-        request
-      ); // LiamK21: IDK if post/put; change URI
+      const requestBody = JSON.stringify({
+        message: prompt,
+        gameId: gameId,
+        userId: userId,
+      });
+
+      sendMessage("/app/sendMessage", requestBody);
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
       );
     }
+    setPrompt(""); // smailalijagic: clear textfield once message was sent
   };
 
   // Creates the question field as functional component
@@ -119,7 +132,14 @@ const ChatLog = () => {
           </div>
         ))}
       </BaseContainer>
-      <div className="chat-log-input-container">
+      <div
+        className="chat-log-input-container"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && prompt) {
+            updateChat();
+          }
+        }}
+      >
         {isQuestion ? QField() : BoolField()}
       </div>
     </BaseContainer>
