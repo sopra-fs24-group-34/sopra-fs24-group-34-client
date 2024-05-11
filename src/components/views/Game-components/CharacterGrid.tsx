@@ -66,8 +66,13 @@ const CharacterGrid = ({ persons }) => {
               subscription.unsubscribe();
               navigate("/endscreen");
             }
-            
-            if(data.guess === false && data.gameStatus !== "END" && data.playerId === playerId && data.strikes !== 0) {
+
+            if (
+              data.guess === false &&
+              data.gameStatus !== "END" &&
+              data.playerId === playerId &&
+              data.strikes !== 0
+            ) {
               setModalState({
                 isOpen: true,
                 content: <ModalGuessInformation strikes={data.strikes} />,
@@ -103,7 +108,6 @@ const CharacterGrid = ({ persons }) => {
         content: <ModalPickInformation />,
       });
       setGameStatus("IDLE");
-
     } catch (error) {
       alert(
         `Something went wrong choosing your character: \n${handleError(error)}`
