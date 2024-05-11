@@ -62,6 +62,7 @@ const Profile = ({ user }: { user: User }) => {
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
+      setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
     } catch (error) {
       alert(`Something went wrong fetching the user: \n${handleError(error)}`);
     }

@@ -9,6 +9,7 @@ import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -20,28 +21,7 @@ const Game = () => {
     isOpen: true,
     content: <GameModalContent />,
   });
-  const [stompClient, setStompClient] = useState(null);
-
-  useEffect(() => {
-    async function connectWebSocket() {
-      const socket = new SockJS("http://localhost:8080/ws");
-      const stompClient = Stomp.over(socket);
-      setStompClient(stompClient);
-
-      await stompClient.connect({}, () => {
-        console.log("Connected to WebSocket");
-      });
-    }
-
-    connectWebSocket();
-
-    return () => {
-      if (stompClient) {
-        stompClient.disconnect();
-        setStompClient(null);
-      }
-    };
-  }, []);
+  const [stompClient, setStompClient] = useState(getStompClient());
 
   // useEffect to fetch images from DB
   useEffect(() => {
@@ -108,8 +88,8 @@ const Game = () => {
     <BaseContainer className="game container">
       {hasAccepted ? (
         <>
-          <CharacterGrid persons={characters} sClient={stompClient} />
-          <ChatLog sClient={stompClient} />
+          <CharacterGrid persons={characters} />
+          <ChatLog />
         </>
       ) : (
         <>

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api, handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { getStompClient, makeSubscription, sendMessage } from "../WebSocketService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -26,60 +27,53 @@ QuestionField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const ChatLog = ({ sClient }) => {
+const ChatLog = () => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const [isQuestion, setIsQuestion] = useState<Boolean>(true);
-  const [stompClient, setStompClient] = useState(sClient);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function ws() {
-      //setStompClient(sClient);
       await new Promise((resolve) => setTimeout(resolve, 500));
-      await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+      //await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+      const callback = function (message) {
         const body = JSON.parse(message.body);
         const header = body["event-type"];
-        //console.log("Header: ", header);
         const data = body.data;
 
         console.log("Header: ", header, "\nReceived message: ", data.message);
         setMessages((prevMessages) => [...prevMessages, data.message]);
-      });
-
-      return () => {
-        disconnectWebsocket();
       };
+      const subscription = makeSubscription(`/games/${gameId}/chat`, callback);
     }
 
-    if (sClient) {
-      ws();
-    }
+    ws();
   }, []);
 
-  function disconnectWebsocket() {
-    if (stompClient !== null) {
-      stompClient.disconnect();
-      setStompClient(null);
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }
+  }, [messages]);
 
   const updateChat = async () => {
     try {
-      const request = JSON.stringify({
+      const requestBody = JSON.stringify({
         message: prompt,
         gameId: gameId,
         userId: userId,
       });
 
-      //await api.post(`/game/${gameId}/chat/${userId}`, request);
-      stompClient.send("/app/sendMessage", {}, request);
+      sendMessage("/app/sendMessage", requestBody);
     } catch (error) {
       alert(
         `Something went wrong fetching the game chat: \n${handleError(error)}`
       );
     }
+    setPrompt(""); // smailalijagic: clear textfield once message was sent
   };
 
   // Creates the question field as functional component
@@ -138,15 +132,18 @@ const ChatLog = ({ sClient }) => {
           </div>
         ))}
       </BaseContainer>
-      <div className="chat-log-input-container">
+      <div
+        className="chat-log-input-container"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && prompt) {
+            updateChat();
+          }
+        }}
+      >
         {isQuestion ? QField() : BoolField()}
       </div>
     </BaseContainer>
   );
-};
-
-ChatLog.propTypes = {
-  sClient: PropTypes.object,
 };
 
 export default ChatLog;

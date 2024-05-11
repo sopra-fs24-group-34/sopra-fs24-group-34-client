@@ -10,14 +10,18 @@ const Character = ({
   pickCharacter,
   foldCharacter,
   guessCharacter,
-  currentRound,
+  gameStatus,
 }) => {
   // functionality to display an overlay on top of character
   const interactCharacter = () => {
-    if (currentRound === "CHOOSING") {
+    if (gameStatus === "CHOOSING") {
       return (
         <div className="character overlay">
-          <button className="character-button" onClick={() => pickCharacter()}>
+          <button
+            className="character-button"
+            onClick={() => pickCharacter()}
+            style={{ color: "yellow" }}
+          >
             Pick
           </button>
         </div>
@@ -26,10 +30,18 @@ const Character = ({
 
     return (
       <div className="character overlay">
-        <button className="character-button" onClick={() => foldCharacter()}>
+        <button
+          className="character-button"
+          onClick={() => foldCharacter()}
+          style={{ color: "limegreen" }}
+        >
           Fold
         </button>
-        <button className="character-button" onClick={() => guessCharacter()}>
+        <button
+          className="character-button"
+          onClick={() => guessCharacter()}
+          style={{ color: "pink" }}
+        >
           Guess
         </button>
       </div>
@@ -55,7 +67,7 @@ Character.propTypes = {
   pickCharacter: PropTypes.Func,
   foldCharacter: PropTypes.Func,
   guessCharacter: PropTypes.Func,
-  currentRound: PropTypes.String,
+  gameStatus: PropTypes.String,
 };
 
 export default Character;

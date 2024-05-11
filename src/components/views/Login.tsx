@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {LoginLogo} from "../ui/LoginLogo";
-
+import { LoginLogo } from "../ui/LoginLogo";
 
 const FormField = (props) => {
   return (
@@ -47,9 +46,7 @@ const Login = () => {
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
-      alert(
-        `Something went wrong during the login: \n${handleError(error)}`
-      );
+      alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
   };
 
@@ -60,7 +57,14 @@ const Login = () => {
   return (
     <BaseContainer>
       <div className="login container">
-        <div className="login form">
+        <div
+          className="login form"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && username && password) {
+              doLogin();
+            }
+          }}
+        >
           <h1 className="login h1">Login</h1>
           <FormField
             label="Username"
@@ -68,7 +72,7 @@ const Login = () => {
             onChange={(un: string) => setUsername(un)}
           />
           <FormField
-            label="Password" 
+            label="Password"
             value={password}
             onChange={(n) => setPassword(n)}
           />
@@ -89,10 +93,12 @@ const Login = () => {
               onClick={() => doLogin()}
             >
               Sign-In
-              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
+              <span style={{ marginLeft: "10px" }}>
+                <LoginLogo width="25px" height="25px" />
+              </span>
             </Button>
           </div>
-        </div>  
+        </div>
       </div>
     </BaseContainer>
   );

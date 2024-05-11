@@ -11,13 +11,18 @@ import ModalGuessInformation from "./modalContent/ModalGuessInformation";
 import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import {
+  getStompClient,
+  makeSubscription,
+  sendMessage,
+} from "../WebSocketService";
 
-const CharacterGrid = ({ persons, sClient }) => {
+const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  //nedim-j: data.roundStatus can be CHOOSING, GUESSING, END
-  const [currentRound, setCurrentRound] = useState<String>("CHOOSING");
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
+  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -25,78 +30,86 @@ const CharacterGrid = ({ persons, sClient }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
-  const [stompClient, setStompClient] = useState(sClient);
+  //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
         await new Promise((resolve) => setTimeout(resolve, 500));
-        const messageSubscription = await stompClient.subscribe(
-          `/games/${gameId}`,
-          (message) => {
-            const body = JSON.parse(message.body);
-            const header = body["event-type"];
-            console.log("Header: ", header);
-            const data = body.data;
+        //const subscription = await stompClient.subscribe(`/games/${gameId}`,
+        const callback = function (message) {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          console.log("Header: ", header);
+          const data = body.data;
 
-            setCurrentRound(data.roundStatus);
-            if (data.guess === true && data.roundStatus === "END") {
+          setGameStatus(data.gameStatus);
+          console.log(data);
+          if (header === "round-update") {
+            if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
               } else {
                 localStorage.setItem("result", "lost");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
 
             //nedim-j: is there a lock in the backend which prevents us from playing on?
-            if (data.strikes === 3 && data.roundStatus === "END") {
+            if (data.strikes === 3 && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "lost");
               } else {
                 localStorage.setItem("result", "won");
               }
-              disconnectWebsocket();
+              subscription.unsubscribe();
               navigate("/endscreen");
             }
+            
+            if(data.guess === false && data.gameStatus !== "END" && data.playerId === playerId && data.strikes !== 0) {
+              setModalState({
+                isOpen: true,
+                content: <ModalGuessInformation strikes={data.strikes} />,
+              });
+            }
           }
-        );
-        
+        };
+
+        const subscription = makeSubscription(`/games/${gameId}`, callback);
+
         return () => {
-          messageSubscription.unsubscribe();
-          disconnectWebsocket();
+          subscription.unsubscribe();
         };
       }
     }
-    if (stompClient) {
-      ws();
-    }
+    ws();
   }, []);
 
-  function disconnectWebsocket() {
-    if (stompClient !== null) {
-      stompClient.disconnect();
-      setStompClient(null);
-    }
-  }
-
-  const pickCharacter = async (characterId, idx) => {
+  async function pickCharacter(characterId, idx) {
     try {
-      const send = JSON.stringify({
+      const guessPostDTO = {
         gameid: gameId,
         playerid: playerId,
         imageid: characterId,
+      };
+      const requestBody = JSON.stringify({
+        guessPostDTO: guessPostDTO,
       });
-      await api.put("/game/character/choose", send);
+      sendMessage("/app/chooseImage", requestBody);
+
       setModalState({
         isOpen: true,
         content: <ModalPickInformation />,
       });
+      setGameStatus("IDLE");
+
     } catch (error) {
-      alert(`Something went wrong choosing your pick: \n${handleError(error)}`);
+      alert(
+        `Something went wrong choosing your character: \n${handleError(error)}`
+      );
     }
-  };
+  }
 
   // Func to fold / unfold a character
   const foldCharacter = (characterIndex) => {
@@ -111,16 +124,21 @@ const CharacterGrid = ({ persons, sClient }) => {
 
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
-    const send = JSON.stringify({
+    const guessPostDTO = {
       gameid: gameId,
       playerid: playerId,
       imageid: characterId,
+    };
+    const requestBody = JSON.stringify({
+      guessPostDTO: guessPostDTO,
     });
-    const response = await api.post("/game/character/guess", send);
+    sendMessage("/app/guessImage", requestBody);
+    /*
     setModalState({
       isOpen: true,
       content: <ModalGuessInformation strikes={response.data.strikes} />,
     });
+    */
   };
 
   if (!persons) {
@@ -139,7 +157,7 @@ const CharacterGrid = ({ persons, sClient }) => {
           key={character.id}
           character={character}
           visibleCharacter={visibleCharacters[idx]}
-          currentRound={currentRound}
+          gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
           guessCharacter={() => guessCharacter(character.id, idx)}
@@ -158,7 +176,6 @@ const CharacterGrid = ({ persons, sClient }) => {
 
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
-  sClient: PropTypes.object,
 };
 
 export default CharacterGrid;
