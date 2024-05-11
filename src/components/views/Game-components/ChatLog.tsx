@@ -73,6 +73,7 @@ const ChatLog = () => {
         `Something went wrong fetching the game chat: \n${handleError(error)}`
       );
     }
+    setPrompt(""); // smailalijagic: clear textfield once message was sent
   };
 
   // Creates the question field as functional component
