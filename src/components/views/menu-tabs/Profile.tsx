@@ -13,6 +13,26 @@ const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
 // code is only written for jpeg
 
+const Player = ({ user }: { user: User }) => {
+  const winPercentage =
+    user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
+
+  return (
+    <div className="player-container">
+      <div>Game statistics:</div>
+      <div className="value">
+        {user.totalwins !== null ? user.totalwins : 0} won
+      </div>
+      <div className="value">
+        {user.totalplayed !== null ? user.totalplayed : 0} played
+      </div>
+      <div className="value">
+        {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
+      </div>
+    </div>
+  );
+};
+
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
@@ -97,42 +117,44 @@ const Profile = ({ user }: { user: User }) => {
             className="picture"
             onClick={handleProfilePictureClick}
           >
-            <img
-              src={profilePicture}
-              alt="Profile"
-              style={{ maxWidth: "100%", maxHeight: "100%" }}
-            />
+            <img src={profilePicture} alt="Profile" />
             {isEditing && <div className="changeTextOverlay">Switch</div>}
           </BaseContainer>
 
           <BaseContainer className="details">
-            <BaseContainer className="item" style={{ marginTop: "1em" }}>
-              <div className="label">Username:</div>
-              {isEditing ? (
-                <input
-                  className="profile-input"
-                  type="text"
-                  value={editedUsername}
-                  onChange={(e) => setEditedUsername(e.target.value)}
-                />
-              ) : (
-                <div className="value">{editedUsername}</div>
-              )}
-            </BaseContainer>
+            <div className="credentials">
+              <BaseContainer className="item" style={{ marginTop: "1em" }}>
+                <div className="label">Username:</div>
+                {isEditing ? (
+                  <input
+                    className="profile-input"
+                    type="text"
+                    value={editedUsername}
+                    onChange={(e) => setEditedUsername(e.target.value)}
+                  />
+                ) : (
+                  <div className="value">{editedUsername}</div>
+                )}
+              </BaseContainer>
 
-            <BaseContainer className="item" style={{ marginBottom: "1em" }}>
-              <div className="label">Password: </div>
-              {isEditing ? (
-                <input
-                  className="profile-input"
-                  type="password"
-                  value={editedPassword}
-                  onChange={(e) => setEditedPassword(e.target.value)}
-                />
-              ) : (
-                <div className="value">********</div>
-              )}
-            </BaseContainer>
+              <BaseContainer className="item">
+                <div className="label">Password: </div>
+                {isEditing ? (
+                  <input
+                    className="profile-input"
+                    type="password"
+                    value={editedPassword}
+                    onChange={(e) => setEditedPassword(e.target.value)}
+                  />
+                ) : (
+                  <div className="value">********</div>
+                )}
+              </BaseContainer>
+
+              <BaseContainer className="item" style={{ marginBottom: "1em" }}>
+                <Player user={user} />
+              </BaseContainer>
+            </div>
           </BaseContainer>
         </div>
 

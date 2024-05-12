@@ -27,18 +27,18 @@ const Player = ({ user }: { user: User }) => (
 const LobbyPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>(null);
-  const [isCreator, setIsCreator] = useState(null);
+  const [isCreator, setIsCreator] = useState(false);
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
+  const userId = localStorage.getItem("userId");
+  const lobbyId = localStorage.getItem("lobbyId");
 
   useEffect(() => {
     async function ws() {
-      const userId = localStorage.getItem("userId");
-      const lobbyId = localStorage.getItem("lobbyId");
 
-      if (userId && lobbyId) {
-        await fetchData(userId, lobbyId);
+      if (userId && lobbyId && (isCreator === true || isCreator === false)) {
+        await fetchData();
         const stompClient = await connectWebSocket();
 
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -62,10 +62,6 @@ const LobbyPage = () => {
               localStorage.setItem("playerId", data.creatorPlayerId);
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
-            } else {
-              alert("isCreator is null");
-
-              return;
             }
             subscription.unsubscribe();
             navigate("/game");
@@ -99,7 +95,7 @@ const LobbyPage = () => {
     ws();
   }, []);
 
-  async function fetchData(userId, lobbyId) {
+  async function fetchData() {
     try {
       //nedim-j: will get network errors at the moment
       /*

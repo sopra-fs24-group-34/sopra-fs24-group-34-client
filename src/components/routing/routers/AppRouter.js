@@ -45,6 +45,8 @@ const AppRouter = () => {
 
         <Route path="/endscreen" element={<Endscreen />}></Route>
 
+        <Route path="/endscreen" element={<Endscreen />}></Route>
+
         <Route path="/lobby/*" element={<LobbyGuard />}>
           <Route path="/lobby/*" element={<LobbyRouter base="/lobby" />} />
         </Route>
