@@ -25,11 +25,10 @@ AddFriendField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const Friend = ({ key, profilePicture, username, request }) => (
-  <div className="friend container">
+const Friend = ({ key, profilePicture, username }) => (
+  <div className="container">
     <BaseContainer className="picture">{profilePicture}</BaseContainer>
-    <div className="value">{username}</div>
-    {request && "hello"}
+    <div className="friends value">{username}</div>
   </div>
 );
 
@@ -37,11 +36,10 @@ Friend.propTypes = {
   key: PropTypes.num,
   profilePicture: PropTypes.string,
   username: PropTypes.string,
-  request: PropTypes.bool,
 };
 
 const Friends = () => {
-  const userId = localStorage.getItem("userId");
+  const userId = Number(localStorage.getItem("userId"));
 
   const [friends, setfriends] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
@@ -145,21 +143,15 @@ const Friends = () => {
   };
 
   // Answer friend request (Needs accept / decline button in friendRequest container)
-  const answerFriendRequest = async (answer: boolean) => {
+  const answerFriendRequest = async (answer: boolean, friendId: number) => {
     try {
-      const requestBody = JSON.stringify({ answer: answer });
-      await api.post(
-        `/users/${userId}/friendRequests/${friendId}`,
-        requestBody
-      );
+      const requestBody = JSON.stringify({ "senderId": friendId, "receiverId": userId, "answer": answer });
+      await api.put(`/users/${userId}/friends/answer`, requestBody);
 
       // Remove the answered friend request from the list.
       setFriendRequests(friendRequests.filter((user) => user.id !== friendId));
 
-      // Add the friend to the friends list if the answer was positive.
-      if (answer) {
-        setfriends([...friends, inspectedFriend]);
-      }
+      
     } catch (error) {
       alert(
         `Something went wrong while answering a friend request: \n${handleError(
@@ -170,43 +162,55 @@ const Friends = () => {
   };
 
   return (
-    <BaseContainer className="friends base-container">
-      <div className="friends content-wrapper">
-        <BaseContainer className="friends container">
-          <h1 className="friends h1">Friends</h1>
-          <ul className="friends list">
+    <BaseContainer className="friends">
+      <div className="content-wrapper">
+        <BaseContainer className="friends-container">
+          <h1 className="h1">Friends</h1>
+          <ul className="list">
             {friends.map((friend) => (
               <Friend
                 key={friend.id}
                 profilePicture={friend.profilePicture}
                 username={friend.username}
-                request={false}
               />
             ))}
           </ul>
         </BaseContainer>
 
-        <BaseContainer className="friends requests-container">
-          <h1 className="friends h1">requests</h1>
-          <ul className="friends list">
+        <BaseContainer className="friendrequests-container">
+          <h1 className="h1">requests</h1>
+          <ul className="list">
             {friendRequests.map((requests) => (
-              <Friend
-                key={requests.id}
-                profilePicture={requests.profilePicture}
-                username={requests.username}
-                request={true}
-              />
+              <div key={requests.friendId} style={{ display: "flex", alignItems: "center" }}>
+                <Friend
+                  key={requests.friendId}
+                  profilePicture={requests.friendIcon}
+                  username={requests.friendUsername}
+                />
+                <Button
+                  style={{ backgroundColor: "green" }}
+                  onClick={() => answerFriendRequest(true, requests.friendId)}
+                >
+                  Accept
+                </Button>
+                <Button
+                  style={{ backgroundColor: "red" }}
+                  onClick={() => answerFriendRequest(false, requests.friendId)}
+                >
+                  Deny
+                </Button>
+              </div>
             ))}
           </ul>
         </BaseContainer>
       </div>
 
-      <div className="friends add-friend-container">
+      <div className="add-friend-container">
         <AddFriendField
           value={newFriendUserName}
           onChange={setNewFriendUserName}
         />
-        <Button onClick={addFriend}>Add Friend</Button>
+        <Button onClick={addFriend}>Send Friend Request</Button>
       </div>
     </BaseContainer>
   );
