@@ -32,16 +32,33 @@ const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>(null);
   const [password, setPassword] = useState<string>(null);
+  const userId = localStorage.getItem("userId");
+  const userToken = localStorage.getItem("userToken");
+  const lobbyId = localStorage.getItem("lobbyId");
 
-  const doRegister = async () => {
+  async function doRegister() {
     try {
       const requestBody = JSON.stringify({ username, password });
-      const response = await api.post("/register", requestBody);
 
-      // Store the token into the local storage.
-      localStorage.setItem("userToken", response.data.token);
-      localStorage.setItem("userId", response.data.id);
-      localStorage.setItem("profilePicture", response.data.profilePicture);
+      if (userId === null && userToken === null) {
+        const response = await api.post("/register", requestBody);
+
+        localStorage.setItem("userToken", response.data.token);
+        localStorage.setItem("userId", response.data.id);
+        localStorage.setItem("profilePicture", response.data.profilePicture);
+      } else {
+        const profilePicture = localStorage.getItem("profilePicture");
+        const requestBody = JSON.stringify({
+          id: userId,
+          username: username,
+          password: password,
+          token: userToken,
+          status: "ONLINE",
+          profilePicture: profilePicture,
+        });
+
+        await api.put(`/users/${userId}`, requestBody);
+      }
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
       navigate("/menu");
@@ -50,9 +67,14 @@ const Register = () => {
     }
   };
 
-  const doBack = () => {
-    navigate("/landingPage");
-  };
+  async function doBack() {
+    if (userId !== null && userToken !== null && lobbyId !== null) {
+      navigate("/endscreen");
+    } else {
+      localStorage.clear();
+      navigate("/landingPage");
+    }
+  }
 
   return (
     <BaseContainer>
