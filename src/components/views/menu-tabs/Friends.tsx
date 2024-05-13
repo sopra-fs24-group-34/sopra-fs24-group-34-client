@@ -28,7 +28,7 @@ AddFriendField.propTypes = {
 const Friend = ({ key, profilePicture, username }) => (
   <div className="container">
     <BaseContainer className="picture">{profilePicture}</BaseContainer>
-    <div className="friends value">{username}</div>
+    <div className="value">{username}</div>
   </div>
 );
 
@@ -45,9 +45,6 @@ const Friends = () => {
   const [friendRequests, setFriendRequests] = useState([]);
 
   const [newFriendUserName, setNewFriendUserName] = useState<string>("");
-  const [inspectedFriend, setInspectedFriend] = useState<User>(null);
-  const [friendId, setFriendId] = useState<Number>(null);
-  const [ProfileVisible, setProfileVisible] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -58,13 +55,6 @@ const Friends = () => {
         // Get the returned friends and update the state.
         setfriends(responseFriends.data);
 
-        console.log("request to:", responseFriends.request.responseFriendsURL);
-        console.log("status code:", responseFriends.status);
-        console.log("status text:", responseFriends.statusText);
-        console.log("requested data:", responseFriends.data);
-
-        console.log(responseFriends);
-
         const responseFriendRequests = await api.get(
           `/users/${userId}/friends/requests`
         );
@@ -73,26 +63,11 @@ const Friends = () => {
 
         // Get the returned friend requests and update the state.
         setFriendRequests(responseFriendRequests.data);
-
-        console.log(
-          "request to:",
-          responseFriendRequests.request.responseFriendsURL
-        );
-        console.log("status code:", responseFriendRequests.status);
-        console.log("status text:", responseFriendRequests.statusText);
-        console.log("requested data:", responseFriendRequests.data);
-
-        console.log(responseFriendRequests);
       } catch (error) {
         console.error(
           `Something went wrong while fetching the friends: \n${handleError(
             error
           )}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while fetching the friends! \
-          See the console for details."
         );
       }
     }
@@ -106,7 +81,7 @@ const Friends = () => {
         senderId: userId,
         receiverUserName: newFriendUserName,
       });
-      await api.post(`/users/${userId}/friends/add`, requestBody);
+      await api.post(`/users/friends/add`, requestBody);
 
       // Return a message that the friend request was successfully sent.
     } catch (error) {
@@ -116,10 +91,10 @@ const Friends = () => {
     }
   };
 
-  // Remove friend through popup (I suppose)
-  const removeFriend = async () => {
+  // Remove friend
+  const removeFriend = async (friendId: number) => {
     try {
-      await api.delete(`/users/${userId}/friends/${friendId}`); //Mapping incorrect
+      await api.delete(`/users/${userId}/friends/delete/${friendId}`); //Mapping incorrect
       // Return a message that the friend was successfully removed.
     } catch (error) {
       alert(
@@ -128,30 +103,18 @@ const Friends = () => {
     }
   };
 
-  // Inspect friend by creating a popup (I suppose)
-  const inspectFriend = (friend: User) => {
-    try {
-      setInspectedFriend(friend);
-      setProfileVisible(true);
-    } catch (error) {
-      alert(
-        `Something went wrong while inspecting a friend: \n${handleError(
-          error
-        )}`
-      );
-    }
-  };
-
   // Answer friend request (Needs accept / decline button in friendRequest container)
   const answerFriendRequest = async (answer: boolean, friendId: number) => {
     try {
-      const requestBody = JSON.stringify({ "senderId": friendId, "receiverId": userId, "answer": answer });
-      await api.put(`/users/${userId}/friends/answer`, requestBody);
+      const requestBody = JSON.stringify({
+        senderId: friendId,
+        receiverId: userId,
+        answer: answer,
+      });
+      await api.put(`/users/friends/answer`, requestBody);
 
       // Remove the answered friend request from the list.
       setFriendRequests(friendRequests.filter((user) => user.id !== friendId));
-
-      
     } catch (error) {
       alert(
         `Something went wrong while answering a friend request: \n${handleError(
@@ -168,11 +131,26 @@ const Friends = () => {
           <h1 className="h1">Friends</h1>
           <ul className="list">
             {friends.map((friend) => (
-              <Friend
-                key={friend.id}
-                profilePicture={friend.profilePicture}
-                username={friend.username}
-              />
+              <div
+                key={friend.friendId}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <Friend
+                  key={friend.friendId}
+                  profilePicture={friend.friendIcon}
+                  username={friend.friendUsername}
+                />
+                <Button
+                  style={{ backgroundColor: "red" }}
+                  onClick={() => removeFriend(friend.friendId)}
+                >
+                  Remove Friend
+                </Button>
+              </div>
             ))}
           </ul>
         </BaseContainer>
@@ -181,24 +159,35 @@ const Friends = () => {
           <h1 className="h1">requests</h1>
           <ul className="list">
             {friendRequests.map((requests) => (
-              <div key={requests.friendId} style={{ display: "flex", alignItems: "center" }}>
+              <div
+                key={requests.friendId}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
                 <Friend
                   key={requests.friendId}
                   profilePicture={requests.friendIcon}
                   username={requests.friendUsername}
                 />
-                <Button
-                  style={{ backgroundColor: "green" }}
-                  onClick={() => answerFriendRequest(true, requests.friendId)}
-                >
-                  Accept
-                </Button>
-                <Button
-                  style={{ backgroundColor: "red" }}
-                  onClick={() => answerFriendRequest(false, requests.friendId)}
-                >
-                  Deny
-                </Button>
+                <div style={{ display: "flex", justifyContent: "space-around" }}>
+                  <Button
+                    style={{ backgroundColor: "green" }}
+                    onClick={() => answerFriendRequest(true, requests.friendId)}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    style={{ backgroundColor: "red" }}
+                    onClick={() =>
+                      answerFriendRequest(false, requests.friendId)
+                    }
+                  >
+                    Reject
+                  </Button>
+                </div >
               </div>
             ))}
           </ul>
