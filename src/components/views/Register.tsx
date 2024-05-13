@@ -6,6 +6,7 @@ import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { RegisterLogo } from "../ui/RegisterLogo";
+import { Spinner } from "../ui/Spinner";
 
 const FormField = (props) => {
   return (
@@ -35,9 +36,12 @@ const Register = () => {
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");
   const lobbyId = localStorage.getItem("lobbyId");
+  const [loading, setLoading] = useState(false);
+
 
   async function doRegister() {
     try {
+      setLoading(true);
       const requestBody = JSON.stringify({ username, password });
 
       if (userId === null && userToken === null) {
@@ -64,6 +68,9 @@ const Register = () => {
       navigate("/menu");
     } catch (error) {
       alert(`Something went wrong during the login: \n${handleError(error)}`);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -108,6 +115,9 @@ const Register = () => {
             >
               Back
             </Button>
+            {loading ? (
+                <Spinner />
+            ) : (
             <Button
               style={{ marginLeft: "10px" }}
               disabled={!username || !password}
@@ -119,6 +129,7 @@ const Register = () => {
                 <RegisterLogo width="24px" height="24px" />
               </span>
             </Button>
+                )}
           </div>
         </div>
       </div>
