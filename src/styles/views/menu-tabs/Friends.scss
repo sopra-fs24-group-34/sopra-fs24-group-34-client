@@ -30,9 +30,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      background-color: transparentize(purple, 0.2);
       width: 49%;
       max-height: 200px;
+      background-color: transparentize($color: #FFE0B2, $amount: 0.5);
       border-radius: $borderRadius;
       box-shadow: $dropShadow;
       overflow-y: auto;
@@ -43,7 +43,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      background-color: transparentize(pink, 0.2);
+      background-color: transparentize($color: #C6E2FF, $amount: 0.5);
       width: 49%;
       max-height: 200px;
       border-radius: $borderRadius;

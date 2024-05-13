@@ -81,7 +81,7 @@ const Friends = () => {
         senderId: userId,
         receiverUserName: newFriendUserName,
       });
-      await api.post(`/users/friends/add`, requestBody);
+      await api.post("/users/friends/add", requestBody);
 
       // Return a message that the friend request was successfully sent.
     } catch (error) {
@@ -103,7 +103,7 @@ const Friends = () => {
     }
   };
 
-  // Answer friend request (Needs accept / decline button in friendRequest container)
+  // Answer friend request
   const answerFriendRequest = async (answer: boolean, friendId: number) => {
     try {
       const requestBody = JSON.stringify({
@@ -111,7 +111,7 @@ const Friends = () => {
         receiverId: userId,
         answer: answer,
       });
-      await api.put(`/users/friends/answer`, requestBody);
+      await api.put("/users/friends/answer", requestBody);
 
       // Remove the answered friend request from the list.
       setFriendRequests(friendRequests.filter((user) => user.id !== friendId));
@@ -158,38 +158,48 @@ const Friends = () => {
         <BaseContainer className="friendrequests-container">
           <h1 className="h1">requests</h1>
           <ul className="list">
-            {friendRequests.map((requests) => (
-              <div
-                key={requests.friendId}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <Friend
-                  key={requests.friendId}
-                  profilePicture={requests.friendIcon}
-                  username={requests.friendUsername}
-                />
-                <div style={{ display: "flex", justifyContent: "space-around" }}>
-                  <Button
-                    style={{ backgroundColor: "green" }}
-                    onClick={() => answerFriendRequest(true, requests.friendId)}
+            {friendRequests.map(
+              (requests) =>
+                requests.friendId !== userId && (
+                  <div
+                    key={requests.friendId}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
                   >
-                    Accept
-                  </Button>
-                  <Button
-                    style={{ backgroundColor: "red" }}
-                    onClick={() =>
-                      answerFriendRequest(false, requests.friendId)
-                    }
-                  >
-                    Reject
-                  </Button>
-                </div >
-              </div>
-            ))}
+                    <Friend
+                      key={requests.friendId}
+                      profilePicture={requests.friendIcon}
+                      username={requests.friendUsername}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-around",
+                      }}
+                    >
+                      <Button
+                        style={{ backgroundColor: "green" }}
+                        onClick={() =>
+                          answerFriendRequest(true, requests.friendId)
+                        }
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        style={{ backgroundColor: "red" }}
+                        onClick={() =>
+                          answerFriendRequest(false, requests.friendId)
+                        }
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                )
+            )}
           </ul>
         </BaseContainer>
       </div>
@@ -199,7 +209,9 @@ const Friends = () => {
           value={newFriendUserName}
           onChange={setNewFriendUserName}
         />
-        <Button onClick={addFriend}>Send Friend Request</Button>
+        <Button onClick={addFriend} disabled={!newFriendUserName}>
+          Send Friend Request
+        </Button>
       </div>
     </BaseContainer>
   );
