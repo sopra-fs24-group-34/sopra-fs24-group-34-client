@@ -27,7 +27,9 @@ AddFriendField.propTypes = {
 
 const Friend = ({ key, profilePicture, username }) => (
   <div className="container">
-    <BaseContainer className="picture">{profilePicture}</BaseContainer>
+    <BaseContainer className="picture">
+      <img src={profilePicture} alt="Profile" />
+    </BaseContainer>
     <div className="value">{username}</div>
   </div>
 );
@@ -137,6 +139,7 @@ const Friends = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   width: "100%",
+                  alignItems: "center",
                 }}
               >
                 <Friend
@@ -145,7 +148,7 @@ const Friends = () => {
                   username={friend.friendUsername}
                 />
                 <Button
-                  style={{ backgroundColor: "red" }}
+                  style={{ backgroundColor: "red", marginBottom: "15px" }}
                   onClick={() => removeFriend(friend.friendId)}
                 >
                   Remove Friend
@@ -156,7 +159,7 @@ const Friends = () => {
         </BaseContainer>
 
         <BaseContainer className="friendrequests-container">
-          <h1 className="h1">requests</h1>
+          <h1 className="h1">Friend requests</h1>
           <ul className="list">
             {friendRequests.map(
               (requests) =>
@@ -167,6 +170,7 @@ const Friends = () => {
                       display: "flex",
                       justifyContent: "space-between",
                       width: "100%",
+                      alignItems: "center",
                     }}
                   >
                     <Friend
@@ -178,10 +182,11 @@ const Friends = () => {
                       style={{
                         display: "flex",
                         justifyContent: "space-around",
+                        marginBottom: "15px"
                       }}
                     >
                       <Button
-                        style={{ backgroundColor: "green" }}
+                        style={{ backgroundColor: "green", marginRight: "10px" }}
                         onClick={() =>
                           answerFriendRequest(true, requests.friendId)
                         }
