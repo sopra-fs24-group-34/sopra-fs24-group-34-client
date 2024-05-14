@@ -1,3 +1,4 @@
+import { isProduction } from "../../helpers/isProduction";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -6,8 +7,15 @@ let isConnected = false;
 
 export function connectWebSocket() {
   if (!isConnected) {
-    const socket = new SockJS("http://localhost:8080/ws");
-    stompClient = Stomp.over(socket);
+    if (isProduction()) {
+      const socket = new SockJS(
+        "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
+      );
+      stompClient = Stomp.over(socket);
+    } else {
+      const socket = new SockJS("http://localhost:8080/ws");
+      stompClient = Stomp.over(socket);
+    }
 
     stompClient.connect({}, () => {
       console.log("Connected to WebSocket");
