@@ -38,7 +38,6 @@ const Register = () => {
   const lobbyId = localStorage.getItem("lobbyId");
   const [loading, setLoading] = useState(false);
 
-
   async function doRegister() {
     try {
       setLoading(true);
@@ -68,11 +67,10 @@ const Register = () => {
       navigate("/menu");
     } catch (error) {
       alert(`Something went wrong during the login: \n${handleError(error)}`);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-  };
+  }
 
   async function doBack() {
     if (userId !== null && userToken !== null && lobbyId !== null) {
@@ -116,20 +114,20 @@ const Register = () => {
               Back
             </Button>
             {loading ? (
-                <Spinner />
+              <Spinner />
             ) : (
-            <Button
-              style={{ marginLeft: "10px" }}
-              disabled={!username || !password}
-              width="100%"
-              onClick={() => doRegister()}
-            >
-              Register
-              <span style={{ marginLeft: "10px" }}>
-                <RegisterLogo width="24px" height="24px" />
-              </span>
-            </Button>
-                )}
+              <Button
+                style={{ marginLeft: "10px" }}
+                disabled={!username || !password}
+                width="100%"
+                onClick={() => doRegister()}
+              >
+                Register
+                <span style={{ marginLeft: "10px" }}>
+                  <RegisterLogo width="24px" height="24px" />
+                </span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
