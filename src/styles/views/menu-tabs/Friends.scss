@@ -8,72 +8,108 @@
  */
 
 .friends {
-  &.container {
-    background: $background;
-    padding: 1.5em;
-    border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: $dropShadow;
-    width: 50%;
-    //height: 200px;
-  }
-  &.user-list {
-    list-style: none;
-    padding-left: 0;
-  }
-  &.user-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  & p,h2 {
-    margin: 0.5em 0;
-  }
-  &.navbar {
-    //background-color: #333;
-    background: lighten($background, 5%);
-    width: 100%;
-    margin: 1.5em;
-    border-radius: $borderRadius;
-    ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      li {
-        flex: 1;
-        position: relative;
-        
-        &:not(:last-child) {
-          border-right: 1px solid #ccc;
-        }
+  color: black;
+  background: transparent;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
 
-        a {
-          display: block;
-          color: white;
-          text-decoration: none;
-          text-align: center;
-          font-size: larger;
-          &:hover {
-            color: #ccc;
-          }
-        }
+  .content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    height: 50%;
+    padding: 1px;
+
+    .friends-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width: 49%;
+      max-height: 200px;
+      background-color: transparentize($color: #FFE0B2, $amount: 0.5);
+      border-radius: $borderRadius;
+      box-shadow: $dropShadow;
+      overflow-y: auto;
+    }
+
+    .friendrequests-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background-color: transparentize($color: #C6E2FF, $amount: 0.5);
+      width: 49%;
+      max-height: 200px;
+      border-radius: $borderRadius;
+      box-shadow: $dropShadow;
+      overflow-y: auto;
+    }
+
+    .h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: $textColor;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      padding-left: 0;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-bottom: 1em;
+      
+
+      .picture {
+        background: lighten($background, 20%);
+        border-radius: $borderRadius;
+        height: 50px;
+        width: 50px;
+        
+        margin-right: 1em;
+      }
+
+      .value {
+        display: flex;
+        align-items: center;
+        margin-right: 0.5em;
+        color: black;
+        text-align: right;
+        font-family: $fontNormal;
       }
     }
   }
-  &.view {
-    background: lighten($background, 5%);
-    padding: 1.5em;
-    border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: $dropShadow;
-    width: 100%;
 
+  .add-friend-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    width: 80%;
+
+    .field {
+      padding: 0;
+      font-family: $fontNormal;
+    }
+
+    .input {
+      width: 100%;
+      border: solid;
+      border-color: rgba(45, 44, 44, 0.653);
+      border-radius: 0.75em;
+      color: $textColor;
+    }
   }
-  
 }
