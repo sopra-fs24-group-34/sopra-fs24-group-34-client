@@ -9,6 +9,7 @@ class User {
     this.status = null;
     this.friendlist = null; // smailalijagic: added
     this.lobbylist = null; // smailalijagic: added
+    this.profilePicture = null;
     Object.assign(this, data);
   }
 }

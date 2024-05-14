@@ -8,6 +8,8 @@ import PropTypes from "prop-types";
 import "styles/views/Endscreen.scss";
 import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
+import { disconnectWebSocket, getStompClient } from "./WebSocketService";
+import { closeLobby } from "./Lobby";
 
 const Player = ({
   user,
@@ -38,16 +40,21 @@ const Endscreen = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [gameResult, setGameResult] = useState<string>("won");
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [isGuest, setIsGuest] = useState<boolean>(false);
+  const [stompClient, setStompClient] = useState(null);
 
   useEffect(() => {
     async function fetchUserData() {
       try {
         const creator = localStorage.getItem("isCreator");
+        const userId = localStorage.getItem("userId");
         setIsCreator(JSON.parse(creator));
 
         const usersString = localStorage.getItem("users");
         if (usersString) {
           const usersArray: User[] = JSON.parse(usersString);
+          const guestUser = usersArray.find(user => user.id === Number(userId) && user.username.startsWith("Guest"));
+          setIsGuest(!!guestUser);
           setUsers(usersArray);
         }
 
@@ -58,6 +65,14 @@ const Endscreen = () => {
     }
 
     fetchUserData();
+
+    setStompClient(getStompClient());
+
+    return () => {
+      if (stompClient) {
+        disconnectWebSocket();
+      }
+    };
   }, []);
 
   let players = <Spinner />;
@@ -83,18 +98,26 @@ const Endscreen = () => {
   }
 
   const handleBack = (): void => {
+    closeLobby(getStompClient());
     localStorage.removeItem("lobbyId");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
     localStorage.removeItem("result");
-
-    //nedim-j: add api call
+    disconnectWebSocket();
   };
 
   function handleToRegister() {
-    handleBack();
+    /*
+    localStorage.removeItem("gameId");
+    localStorage.removeItem("users");
+    localStorage.removeItem("playerId");
+    localStorage.removeItem("isCreator");
+    localStorage.removeItem("result");
+    */
+    disconnectWebSocket();
+    //implement
     navigate("/register");
   }
 
@@ -128,7 +151,7 @@ const Endscreen = () => {
       <div className="buttonlist">
         <ul>
           <li>
-            {!isCreator && (
+            {!isCreator && isGuest && (
               <Button className="buttons" onClick={() => handleToRegister()}>
                 Register
                 <span style={{ marginLeft: "10px" }}>
@@ -146,7 +169,7 @@ const Endscreen = () => {
             </Button>
           </li>
           <li>
-            {isCreator ? (
+            {isCreator || !isGuest ? (
               <Button className="buttons" onClick={() => handleToMenu()}>
                 Return to Menu
                 <span style={{ marginLeft: "10px" }}>

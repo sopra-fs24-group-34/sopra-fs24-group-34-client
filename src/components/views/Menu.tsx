@@ -23,6 +23,30 @@ Player.propTypes = {
   user: PropTypes.object,
 };
 
+const FormField = (props) => {
+  const initialValue = /^[0-9\b]+$/.test(props.value) ? props.value : "";
+
+  return (
+    <input
+      type="text"
+      className="buttonbar join input"
+      placeholder="Enter Lobby code..."
+      value={initialValue}
+      onChange={(e) => {
+        const re = /^[0-9\b]+$/; // regular expression to allow only numbers and backspace
+        if (e.target.value === "" || re.test(e.target.value)) {
+          props.onChange(e.target.value);
+        }
+      }}
+    />
+  );
+};
+
+FormField.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+};
+
 const Menu = () => {
   // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
@@ -33,50 +57,81 @@ const Menu = () => {
   };
 
   const logout = (): void => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userId");
+    localStorage.clear();
     navigate("/landingPage");
   };
 
-  const createLobby = (): void => {
+  const createLobby = async () => {
     const userId = localStorage.getItem("userId");
-    async function makeRequest() {
-      try {
-        const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend
-        
-        await new Promise((resolve) => setTimeout(resolve, 200));
+    try {
+      const response = await api.post(`/lobbies/create/${userId}`);
 
-        localStorage.setItem("lobbyId", response.data);
+      localStorage.setItem("lobbyId", response.data);
+      localStorage.setItem("lobbyId", response.data);
 
-        console.log(response);
+      console.log(response);
+      console.log(response);
 
-        navigate("/lobby");
-      } catch (error) {
-        console.error(
-          `Something went wrong while creating the lobby: \n${handleError(
-            error
-          )}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while creating the lobby! See the console for details."
-        );
-      }
+      navigate("/lobby");
+    } catch (error) {
+      console.error(
+        `Something went wrong while creating the lobby: \n${handleError(error)}`
+      );
+      console.error("Details:", error);
+      alert(
+        "Something went wrong while creating the lobby! See the console for details."
+      );
     }
+  }
 
-    makeRequest();
-  };
+  const [lobbyCode, setLobbyCode] = useState(null);
+  async function doJoinLobby() {
+    try {
+      const userId = localStorage.getItem("userId");
+
+      await api.put(`/lobbies/join/${lobbyCode}/${userId}`);
+
+      localStorage.setItem("lobbyId", lobbyCode);
+
+      navigate("/lobby");
+    } catch (error) {
+      alert(
+        `Something went wrong during the lobby join: \n${handleError(error)}`
+      );
+    }
+  }
 
   return (
     <BaseContainer className="menu container">
       <div className="buttonbar">
-        <Button
-          style={{ flex: "8", marginRight: "1em" }}
-          onClick={() => createLobby()}
-        >
+        <Button className="createLobby" onClick={() => createLobby()}>
           Create new Lobby
         </Button>
-        <Button style={{ flex: "2" }} onClick={() => logout()}>
+
+        <div
+          className="buttonbar join"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && lobbyCode) {
+              doJoinLobby();
+            }
+          }}
+        >
+          <FormField
+            className="buttonbar join input"
+            label="Lobby Code"
+            value={lobbyCode}
+            onChange={(code) => setLobbyCode(code)}
+          />
+          <Button
+            className="buttonbar join join-button"
+            disabled={!lobbyCode}
+            onClick={doJoinLobby}
+          >
+            Join
+          </Button>
+        </div>
+
+        <Button className="buttonbar logout" onClick={() => logout()}>
           Logout
           <span style={{ marginLeft: "10px" }}>
             <LogoutLogo width="25px" height="25px" />
@@ -112,6 +167,7 @@ const Menu = () => {
               status: "",
               totalwins: 0,
               totalplayed: 0,
+              profilePicture: "",
             }}
           />
         )}

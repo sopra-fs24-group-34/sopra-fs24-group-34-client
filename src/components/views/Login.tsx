@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import {LoginLogo} from "../ui/LoginLogo";
+import { LoginLogo } from "../ui/LoginLogo";
+import { Spinner } from "../ui/Spinner";
 
 
 const FormField = (props) => {
@@ -33,22 +34,25 @@ const Login = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>(null);
   const [password, setPassword] = useState<string>(null);
+  const [loading, setLoading] = useState(false);
 
   const doLogin = async () => {
     try {
+      setLoading(true);
       const requestBody = JSON.stringify({ username, password });
       const response = await api.post("/login", requestBody);
 
       // Store the token into the local storage.
       localStorage.setItem("userToken", response.data.token);
       localStorage.setItem("userId", response.data.id);
+      localStorage.setItem("profilePicture", response.data.profilePicture);
 
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
-      alert(
-        `Something went wrong during the login: \n${handleError(error)}`
-      );
+      alert(`Something went wrong during the login: \n${handleError(error)}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,7 +63,14 @@ const Login = () => {
   return (
     <BaseContainer>
       <div className="login container">
-        <div className="login form">
+        <div
+          className="login form"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && username && password) {
+              doLogin();
+            }
+          }}
+        >
           <h1 className="login h1">Login</h1>
           <FormField
             label="Username"
@@ -67,7 +78,7 @@ const Login = () => {
             onChange={(un: string) => setUsername(un)}
           />
           <FormField
-            label="Password" 
+            label="Password"
             value={password}
             onChange={(n) => setPassword(n)}
           />
@@ -81,17 +92,23 @@ const Login = () => {
             >
               Back
             </Button>
-            <Button
-              style={{ marginLeft: "10px" }}
-              disabled={!username || !password}
-              width="100%"
-              onClick={() => doLogin()}
-            >
-              Sign-In
-              <span style={{ marginLeft: "10px" }} ><LoginLogo  width="25px" height="25px"/></span>
-            </Button>
+            {loading ? (
+              <Spinner />
+            ) : (
+              <Button
+                style={{ marginLeft: "10px" }}
+                disabled={!username || !password}
+                width="100%"
+                onClick={() => doLogin()}
+              >
+                  Sign-In
+                <span style={{ marginLeft: "10px" }}>
+                  <LoginLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            )}
           </div>
-        </div>  
+        </div>
       </div>
     </BaseContainer>
   );

@@ -7,7 +7,16 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User, Lobby } from "types";
-import PusherService from "./PusherService";
+import LobbyGameExplanation from "./LobbyGameExplanation";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
+import {
+  connectWebSocket,
+  disconnectWebSocket,
+  getStompClient,
+  makeSubscription,
+  sendMessage,
+} from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -18,47 +27,75 @@ const Player = ({ user }: { user: User }) => (
 const LobbyPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>(null);
-  const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [isCreator, setIsCreator] = useState(false);
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const pusherService = new PusherService();
+  const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
+  const userId = localStorage.getItem("userId");
+  const lobbyId = localStorage.getItem("lobbyId");
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const lobbyId = localStorage.getItem("lobbyId");
+    async function ws() {
 
-    if (userId && lobbyId) {
-      fetchData(userId, lobbyId);
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "user-joined",
-        (data: any) => {
-          setUsers((prevUsers) => [...prevUsers, data]);
-        }
-      );
+      if (userId && lobbyId && (isCreator === true || isCreator === false)) {
+        await fetchData();
+        const stompClient = await connectWebSocket();
 
-      pusherService.subscribeToChannel(
-        "lobby-events",
-        "game-started",
-        (data: any) => {
-          // Check if current user is not the host
-          const pId = localStorage.getItem("playerId");
-          if (parseInt(pId) !== data.creatorId) {
-            console.log("PUSHER GAME DATA: ", data);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const callback = function (message) {
+          //const subscription = stompClient.subscribe(
+          //`/lobbies/${lobbyId}`,
+          //function (message) {
+          const body = JSON.parse(message.body);
+          const header = body["event-type"];
+          const data = body.data;
+          console.log("Header: ", header);
+          if (header === "user-joined") {
+            console.log("Invited User: ", data);
+            setUsers((prevUsers) => [...prevUsers, data]);
+          } else if (header === "game-started") {
             localStorage.setItem("gameId", data.gameId);
-            localStorage.setItem("playerId", data.invitedplayerId);
-            navigate("/game"); // Redirect to game page
+            //nedim-j: should be fine? small limitation, but the following requests require authentication header anyway
+            const isCr = JSON.parse(localStorage.getItem("isCreator"));
+            if (isCr === true) {
+              localStorage.setItem("playerId", data.creatorPlayerId);
+            } else if (isCr === false) {
+              localStorage.setItem("playerId", data.invitedPlayerId);
+            }
+            subscription.unsubscribe();
+            navigate("/game");
+          } else if (header === "user-left") {
+            console.log("Implement");
+          } else if (header === "user-statusUpdate") {
+            setUsers((prevUsers) => {
+              const updatedUsers = [...prevUsers];
+              const index = updatedUsers.findIndex(
+                (user) => user.id === data.id
+              );
+              if (index !== -1) {
+                updatedUsers[index] = data; // Replace the existing user with the updated data
+              }
+
+              return updatedUsers;
+            });
+          } else if (header === "lobby-closed") {
+            console.log(data);
+            handleReturn();
+          } else {
+            console.log("Unknown message from WS");
           }
-        }
-      );
+        };
+        //);
+
+        const subscription = makeSubscription(`/lobbies/${lobbyId}`, callback);
+      }
     }
 
-    return () => {
-      pusherService.unsubscribeFromChannel("lobby-events");
-    };
+    ws();
   }, []);
 
-  async function fetchData(userId, lobbyId) {
+  async function fetchData() {
     try {
       //nedim-j: will get network errors at the moment
       /*
@@ -79,13 +116,15 @@ const LobbyPage = () => {
         `/users/${lobbyResponse.creator_userid}`
       );
       const creatorUser = creatorResponse.data;
-      console.log("Creator User: ", creatorResponse);
+      console.log("Creator User: ", creatorUser);
+      setUserStatus(creatorUser.status);
 
       //nedim-j: find better solution for checking if one is the host
       if (parseInt(userId) === creatorUser.id) {
         setIsCreator(true);
         localStorage.setItem("isCreator", JSON.stringify(true));
       } else {
+        setIsCreator(false);
         localStorage.setItem("isCreator", JSON.stringify(false));
       }
 
@@ -116,111 +155,149 @@ const LobbyPage = () => {
 
   //Set players to render
   useEffect(() => {
-    if (users !== null && users !== undefined) {
-      console.log("USEEEEEEERS: ", users);
-      localStorage.setItem("users", JSON.stringify(users));
-      const playersComponent = (
-        <ul className="players list">
-          {users.map(
-            (user: User) =>
-              user &&
-              user.id !== undefined &&
-              user.username !== undefined && (
-                <li key={user.id}>
-                  <Player user={user} />
-                </li>
-              )
-          )}
-        </ul>
-      );
-      setPlayers(playersComponent);
-    }
-  }, [users]);
-
-  function handleReturn() {
-    pusherService.unsubscribeFromChannel("lobby-events");
-    const lobbyId = localStorage.getItem("lobbyId");
-
-    async function closeLobby() {
-      try {
-        let userCreator = null;
-        let userInvited = null;
-
-        if (users && users.length > 0) {
-          userCreator = users[0];
-          if (users.length > 1) {
-            userInvited = users[1];
-          }
-        }
-
-        const requestDelete = JSON.stringify({
-          id: parseInt(lobbyId),
-          user_creator: userCreator,
-          user_invited: userInvited,
-        });
-        //console.log("REQUEST DELETE: ", requestDelete);
-        //await api.delete(`/lobbies/${lobbyId}/start`, requestDelete); //nedim-j: make correct endpoint. seems to require a body atm
-      } catch (error) {
-        console.error(
-          `Something went wrong while fetching data: \n${handleError(error)}`
+    async function loadPlayers() {
+      if (users !== null && users !== undefined) {
+        console.log("USEEEEEEERS: ", users);
+        localStorage.setItem("users", JSON.stringify(users));
+        const playersComponent = (
+          <ul className="players list">
+            {users.map(
+              (user: User) =>
+                user &&
+                user.id !== undefined &&
+                user.username !== undefined && (
+                  <li key={user.id}>
+                    <Player user={user} />
+                  </li>
+                )
+            )}
+          </ul>
         );
+        setPlayers(playersComponent);
       }
     }
+    loadPlayers();
+  }, [users]);
 
-    //nedim-j: again, find better solution for checking if one is the host
+  async function handleReturn() {
     if (isCreator) {
-      closeLobby();
+      const lobbyId = localStorage.getItem("lobbyId");
+      if (lobbyId !== null || lobbyId !== undefined) {
+        closeLobby(getStompClient());
+      }
       localStorage.removeItem("lobbyId");
+      localStorage.removeItem("isCreator");
+      localStorage.removeItem("users");
+      disconnectWebSocket();
       navigate("/menu");
     } else {
       //nedim-j: probably delete call to users?
-      localStorage.removeItem("lobbyId");
-      localStorage.removeItem("token");
-      localStorage.removeItem("id");
+      localStorage.clear();
+      disconnectWebSocket();
       navigate("/landingPage");
     }
   }
 
-  function handleStart() {
+  async function handleStart() {
     const lobbyId = localStorage.getItem("lobbyId");
-    async function startGame() {
-      try {
-        //nedim-j: add ready status to if clause
-        if (users && users.length === 2) {
-          const lobby = await api.get(`/lobbies/${lobbyId}/`);
-          console.log("REQUEST LOBBY: ", lobby);
-          //nedim-j: perhaps add authentification when trying to start game
-          const response = await api.post(`/game/${lobbyId}/start`, lobby);
-          localStorage.setItem("gameId", response.data.gameId);
-          localStorage.setItem("playerId", response.data.creatorId);
-          console.log("RESPONSE GAME: ", response);
+    const userId = localStorage.getItem("userId");
+    const userToken = localStorage.getItem("userToken");
 
-          navigate("/game");
-        }
-      } catch (error) {
-        console.error(
-          `Something went wrong while starting game: \n${handleError(error)}`
-        );
+    try {
+      //nedim-j: add ready status to if clause
+      if (users && users.length === 2) {
+        handleReady("INLOBBY_READY");
+        const lobby = await api.get(`/lobbies/${lobbyId}/`);
+
+        const gamePostDto = {
+          creator_userid: lobby.data.creator_userid,
+          invited_userid: lobby.data.invited_userid,
+        };
+        const auth = {
+          id: userId,
+          token: userToken,
+        };
+
+        //const response = await api.post(`/game/${lobbyId}/start`, requestBody);
+
+        const requestBody = JSON.stringify({
+          lobbyId: lobbyId,
+          gamePostDTO: gamePostDto,
+          authenticationDTO: auth,
+        });
+
+        //await stompClient.send("/app/startGame", {}, requestBody);
+        sendMessage("/app/startGame", requestBody);
       }
+    } catch (error) {
+      console.error(
+        `Something went wrong while starting game: \n${handleError(error)}`
+      );
     }
-    startGame();
   }
 
-  function handleReady() {
+  async function handleReady(readyStatus: string) {
     /**nedim-j: implement */
+    const lobbyId = localStorage.getItem("lobbyId");
+    const userId = localStorage.getItem("userId");
+    const userToken = localStorage.getItem("userToken");
+
+    try {
+      const requestBody = JSON.stringify({
+        readyStatus: readyStatus,
+        lobbyId: lobbyId,
+        userId: userId,
+      });
+
+      //stompClient.send("/app/updateReadyStatus", {}, request);
+      sendMessage("/app/updateReadyStatus", requestBody);
+    } catch (error) {
+      alert(`Something went wrong with ready-status: \n${handleError(error)}`);
+    }
   }
 
   function renderActionButtons() {
-    if (isCreator) {
-      return (
-        <Button className="lobby button" onClick={() => handleStart()}>
-          Start Game
-        </Button>
+    if (isCreator && users) {
+      const currentUserId = localStorage.getItem("userId");
+
+      const invitedUser = users.find(
+        (user) => user.id !== parseInt(currentUserId)
       );
+
+      if (invitedUser && invitedUser.status === "INLOBBY_READY") {
+        return (
+          <Button className="lobby button" onClick={() => handleStart()}>
+            Start Game
+          </Button>
+        );
+      } else {
+        return (
+          <Button className="lobby button" disabled>
+            Waiting for opponent
+          </Button>
+        );
+      }
     } else {
+      let buttonText;
+      let newStatus;
+
+      if (userStatus === "INLOBBY_PREPARING" || userStatus === "ONLINE") {
+        buttonText = "Ready";
+        newStatus = "INLOBBY_READY";
+      } else if (userStatus === "INLOBBY_READY") {
+        buttonText = "Not ready";
+        newStatus = "INLOBBY_PREPARING";
+      }
+
       return (
-        <Button className="lobby button" onClick={() => handleReady()}>
-          Ready
+        <Button
+          className="lobby button"
+          onClick={() => {
+            setUserStatus(newStatus);
+            handleReady(newStatus);
+          }}
+        >
+          {buttonText}
         </Button>
       );
     }
@@ -301,31 +378,33 @@ const LobbyPage = () => {
         </ul>
       </BaseContainer>
       {showExplanation && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <span className="close" onClick={() => setShowExplanation(false)}>
-              &times;
-            </span>
-            <h2>How the game works:</h2>
-            <p>
-              {" "}
-              &apos;Guess Who?&apos; is a turn based 1 vs 1 game, where each
-              player picks a random character from a given set of characters and
-              tries to figure out their opponent&apos;s pick. To narrow down the
-              pool of possible characters each player may ask a yes-no-question
-              regarding the character&apos;s physical features.
-              <div className="empty-line"></div>
-              If you think a character is not your opponent&apos;s pick you can
-              fold it to have a better overview. If you think a character is
-              your opponent&apos;s choice, you can make a guess.
-              <div className="empty-line"></div>
-              But careful! You only have a limited number of guesses.
-            </p>
-          </div>
-        </div>
+        <LobbyGameExplanation func={() => setShowExplanation()} />
       )}
     </BaseContainer>
   );
 };
+
+export async function closeLobby(stompClient) {
+  const lobbyId = localStorage.getItem("lobbyId");
+  const userId = localStorage.getItem("userId");
+  const userToken = localStorage.getItem("userToken");
+
+  try {
+    const requestBody = JSON.stringify({
+      lobbyId: lobbyId,
+      authenticationDTO: {
+        id: userId,
+        token: userToken,
+      },
+    });
+
+    //stompClient.send("/app/closeLobby", {}, requestBody);
+    sendMessage("/app/closeLobby", requestBody);
+  } catch (error) {
+    console.error(
+      `Something went wrong while closing lobby: \n${handleError(error)}`
+    );
+  }
+}
 
 export default LobbyPage;

@@ -7,6 +7,9 @@ import "styles/views/Game.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
 import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
+import Stomp from "stompjs";
+import SockJS from "sockjs-client";
+import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -18,10 +21,10 @@ const Game = () => {
     isOpen: true,
     content: <GameModalContent />,
   });
+  const [stompClient, setStompClient] = useState(getStompClient());
 
   // useEffect to fetch images from DB
   useEffect(() => {
-
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
 
     const fetchImages = async () => {
@@ -69,8 +72,7 @@ const Game = () => {
       await api.delete(`/games/${gameId}/images/${imageId}`);
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
-    }
-    catch (error) {
+    } catch (error) {
       alert(
         `Something went wrong removing the characters: \n${handleError(error)}`
       );

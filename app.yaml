@@ -20,3 +20,12 @@ handlers:
   - url: /.*
     static_files: build/index.html
     upload: build/index.html
+
+
+resources:
+  cpu: 8
+  memory_gb: 4
+  volumes:
+  - name: ramdisk1
+    volume_type: tmpfs
+    size_gb: 0.5

@@ -30,6 +30,7 @@ const Player = ({ user }: { user: User }) => {
 
 const Leaderboard = () => {
   const [users, setUsers] = useState<User[]>(null);
+  const [selectedCriteria, setSelectedCriteria] = useState<string>("totalwins");
 
   useEffect(() => {
     async function fetchData() {
@@ -40,11 +41,6 @@ const Leaderboard = () => {
 
         // Get the returned users and update the state.
         setUsers(response.data);
-
-        console.log("request to:", response.request.responseURL);
-        console.log("status code:", response.status);
-        console.log("status text:", response.statusText);
-        console.log("requested data:", response.data);
 
         console.log(response);
       } catch (error) {
@@ -68,11 +64,12 @@ const Leaderboard = () => {
     const sortedUsers = [...users].sort((a, b) => {
       if (a[criteria] < b[criteria]) return -1;
       if (a[criteria] > b[criteria]) return 1;
-      
+
       return 0;
     });
 
     setUsers(sortedUsers);
+    setSelectedCriteria(criteria);
   };
 
   let content = <Spinner />;
@@ -81,12 +78,14 @@ const Leaderboard = () => {
     content = (
       <div className="leaderboard">
         <div className="sorting">
-          <Button onClick={() => handleSort("username")}>
-            Sort by Username
-          </Button>
-          <Button onClick={() => handleSort("totalwins")}>
-            Sort by Total Wins
-          </Button>
+          <select
+            value={selectedCriteria}
+            onChange={(e) => handleSort(e.target.value)}
+          >
+            <option value="username">Sort by Username</option>
+            <option value="totalwins">Sort by Total Wins</option>
+            <option value="totalplayed">Sort by Total Games Played</option>
+          </select>
         </div>
         <ul className="leaderboard user-list">
           {users.map((user: User) => (
