@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
-import { getStompClient, makeSubscription, sendMessage } from "../WebSocketService";
+import { getStompClient, makeSubscription, sendMessage, waitForConnection } from "../WebSocketService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -37,8 +37,7 @@ const ChatLog = () => {
 
   useEffect(() => {
     async function ws() {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      //await stompClient.subscribe(`/games/${gameId}/chat`, (message) => {
+
       const callback = function (message) {
         const body = JSON.parse(message.body);
         const header = body["event-type"];
@@ -47,7 +46,7 @@ const ChatLog = () => {
         console.log("Header: ", header, "\nReceived message: ", data.message);
         setMessages((prevMessages) => [...prevMessages, data.message]);
       };
-      const subscription = makeSubscription(`/games/${gameId}/chat`, callback);
+      const subscription = await makeSubscription(`/games/${gameId}/chat`, callback);
     }
 
     ws();

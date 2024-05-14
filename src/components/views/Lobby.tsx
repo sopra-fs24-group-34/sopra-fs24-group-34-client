@@ -11,11 +11,13 @@ import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
+  cancelSubscription,
   connectWebSocket,
   disconnectWebSocket,
   getStompClient,
   makeSubscription,
   sendMessage,
+  waitForConnection,
 } from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
@@ -41,8 +43,6 @@ const LobbyPage = () => {
         await fetchData();
         const stompClient = await connectWebSocket();
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
         const callback = function (message) {
           //const subscription = stompClient.subscribe(
           //`/lobbies/${lobbyId}`,
@@ -63,7 +63,7 @@ const LobbyPage = () => {
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
-            subscription.unsubscribe();
+            cancelSubscription(subscription);
             navigate("/game");
           } else if (header === "user-left") {
             console.log("Implement");
@@ -74,7 +74,7 @@ const LobbyPage = () => {
                 (user) => user.id === data.id
               );
               if (index !== -1) {
-                updatedUsers[index] = data; // Replace the existing user with the updated data
+                updatedUsers[index] = data;
               }
 
               return updatedUsers;
@@ -88,7 +88,7 @@ const LobbyPage = () => {
         };
         //);
 
-        const subscription = makeSubscription(`/lobbies/${lobbyId}`, callback);
+        const subscription = await makeSubscription(`/lobbies/${lobbyId}`, callback);
       }
     }
 
