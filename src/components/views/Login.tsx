@@ -6,6 +6,8 @@ import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { LoginLogo } from "../ui/LoginLogo";
+import { Spinner } from "../ui/Spinner";
+
 
 const FormField = (props) => {
   return (
@@ -32,9 +34,11 @@ const Login = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>(null);
   const [password, setPassword] = useState<string>(null);
+  const [loading, setLoading] = useState(false);
 
   const doLogin = async () => {
     try {
+      setLoading(true);
       const requestBody = JSON.stringify({ username, password });
       const response = await api.post("/login", requestBody);
 
@@ -47,6 +51,8 @@ const Login = () => {
       navigate("/menu");
     } catch (error) {
       alert(`Something went wrong during the login: \n${handleError(error)}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,17 +92,21 @@ const Login = () => {
             >
               Back
             </Button>
-            <Button
-              style={{ marginLeft: "10px" }}
-              disabled={!username || !password}
-              width="100%"
-              onClick={() => doLogin()}
-            >
-              Sign-In
-              <span style={{ marginLeft: "10px" }}>
-                <LoginLogo width="25px" height="25px" />
-              </span>
-            </Button>
+            {loading ? (
+              <Spinner />
+            ) : (
+              <Button
+                style={{ marginLeft: "10px" }}
+                disabled={!username || !password}
+                width="100%"
+                onClick={() => doLogin()}
+              >
+                  Sign-In
+                <span style={{ marginLeft: "10px" }}>
+                  <LoginLogo width="25px" height="25px" />
+                </span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

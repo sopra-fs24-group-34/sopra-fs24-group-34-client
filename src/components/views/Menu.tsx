@@ -61,15 +61,15 @@ const Menu = () => {
     navigate("/landingPage");
   };
 
-  async function createLobby() {
+  const createLobby = async () => {
     const userId = localStorage.getItem("userId");
     try {
-      const response = await api.post(`/lobbies/create/${userId}`); //nedim-j: define exact endpoint & need of body with backend
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      const response = await api.post(`/lobbies/create/${userId}`);
 
       localStorage.setItem("lobbyId", response.data);
+      localStorage.setItem("lobbyId", response.data);
 
+      console.log(response);
       console.log(response);
 
       navigate("/lobby");

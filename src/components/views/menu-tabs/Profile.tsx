@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { json, useNavigate, useParams } from "react-router-dom";
 import { api, handleError } from "helpers/api";
 import "styles/views/menu-tabs/Profile.scss";
+import { Spinner } from "components/ui/Spinner";
 import BaseContainer from "components/ui/BaseContainer";
 import { Button } from "components/ui/Button";
 import { User } from "types";
@@ -44,6 +45,7 @@ const Profile = ({ user }: { user: User }) => {
   const [editedPassword, setEditedPassword] = useState(user.password);
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getUser();
@@ -55,6 +57,7 @@ const Profile = ({ user }: { user: User }) => {
   }, []);
 
   const sendEdit = async () => {
+    setLoading(true);
     setIsEditing(false);
     try {
       const requestBody = JSON.stringify({
@@ -65,7 +68,6 @@ const Profile = ({ user }: { user: User }) => {
         profilePicture: profilePicture,
       });
       await api.put(`/users/${userId}`, requestBody);
-
       await getUser();
     } catch (error) {
       setEditedUsername(user.username);
@@ -75,26 +77,34 @@ const Profile = ({ user }: { user: User }) => {
         )}`
       );
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   const getUser = async () => {
     try {
+      setLoading(true);
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
       setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
+      setLoading(false);
     } catch (error) {
       alert(`Something went wrong fetching the user: \n${handleError(error)}`);
     }
   };
 
   const deleteUser = async () => {
+    setLoading(true);
     try {
-      await api.delete(`/user/${userId}/delete`);
+      await api.delete(`/users/${userId}/delete`);
       localStorage.clear();
       navigate("/");
     } catch (error) {
       alert(`Something went wrong deleting the user: \n${handleError(error)}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,6 +118,11 @@ const Profile = ({ user }: { user: User }) => {
     localStorage.setItem("profilePicture", selectedImage);
     setShowImagePicker(false);
   };
+
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -164,7 +179,7 @@ const Profile = ({ user }: { user: User }) => {
             onClick={() => sendEdit()}
             disabled={!editedUsername || !editedPassword}
           >
-            Save
+                Save
           </Button>
         ) : (
           <>
@@ -180,7 +195,7 @@ const Profile = ({ user }: { user: User }) => {
         <div className="popup-overlay">
           <div className="popup">
             <button className="close" onClick={() => setShowImagePicker(false)}>
-              &times;
+                  &times;
             </button>
             <h2>Choose Profile Picture</h2>
             <div className="imageGrid">
@@ -201,5 +216,6 @@ const Profile = ({ user }: { user: User }) => {
     </>
   );
 };
+
 
 export default Profile;
