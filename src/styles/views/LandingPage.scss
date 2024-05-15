@@ -2,32 +2,28 @@
 
 .landingPage {
   &.container {
-    margin-top: 2em;
+    margin-top: 1em;
     min-height: 250px;
     /* we include the center mixin defined in _theme.scss and save three duplicate lines :) */
-    @include center;
-    flex-direction: column;
+    @include centerColumn;
   }
   &.form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     width: 50%;
     max-width: 30em;
     height: 9em;
     font-size: 30px;
     font-weight: 300;
-    padding-left: 37px;
-    padding-right: 37px;
+    padding-left: 6%;
+    padding-right: 6%;
     border-radius: 0.75em;
     background-color: transparentize(white, 0.2);
     transition: opacity 0.5s ease, transform 0.5s ease;
     box-shadow: $dropShadow;
   }
   &.field {
-    display: flex;
+    @include center;
     flex-direction: column;
-    justify-content: center;
     margin-top: 1px;
     font-family: $fontNormal;
   }
@@ -53,9 +49,7 @@
     justify-content: center;
   }
   &.button-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     width: 50%;
     margin-top:10px;
     font-size: 40px;

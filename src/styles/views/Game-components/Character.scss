@@ -24,7 +24,6 @@
       border-radius: 0.75em;
       background-color: burlywood;
       @include center;
-      align-items: center;
       position: absolute;
       top: 0;
       left: 0;
@@ -43,10 +42,7 @@
     display: none;
   }
   &:hover .overlay {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    @include centerColumn;
   }
 
   .character-button {

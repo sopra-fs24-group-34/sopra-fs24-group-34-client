@@ -12,9 +12,7 @@
     background: $background;
     padding: 1.5em;
     border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    @include centerColumn;
     box-shadow: $dropShadow;
     width: 40%;
   }
@@ -32,10 +30,7 @@
           }
       }
       .user-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        @include centerColumn;
       }
 }
   
@@ -51,9 +46,7 @@
     width: 100%;
     //margin: 1.5em;
     border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    @include centerColumn;
     ul {
         width: 100%;
         margin: 0;

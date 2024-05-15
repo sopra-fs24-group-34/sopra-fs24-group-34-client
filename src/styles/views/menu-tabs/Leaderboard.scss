@@ -9,15 +9,12 @@
 
 .leaderboard {
   &.container {
-    background: $background;
-    padding: 1.5em;
     border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: $dropShadow;
+    @include alignCenterColumn;
     width: 100%;
-    //height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    
   }
   &.user-list {
     font-family: $fontNormal;
@@ -35,10 +32,7 @@
     margin-bottom: 0.5em; // Added some margin at the bottom for separation
   }
   &.user-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    @include centerColumn;
   }
   & p,h2 {
     margin: 0.5em 0;
