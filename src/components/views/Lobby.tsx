@@ -31,6 +31,7 @@ const LobbyPage = () => {
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [playersInLobby, setPlayers] = useState(null);
+  const [invitedFriend, setInvitedFriend] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
   const [strikes, setStrikes] = useState(3);
@@ -315,6 +316,21 @@ const LobbyPage = () => {
       );
     }
   }
+
+  const inviteFriend = async () => {
+    try {
+      const requestBody = JSON.stringify({
+        creatorId: localStorage.getItem("userId"),
+        invitedUserName: invitedFriend,
+        lobbyId: localStorage.getItem("lobbyId"),
+      });
+
+      await api.post("lobbies/invite", requestBody);
+    } catch (error) {
+      console.error(
+        `Something went wrong while inviting a friend: \n${handleError(error)}`
+      );
+    }
 
   return (
     <BaseContainer className="lobby container">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { json, useNavigate, useParams } from "react-router-dom";
 import { api, handleError } from "helpers/api";
+import PropTypes from "prop-types";
 import "styles/views/menu-tabs/Profile.scss";
 import { Spinner } from "components/ui/Spinner";
 import BaseContainer from "components/ui/BaseContainer";
@@ -34,6 +35,19 @@ const Player = ({ user }: { user: User }) => {
   );
 };
 
+const Lobby = ({ key, profilePicture, username }) => (
+  <div className="lobby-container">
+    <BaseContainer className="friend-picture">{profilePicture}</BaseContainer>
+    <div className="friend-value">{username}</div>
+  </div>
+);
+
+Lobby.propTypes = {
+  key: PropTypes.num,
+  profilePicture: PropTypes.string,
+  username: PropTypes.string,
+};
+
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
@@ -46,6 +60,7 @@ const Profile = ({ user }: { user: User }) => {
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [lobbyInvitations, setLobbyInvitations] = useState([]);
 
   useEffect(() => {
     getUser();
@@ -54,6 +69,15 @@ const Profile = ({ user }: { user: User }) => {
     if (storedProfilePicture) {
       setProfilePicture(storedProfilePicture);
     }
+    async function fetchLobbyInvitations() {
+      try {
+        const response = await api.get(`users/${userId}/lobbies/invitations`);
+
+        setLobbyInvitations(response);
+        console.log("GET lobbyInvitations: ", response);
+      } catch (error) {}
+    }
+    fetchLobbyInvitations();
   }, []);
 
   const sendEdit = async () => {
@@ -123,6 +147,31 @@ const Profile = ({ user }: { user: User }) => {
   if (loading) {
     return <Spinner />;
   }
+  const answerLobbyInvitation = async (answer: boolean, lobbyId: number) => {
+    try {
+      const requestBody = JSON.stringify({
+        "creatorId": "Never received", 
+        "invitedUserId": userId,
+        "lobbyId": lobbyId,
+        "answer": answer,
+      });
+
+      await api.put("/lobbies/invitation/answer", requestBody);
+
+      // Remove the answered friend request from the list.
+      setLobbyInvitations(
+        lobbyInvitations.filter((lobby) => lobby.lobbyId !== lobbyId)
+      );
+
+      navigate("/lobby");
+    } catch (error) {
+      alert(
+        `Something went wrong while answering a friend request: \n${handleError(
+          error
+        )}`
+      );
+    }
+  };
 
   return (
     <>
