@@ -4,32 +4,60 @@ import SockJS from "sockjs-client";
 
 let stompClient: Stomp.Client | null = null;
 let isConnected = false;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 10;
+const reconnectDelay = 5000; // 5 seconds
+const connectionPoll = 100;
+
+const subscriptionsMap = new Map();
 
 export async function connectWebSocket() {
   if (!isConnected) {
-    if (isProduction()) {
-      const socket = new SockJS(
-        "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
-      );
-      stompClient = Stomp.over(socket);
-    } else {
-      const socket = new SockJS("http://localhost:8080/ws");
-      stompClient = Stomp.over(socket);
-    }
+    const socket = new SockJS(
+      isProduction()
+        ? "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
+        : "http://localhost:8080/ws"
+    );
 
-    stompClient.connect({}, () => {
-      console.log("Connected to WebSocket");
-      isConnected = true;
-    });
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, onConnect, onError);
   }
 
   return stompClient;
+}
+
+function onConnect() {
+  console.log("Connected to WebSocket");
+  isConnected = true;
+  reconnectAttempts = 0;
+
+  // Resubscribe to all previous subscriptions
+  subscriptionsMap.forEach((subscription/*endpoint, callback*/) => {
+    makeSubscription(subscription.endpoint, subscription.callback/*endpoint, callback*/);
+  });
+}
+
+function onError() {
+  console.error("WebSocket connection error. Attempting to reconnect...");
+
+  isConnected = false;
+
+  if (reconnectAttempts < maxReconnectAttempts) {
+    setTimeout(() => {
+      reconnectAttempts++;
+      connectWebSocket();
+    }, reconnectDelay);
+  } else {
+    console.error("Max WebSocket-reconnect attempts reached");
+  }
 }
 
 export function disconnectWebSocket() {
   if (stompClient !== null) {
     stompClient.disconnect();
     isConnected = false;
+    subscriptionsMap.clear();
   }
 }
 
@@ -40,13 +68,19 @@ export async function makeSubscription(endpoint: string, callback) {
     alert("STOMP client is not connected");
   }
 
-  return stompClient.subscribe(endpoint, callback);
+  const subscription = stompClient.subscribe(endpoint, callback);
+  subscriptionsMap.set(subscription.id, subscription/*endpoint, callback*/);
+  console.log("New stomp:", stompClient);
+  console.log("New sub:", subscription);
+  console.log("NEW submap:", subscriptionsMap);
+  return subscription;
 }
 
-export function cancelSubscription(subscription) {
-  console.log("stompclient:", stompClient);
+export async function cancelSubscription(subscription) {
   if (stompClient && stompClient.connected && subscription) {
+    await subscriptionsMap.delete(subscription.id);
     subscription.unsubscribe();
+    console.log("deleted from submap:", subscriptionsMap);
   }
 }
 
@@ -61,7 +95,7 @@ export function getStompClient() {
 }
 
 export async function waitForConnection() {
-  while (!stompClient.connected) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+  while (!stompClient || !stompClient.connected) {
+    await new Promise((resolve) => setTimeout(resolve, connectionPoll));
   }
 }
