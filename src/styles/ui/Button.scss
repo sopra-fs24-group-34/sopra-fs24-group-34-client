@@ -25,3 +25,9 @@
   background-color: black;
   transition: all 0.3s ease;
 }
+
+@media (min-width: $SMALL_WIDTH) and (max-width: $SMALL_LAPTOPS_WIDTH) {
+  .primary-button {
+    font-size: 16px;
+  }
+}
