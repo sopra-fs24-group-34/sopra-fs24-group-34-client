@@ -76,7 +76,7 @@ const Leaderboard = () => {
 
   if (users) {
     content = (
-      <div className="leaderboard">
+      <div className="leaderboard container">
         <div className="sorting">
           <select
             value={selectedCriteria}
