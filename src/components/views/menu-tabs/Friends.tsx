@@ -47,6 +47,7 @@ const Friends = () => {
   const [friendRequests, setFriendRequests] = useState([]);
 
   const [newFriendUserName, setNewFriendUserName] = useState<string>("");
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -74,7 +75,7 @@ const Friends = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [reload]);
 
   // Add friend by username
   const addFriend = async () => {
@@ -97,6 +98,7 @@ const Friends = () => {
   const removeFriend = async (friendId: number) => {
     try {
       await api.delete(`/users/${userId}/friends/delete/${friendId}`); //Mapping incorrect
+      setReload(!reload);
       // Return a message that the friend was successfully removed.
     } catch (error) {
       alert(
@@ -116,7 +118,7 @@ const Friends = () => {
       await api.put("/users/friends/answer", requestBody);
 
       // Remove the answered friend request from the list.
-      setFriendRequests(friendRequests.filter((user) => user.id !== friendId));
+      setReload(!reload);
     } catch (error) {
       alert(
         `Something went wrong while answering a friend request: \n${handleError(
