@@ -33,12 +33,13 @@ const LobbyPage = () => {
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
+  const [strikes, setStrikes] = useState(3);
+  const [timePerRound, setTimePerRound] = useState(60);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
   useEffect(() => {
     async function ws() {
-
       if (userId && lobbyId && (isCreator === true || isCreator === false)) {
         await fetchData();
         const stompClient = await connectWebSocket();
@@ -88,7 +89,10 @@ const LobbyPage = () => {
         };
         //);
 
-        const subscription = await makeSubscription(`/lobbies/${lobbyId}`, callback);
+        const subscription = await makeSubscription(
+          `/lobbies/${lobbyId}`,
+          callback
+        );
       }
     }
 
@@ -266,7 +270,16 @@ const LobbyPage = () => {
 
       if (invitedUser && invitedUser.status === "INLOBBY_READY") {
         return (
-          <Button className="lobby button" onClick={() => handleStart()}>
+          <Button
+            className="lobby button"
+            disabled={
+              !(0 < Number(strikes) &&
+              Number(strikes) < 11 &&
+              29 < Number(timePerRound) &&
+              Number(timePerRound) < 301)
+            }
+            onClick={() => handleStart()}
+          >
             Start Game
           </Button>
         );
@@ -311,18 +324,33 @@ const LobbyPage = () => {
             <BaseContainer className="settings">
               <h1>Settings</h1>
               <div>
-                <p>Time per round:</p>
+                <p>Time per round in seconds (30 - 300):</p>
                 <input
                   className="input"
-                  type="text"
-                  value="something"
+                  type="number"
+                  min="30"
+                  max="300"
+                  value={timePerRound}
                   readOnly={!isCreator}
-                  onChange={(e) => e} //add function
+                  onChange={(e) => setTimePerRound(e.target.value)} //add function
+                />
+                <p>Number of Strikes (1 - 10):</p>
+                <input
+                  className="input"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={strikes}
+                  readOnly={!isCreator}
+                  onChange={(e) => setStrikes(e.target.value)} //add function
                 />
                 {isCreator && (
                   <Button
                     className="lobby button"
-                    onClick={() => navigate("/lobby")}
+                    onClick={() => {
+                      setStrikes(3);
+                      setTimePerRound(60);
+                    }}
                   >
                     {/**add functionality */}
                     Reset settings
