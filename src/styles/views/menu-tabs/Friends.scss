@@ -15,7 +15,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  height: 100%;
+  max-height: 300px;
 
   .content-wrapper {
     display: flex;
@@ -26,24 +26,8 @@
     padding: 1px;
 
     .friends-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      @include alignCenterColumn;
       justify-content: flex-start;
-      width: 49%;
-      max-height: 200px;
-      background-color: transparentize($color: #FFE0B2, $amount: 0.5);
-      border-radius: $borderRadius;
-      box-shadow: $dropShadow;
-      overflow-y: auto;
-    }
-
-    .friendrequests-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      background-color: transparentize($color: #C6E2FF, $amount: 0.5);
       width: 49%;
       max-height: 200px;
       border-radius: $borderRadius;

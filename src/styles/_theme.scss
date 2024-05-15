@@ -43,6 +43,25 @@ $borderRadius: 0.75em;
   justify-content: center;
 }
 
+@mixin centerColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin alignCenterColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@mixin justifyCenterColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .button {
   color: #050f14;
 }
