@@ -20,8 +20,8 @@ export async function connectWebSocket() {
     );
 
     stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, onConnect, onError);
+    const userId = await localStorage.getItem("userId");
+    stompClient.connect({userId: userId}, onConnect, onError);
   }
 
   return stompClient;
