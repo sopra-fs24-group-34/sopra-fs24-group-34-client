@@ -100,8 +100,7 @@ const Profile = ({ user }: { user: User }) => {
           error
         )}`
       );
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -143,17 +142,16 @@ const Profile = ({ user }: { user: User }) => {
     setShowImagePicker(false);
   };
 
-
   if (loading) {
     return <Spinner />;
   }
   const answerLobbyInvitation = async (answer: boolean, lobbyId: number) => {
     try {
       const requestBody = JSON.stringify({
-        "creatorId": "Never received", 
-        "invitedUserId": userId,
-        "lobbyId": lobbyId,
-        "answer": answer,
+        creatorId: "Never received",
+        invitedUserId: userId,
+        lobbyId: lobbyId,
+        answer: answer,
       });
 
       await api.put("/lobbies/invitation/answer", requestBody);
@@ -176,18 +174,18 @@ const Profile = ({ user }: { user: User }) => {
   return (
     <>
       <div className="profile">
-        <div className="container">
-          <BaseContainer
-            className="picture"
-            onClick={handleProfilePictureClick}
-          >
-            <img src={profilePicture} alt="Profile" />
-            {isEditing && <div className="changeTextOverlay">Switch</div>}
-          </BaseContainer>
+        <div className="profile-wrapper">
+          <div className="container">
+            <BaseContainer
+              className="picture"
+              onClick={handleProfilePictureClick}
+            >
+              <img src={profilePicture} alt="Profile" />
+              {isEditing && <div className="changeTextOverlay">Switch</div>}
+            </BaseContainer>
 
-          <BaseContainer className="details">
-            <div className="credentials">
-              <BaseContainer className="item" style={{ marginTop: "1em" }}>
+            <BaseContainer className="details">
+              <BaseContainer className="item">
                 <div className="label">Username:</div>
                 {isEditing ? (
                   <input
@@ -214,37 +212,37 @@ const Profile = ({ user }: { user: User }) => {
                   <div className="value">********</div>
                 )}
               </BaseContainer>
+            </BaseContainer>
+          </div>
 
-              <BaseContainer className="item" style={{ marginBottom: "1em" }}>
-                <Player user={user} />
-              </BaseContainer>
+          {isEditing ? (
+            <Button
+              className="editButton"
+              onClick={() => sendEdit()}
+              disabled={!editedUsername || !editedPassword}
+            >
+              Save
+            </Button>
+          ) : (
+            <div className="button-container">
+              <Button onClick={() => setIsEditing(true)}>Edit</Button>
+              <Button className="delete-button" onClick={() => deleteUser()}>
+                Delete Account
+              </Button>
             </div>
-          </BaseContainer>
+          )}
         </div>
 
-        {isEditing ? (
-          <Button
-            className="editButton"
-            onClick={() => sendEdit()}
-            disabled={!editedUsername || !editedPassword}
-          >
-                Save
-          </Button>
-        ) : (
-          <>
-            <Button onClick={() => setIsEditing(true)}>Edit</Button>
-            <Button className="delete-button" onClick={() => deleteUser()}>
-              Delete Account
-            </Button>
-          </>
-        )}
+        <div className="invitations-container">
+          <h1 className="h1">Lobby invitations</h1>
+        </div>
       </div>
 
       {showImagePicker && (
         <div className="popup-overlay">
           <div className="popup">
             <button className="close" onClick={() => setShowImagePicker(false)}>
-                  &times;
+              &times;
             </button>
             <h2>Choose Profile Picture</h2>
             <div className="imageGrid">
@@ -265,6 +263,5 @@ const Profile = ({ user }: { user: User }) => {
     </>
   );
 };
-
 
 export default Profile;
