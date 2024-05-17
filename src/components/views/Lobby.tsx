@@ -27,11 +27,29 @@ const Player = ({ user }: { user: User }) => (
 );
 
 const Friend = ({ key, profilePicture, username, func }) => (
-  <div className="container" onClick={func}>
-    <BaseContainer className="picture">
-      <img src={profilePicture} alt="Profile" />
-    </BaseContainer>
-    <div className="value">{username}</div>
+  <div
+    key={key}
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      width: "100%",
+      alignItems: "center",
+    }}
+  >
+    <div className="friend-container">
+      <BaseContainer className="friend-picture">
+        <img src={profilePicture} alt="Profile" />
+      </BaseContainer>
+      <div className="friend-value">{username}</div>
+    </div>
+    <Button
+      style={{ backgroundColor: "green", marginBottom: "15px" }}
+      onClick={() => {
+        func(username);
+      }}
+    >
+      Invite
+    </Button>
   </div>
 );
 
@@ -209,7 +227,7 @@ const LobbyPage = () => {
           `Something went wrong while fetching friends: \n${handleError(error)}`
         );
       }
-    }
+    };
     loadPlayers();
     fetchInvitableFriends();
   }, [users]);
@@ -349,14 +367,15 @@ const LobbyPage = () => {
     }
   }
 
-  const inviteFriend = async () => {
+  const inviteFriend = async (userName) => {
     try {
       const requestBody = JSON.stringify({
         creatorId: userId,
-        invitedUserName: invitedFriend,
+        invitedUserName: userName,
         lobbyId: lobbyId,
       });
 
+      console.log("Request body: ", requestBody);
       await api.post("lobbies/invite", requestBody);
     } catch (error) {
       console.error(
@@ -440,28 +459,16 @@ const LobbyPage = () => {
           <li>
             <BaseContainer className="friends-container">
               <h1>Invitable Friends</h1>
-              <div className="friends">
-                <ul className="list">
-                  {invitableFriends.map((friend) => (
-                    <div
-                      key={friend.friendId}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Friend
-                        key={friend.friendId}
-                        profilePicture={friend.friendIcon}
-                        username={friend.friendUsername}
-                        func={() => inviteFriend()}
-                      />
-                    </div>
-                  ))}
-                </ul>
-              </div>
+              <ul className="list">
+                {invitableFriends.map((friend) => (
+                  <Friend
+                    key={friend.friendId}
+                    profilePicture={friend.friendIcon}
+                    username={friend.friendUsername}
+                    func={inviteFriend}
+                  />
+                ))}
+              </ul>
             </BaseContainer>
           </li>
         </ul>
