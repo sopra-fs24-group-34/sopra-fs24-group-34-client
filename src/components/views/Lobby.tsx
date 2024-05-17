@@ -44,29 +44,33 @@ const LobbyPage = () => {
         const stompClient = await connectWebSocket();
 
         const callback = function (message) {
-          //const subscription = stompClient.subscribe(
-          //`/lobbies/${lobbyId}`,
-          //function (message) {
           const body = JSON.parse(message.body);
           const header = body["event-type"];
           const data = body.data;
           console.log("Header: ", header);
+
           if (header === "user-joined") {
             console.log("Invited User: ", data);
             setUsers((prevUsers) => [...prevUsers, data]);
+            
           } else if (header === "game-started") {
             localStorage.setItem("gameId", data.gameId);
             //nedim-j: should be fine? small limitation, but the following requests require authentication header anyway
             const isCr = JSON.parse(localStorage.getItem("isCreator"));
+
             if (isCr === true) {
               localStorage.setItem("playerId", data.creatorPlayerId);
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
+
             cancelSubscription(subscription);
             navigate("/game");
+
           } else if (header === "user-left") {
-            console.log("Implement");
+            console.log("User left: ", data.id);
+            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
+
           } else if (header === "user-statusUpdate") {
             setUsers((prevUsers) => {
               const updatedUsers = [...prevUsers];
@@ -79,14 +83,15 @@ const LobbyPage = () => {
 
               return updatedUsers;
             });
+
           } else if (header === "lobby-closed") {
             console.log(data);
             handleReturn();
+
           } else {
             console.log("Unknown message from WS");
           }
         };
-        //);
 
         const subscription = await makeSubscription(`/lobbies/${lobbyId}`, callback);
       }
