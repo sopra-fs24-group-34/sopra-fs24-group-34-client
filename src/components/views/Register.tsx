@@ -41,6 +41,11 @@ const Register = () => {
   async function doRegister() {
     try {
       setLoading(true);
+      if (username.toUpperCase().includes("GUEST")) {
+        alert("Username cannot contain 'guest'");
+        
+        return;
+      }
       const requestBody = JSON.stringify({ username, password });
 
       if (userId === null && userToken === null) {
