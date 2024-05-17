@@ -15,37 +15,46 @@ const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
 // code is only written for jpeg
 
-const Player = ({ user }: { user: User }) => {
-  const winPercentage =
-    user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
-
-  return (
-    <div className="player-container">
-      <div>Game statistics:</div>
-      <div className="value">
-        {user.totalwins !== null ? user.totalwins : 0} won
-      </div>
-      <div className="value">
-        {user.totalplayed !== null ? user.totalplayed : 0} played
-      </div>
-      <div className="value">
-        {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
-      </div>
+const Invitation = ({ key, profilePicture, username, lobbyId, func }) => (
+  <>
+    <div className="friend-container">
+      <BaseContainer className="friend-picture">
+        <img src={profilePicture} alt="Profile" />
+      </BaseContainer>
+      <div className="value">{username}</div>
     </div>
-  );
-};
-
-const Lobby = ({ key, profilePicture, username }) => (
-  <div className="lobby-container">
-    <BaseContainer className="friend-picture">{profilePicture}</BaseContainer>
-    <div className="friend-value">{username}</div>
-  </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-around",
+        marginBottom: "15px",
+      }}
+    >
+      <Button
+        style={{
+          backgroundColor: "green",
+          marginRight: "10px",
+        }}
+        onClick={() => func(true, lobbyId)}
+      >
+        Join
+      </Button>
+      <Button
+        style={{ backgroundColor: "red" }}
+        onClick={() => func(false, lobbyId)}
+      >
+        Decline
+      </Button>
+    </div>
+  </>
 );
 
-Lobby.propTypes = {
+Invitation.propTypes = {
   key: PropTypes.num,
   profilePicture: PropTypes.string,
   username: PropTypes.string,
+  lobbyId: PropTypes.num,
+  func: PropTypes.func,
 };
 
 const Profile = ({ user }: { user: User }) => {
@@ -73,7 +82,7 @@ const Profile = ({ user }: { user: User }) => {
       try {
         const response = await api.get(`users/${userId}/lobbies/invitations`);
 
-        setLobbyInvitations(response);
+        setLobbyInvitations(response.data);
         console.log("GET lobbyInvitations: ", response);
       } catch (error) {}
     }
@@ -156,11 +165,6 @@ const Profile = ({ user }: { user: User }) => {
 
       await api.put("/lobbies/invitation/answer", requestBody);
 
-      // Remove the answered friend request from the list.
-      setLobbyInvitations(
-        lobbyInvitations.filter((lobby) => lobby.lobbyId !== lobbyId)
-      );
-
       navigate("/lobby");
     } catch (error) {
       alert(
@@ -234,7 +238,28 @@ const Profile = ({ user }: { user: User }) => {
         </div>
 
         <div className="invitations-container">
-          <h1 className="h1">Lobby invitations</h1>
+          <h1>Lobby invitations</h1>
+          <ul className="list">
+            {lobbyInvitations.map((invitation) => (
+              <div
+                key={invitation.createrId}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <Invitation
+                  key={invitation.friendId}
+                  profilePicture={invitation.friendIcon}
+                  username={invitation.friendUsername}
+                  lobbyId={invitation.lobbyId}
+                  func={answerLobbyInvitation}
+                />
+              </div>
+            ))}
+          </ul>
         </div>
       </div>
 

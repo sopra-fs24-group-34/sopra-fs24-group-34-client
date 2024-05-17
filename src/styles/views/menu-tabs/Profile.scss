@@ -14,6 +14,16 @@
   justify-content: space-between;
   height: 300px;
 
+  img {
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: $borderRadius;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
   .profile-wrapper {
     display: flex;
     flex-direction: column;
@@ -26,16 +36,6 @@
     box-shadow: $dropShadow;
     border-radius: $borderRadius;
 
-    img {
-      width: auto;
-      height: auto;
-      object-fit: cover;
-      display: block;
-      border-radius: $borderRadius;
-      max-width: 100%;
-      max-height: 100%;
-    }
-
     .container {
       display: flex;
       flex-direction: row;
@@ -47,7 +47,6 @@
         border-radius: $borderRadius;
         justify-content: left;
         width: 200px;
-        
       }
 
       .details {
@@ -65,7 +64,7 @@
           margin-left: 2em;
           padding: 0;
 
-          &.label {
+          .label {
             margin-left: 0.5em;
             text-align: left;
           }
@@ -106,7 +105,7 @@
     box-shadow: $dropShadow;
     overflow-y: auto;
 
-    .h1 {
+    h1 {
       font-size: 1.5em;
       font-weight: 300;
       color: $textColor;
@@ -119,7 +118,7 @@
       align-items: flex-start;
       width: 100%;
 
-      .lobby-container {
+      .friend-container {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -134,7 +133,7 @@
           margin-right: 1em;
         }
 
-        &.friends-value {
+        .value {
           margin-right: 0.5em;
           text-align: right;
           font-family: $fontNormal;
