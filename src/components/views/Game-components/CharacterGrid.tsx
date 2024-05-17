@@ -25,6 +25,7 @@ const CharacterGrid = ({ persons }) => {
   const playerId = Number(localStorage.getItem("playerId"));
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -111,6 +112,7 @@ const CharacterGrid = ({ persons }) => {
         content: <ModalPickInformation />,
       });
       setGameStatus("IDLE");
+      setSelectedCharacter(characterId);
     } catch (error) {
       alert(
         `Something went wrong choosing your character: \n${handleError(error)}`
@@ -168,6 +170,7 @@ const CharacterGrid = ({ persons }) => {
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
           guessCharacter={() => guessCharacter(character.id, idx)}
+          hihglight={character.id === selectedCharacter ? true : false}
         />
       ))}
       {
