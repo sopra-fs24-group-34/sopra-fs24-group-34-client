@@ -12,9 +12,11 @@ import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
+  cancelSubscription,
   getStompClient,
   makeSubscription,
   sendMessage,
+  waitForConnection,
 } from "../WebSocketService";
 
 const CharacterGrid = ({ persons }) => {
@@ -23,6 +25,7 @@ const CharacterGrid = ({ persons }) => {
   const playerId = Number(localStorage.getItem("playerId"));
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -35,8 +38,9 @@ const CharacterGrid = ({ persons }) => {
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        //const subscription = await stompClient.subscribe(`/games/${gameId}`,
+        
+        await waitForConnection();
+        
         const callback = function (message) {
           const body = JSON.parse(message.body);
           const header = body["event-type"];
@@ -52,7 +56,7 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "lost");
               }
-              subscription.unsubscribe();
+              cancelSubscription(subscription);
               navigate("/endscreen");
             }
 
@@ -63,7 +67,7 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "won");
               }
-              subscription.unsubscribe();
+              cancelSubscription(subscription);
               navigate("/endscreen");
             }
 
@@ -81,10 +85,10 @@ const CharacterGrid = ({ persons }) => {
           }
         };
 
-        const subscription = makeSubscription(`/games/${gameId}`, callback);
+        const subscription = await makeSubscription(`/games/${gameId}`, callback);
 
         return () => {
-          subscription.unsubscribe();
+          cancelSubscription(subscription);
         };
       }
     }
@@ -108,6 +112,7 @@ const CharacterGrid = ({ persons }) => {
         content: <ModalPickInformation />,
       });
       setGameStatus("IDLE");
+      setSelectedCharacter(characterId);
     } catch (error) {
       alert(
         `Something went wrong choosing your character: \n${handleError(error)}`
@@ -165,6 +170,7 @@ const CharacterGrid = ({ persons }) => {
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
           guessCharacter={() => guessCharacter(character.id, idx)}
+          hihglight={character.id === selectedCharacter ? true : false}
         />
       ))}
       {

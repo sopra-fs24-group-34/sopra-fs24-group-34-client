@@ -11,11 +11,13 @@ import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
+  cancelSubscription,
   connectWebSocket,
   disconnectWebSocket,
   getStompClient,
   makeSubscription,
   sendMessage,
+  waitForConnection,
 } from "./WebSocketService";
 
 const Player = ({ user }: { user: User }) => (
@@ -31,17 +33,16 @@ const LobbyPage = () => {
   const [playersInLobby, setPlayers] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
+  const [strikes, setStrikes] = useState(3);
+  const [timePerRound, setTimePerRound] = useState(60);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
   useEffect(() => {
     async function ws() {
-
       if (userId && lobbyId && (isCreator === true || isCreator === false)) {
         await fetchData();
         const stompClient = await connectWebSocket();
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
 
         const callback = function (message) {
           //const subscription = stompClient.subscribe(
@@ -63,7 +64,7 @@ const LobbyPage = () => {
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
-            subscription.unsubscribe();
+            cancelSubscription(subscription);
             navigate("/game");
           } else if (header === "user-left") {
             console.log("Implement");
@@ -74,7 +75,7 @@ const LobbyPage = () => {
                 (user) => user.id === data.id
               );
               if (index !== -1) {
-                updatedUsers[index] = data; // Replace the existing user with the updated data
+                updatedUsers[index] = data;
               }
 
               return updatedUsers;
@@ -88,7 +89,10 @@ const LobbyPage = () => {
         };
         //);
 
-        const subscription = makeSubscription(`/lobbies/${lobbyId}`, callback);
+        const subscription = await makeSubscription(
+          `/lobbies/${lobbyId}`,
+          callback
+        );
       }
     }
 
@@ -266,7 +270,16 @@ const LobbyPage = () => {
 
       if (invitedUser && invitedUser.status === "INLOBBY_READY") {
         return (
-          <Button className="lobby button" onClick={() => handleStart()}>
+          <Button
+            className="lobby button"
+            disabled={
+              !(0 < Number(strikes) &&
+              Number(strikes) < 11 &&
+              29 < Number(timePerRound) &&
+              Number(timePerRound) < 301)
+            }
+            onClick={() => handleStart()}
+          >
             Start Game
           </Button>
         );
@@ -311,18 +324,33 @@ const LobbyPage = () => {
             <BaseContainer className="settings">
               <h1>Settings</h1>
               <div>
-                <p>Time per round:</p>
+                <p>Time per round in seconds (30 - 300):</p>
                 <input
                   className="input"
-                  type="text"
-                  value="something"
+                  type="number"
+                  min="30"
+                  max="300"
+                  value={timePerRound}
                   readOnly={!isCreator}
-                  onChange={(e) => e} //add function
+                  onChange={(e) => setTimePerRound(e.target.value)} //add function
+                />
+                <p>Number of Strikes (1 - 10):</p>
+                <input
+                  className="input"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={strikes}
+                  readOnly={!isCreator}
+                  onChange={(e) => setStrikes(e.target.value)} //add function
                 />
                 {isCreator && (
                   <Button
                     className="lobby button"
-                    onClick={() => navigate("/lobby")}
+                    onClick={() => {
+                      setStrikes(3);
+                      setTimePerRound(60);
+                    }}
                   >
                     {/**add functionality */}
                     Reset settings

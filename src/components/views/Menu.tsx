@@ -52,23 +52,32 @@ const Menu = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("leaderboard");
+  const [loading, setLoading] = useState(false);
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
   const logout = (): void => {
-    localStorage.clear();
-    navigate("/landingPage");
+    setLoading(true);
+    try {
+      localStorage.clear();
+      navigate("/landingPage");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("Something went wrong during logout! Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const createLobby = async () => {
+    setLoading(true);
     const userId = localStorage.getItem("userId");
     try {
       const response = await api.post(`/lobbies/create/${userId}`);
-
       localStorage.setItem("lobbyId", response.data);
       localStorage.setItem("lobbyId", response.data);
-
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log(response);
       console.log(response);
 
@@ -81,14 +90,19 @@ const Menu = () => {
       alert(
         "Something went wrong while creating the lobby! See the console for details."
       );
+    } finally {
+      setLoading(false);
     }
   }
 
   const [lobbyCode, setLobbyCode] = useState(null);
   async function doJoinLobby() {
-    try {
-      const userId = localStorage.getItem("userId");
+    setLoading(true);
 
+    try {
+
+      const userId = localStorage.getItem("userId");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await api.put(`/lobbies/join/${lobbyCode}/${userId}`);
 
       localStorage.setItem("lobbyId", lobbyCode);
@@ -98,14 +112,17 @@ const Menu = () => {
       alert(
         `Something went wrong during the lobby join: \n${handleError(error)}`
       );
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <BaseContainer className="menu container">
       <div className="buttonbar">
-        <Button className="createLobby" onClick={() => createLobby()}>
-          Create new Lobby
+        <Button className="createLobby" onClick={() => createLobby()}
+          disabled={loading}>
+          {loading ? <Spinner /> : "Create new Lobby"}
         </Button>
 
         <div
@@ -124,15 +141,17 @@ const Menu = () => {
           />
           <Button
             className="buttonbar join join-button"
-            disabled={!lobbyCode}
+            disabled={!lobbyCode || loading}
             onClick={doJoinLobby}
           >
-            Join
+            {loading ? <Spinner /> : "Join"}
           </Button>
         </div>
 
-        <Button className="buttonbar logout" onClick={() => logout()}>
-          Logout
+        <Button className="buttonbar logout" onClick={() => logout()}
+          disabled={loading}
+        >
+          {loading ? <Spinner /> : "Logout"}
           <span style={{ marginLeft: "10px" }}>
             <LogoutLogo width="25px" height="25px" />
           </span>

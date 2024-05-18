@@ -35,19 +35,23 @@ body {
   margin: 0;
   padding: 0;
   min-width: 100vw;
+  max-width: 100vw;
   min-height: 100vh;
+  max-height: 100vh;
   font-family: $fontDefault;
-  background-image: linear-gradient(135deg, $accent 10%, $accentDark 100%);
   background-image: url("./Assets/background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  width: 100%;
-  height: 500px;
 }
 
+input {
+  font-family: $fontNormal;
+  line-height: inherit;
+  font-size: inherit;
+  outline: none;
+}
 
-input,
 textarea,
 select,
 button {

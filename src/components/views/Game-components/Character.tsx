@@ -11,6 +11,7 @@ const Character = ({
   foldCharacter,
   guessCharacter,
   gameStatus,
+  hihglight,
 }) => {
   // functionality to display an overlay on top of character
   const interactCharacter = () => {
@@ -49,7 +50,10 @@ const Character = ({
   };
 
   return (
-    <div className={"character container"} key={character.id}>
+    <div
+      className={`character container ${hihglight ? "highlight" : ""}`}
+      key={character.id}
+    >
       <img className="character container img" src={character.url}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
@@ -68,6 +72,7 @@ Character.propTypes = {
   foldCharacter: PropTypes.Func,
   guessCharacter: PropTypes.Func,
   gameStatus: PropTypes.String,
+  hihglight: PropTypes.Boolean,
 };
 
 export default Character;

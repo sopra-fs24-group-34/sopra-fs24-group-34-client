@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { Spinner } from "components/ui/Spinner";
 import BaseContainer from "components/ui/BaseContainer";
 import CharacterGrid from "./Game-components/CharacterGrid";
 import ChatLog from "./Game-components/ChatLog";
@@ -16,6 +17,8 @@ const Game = () => {
   const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
   const gameId = localStorage.getItem("gameId");
   const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+
 
   const [modalState, setModalState] = useState({
     isOpen: true,
@@ -26,10 +29,9 @@ const Game = () => {
   // useEffect to fetch images from DB
   useEffect(() => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
-
     const fetchImages = async () => {
+      setLoading(true);
       try {
-        await api.post(`/games/${gameId}/images`);
         const response = await api.get(`/games/${gameId}/images`);
         setCharacters(response.data);
       } catch (error) {
@@ -38,7 +40,10 @@ const Game = () => {
             error
           )}`
         );
+      } finally {
+        setLoading(false);
       }
+
     };
 
     fetchImages();
@@ -61,6 +66,7 @@ const Game = () => {
   // function to remove and set a new character at that place
   // No idea if this is correct (might need a reload)
   const RemoveCharacter = async (idx, imageId) => {
+    setLoading(true);
     try {
       /* const response = await api.delete(`/games/${gameId}/images/${imageId}`);
       setCharacters((prevCharacters) => {
@@ -76,6 +82,8 @@ const Game = () => {
       alert(
         `Something went wrong removing the characters: \n${handleError(error)}`
       );
+    } finally {
+      setLoading(false);
     }
   };
 

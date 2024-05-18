@@ -9,10 +9,9 @@
 
 .profile {
     padding: 1em;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     flex: 1;
+    height: 300px;
 
     .container {
         display: flex;
