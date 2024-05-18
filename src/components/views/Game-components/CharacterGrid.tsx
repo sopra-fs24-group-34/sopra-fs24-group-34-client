@@ -23,7 +23,10 @@ const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String> (null);
+  const [roundNumber, setRoundNumber] = useState (0);
+  const [strikes, setStrikes] = useState(0);
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END, IDLE
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
@@ -38,9 +41,9 @@ const CharacterGrid = ({ persons }) => {
   useEffect(() => {
     async function ws() {
       if (playerId && gameId) {
-        
+
         await waitForConnection();
-        
+
         const callback = function (message) {
           const body = JSON.parse(message.body);
           const header = body["event-type"];
@@ -49,7 +52,23 @@ const CharacterGrid = ({ persons }) => {
 
           setGameStatus(data.gameStatus);
           console.log(data);
+
+          if (header === "round0") {
+            if(data.roundNumber === 1) {
+              setGameStatus("GUESSING");
+              setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            }
+          }
+          if (header === "turnUpdate") {
+            setCurrentTurnPlayerId(data);
+          }
+
+
           if (header === "round-update") {
+            setCurrentTurnPlayerId(data.roundDTO.currentTurnPlayerId);
+            setRoundNumber(data.roundDTO.roundNumber);
+            setStrikes(data.strikes);
+
             if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
@@ -97,6 +116,8 @@ const CharacterGrid = ({ persons }) => {
 
   async function pickCharacter(characterId, idx) {
     try {
+      const playerId = Number(localStorage.getItem("playerId"));
+
       const guessPostDTO = {
         gameid: gameId,
         playerid: playerId,
@@ -111,7 +132,7 @@ const CharacterGrid = ({ persons }) => {
         isOpen: true,
         content: <ModalPickInformation />,
       });
-      setGameStatus("IDLE");
+      setGameStatus("WAITING_FOR_OTHER_PLAYER");
       setSelectedCharacter(characterId);
     } catch (error) {
       alert(
@@ -125,7 +146,7 @@ const CharacterGrid = ({ persons }) => {
     setVisibleCharacters((prevVisibleCharacters) => {
       const newVisibleCharacters = [...prevVisibleCharacters];
       newVisibleCharacters[characterIndex] =
-        !newVisibleCharacters[characterIndex];
+          !newVisibleCharacters[characterIndex];
 
       return newVisibleCharacters;
     });
@@ -133,6 +154,11 @@ const CharacterGrid = ({ persons }) => {
 
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
+    if (playerId !== currentTurnPlayerId) {
+      alert("It's not your turn to guess!");
+
+      return;
+    }
     const guessPostDTO = {
       gameid: gameId,
       playerid: playerId,
@@ -169,8 +195,11 @@ const CharacterGrid = ({ persons }) => {
           gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
-          guessCharacter={() => guessCharacter(character.id, idx)}
-          hihglight={character.id === selectedCharacter ? true : false}
+          guessCharacter={playerId === currentTurnPlayerId ? () => guessCharacter(character.id, idx) : () => {
+          }}
+          highlight={character.id === selectedCharacter ? true : false}
+          currentTurnPlayerId={currentTurnPlayerId}
+          playerId={playerId}
         />
       ))}
       {

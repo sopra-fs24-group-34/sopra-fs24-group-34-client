@@ -15,8 +15,8 @@ const ModalGuessInformation = ({ strikes }) => {
 };
 
 ModalGuessInformation.propTypes = {
-  characterUrl: PropTypes.String,
-  strikes: PropTypes.Number,
+  characterUrl: PropTypes.string,
+  strikes: PropTypes.number,
 };
 
 export default ModalGuessInformation;
