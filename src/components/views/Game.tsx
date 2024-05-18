@@ -28,6 +28,7 @@ const Game = () => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
 
     const fetchImages = async () => {
+      const stompClient = await connectWebSocket();
       try {
         await api.post(`/games/${gameId}/images`);
         const response = await api.get(`/games/${gameId}/images`);

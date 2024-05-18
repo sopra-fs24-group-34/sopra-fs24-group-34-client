@@ -18,6 +18,7 @@ import {
   sendMessage,
   waitForConnection,
 } from "../WebSocketService";
+import ModalTimeout from "./modalContent/ModalTimeout";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const CharacterGrid = ({ persons }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
+  let timeoutThreshold = 10;
   //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
@@ -66,6 +68,7 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "won");
               }
+              //cancelGameSubscriptions();
               cancelSubscription(subscription);
               navigate("/endscreen");
             }
@@ -81,6 +84,21 @@ const CharacterGrid = ({ persons }) => {
                 content: <ModalGuessInformation strikes={data.strikes} />,
               });
             }
+          } else if(header === "user-timeout") {
+            //make timeout-modal with timer running down
+            timeoutThreshold = data;
+            setModalState({
+              isOpen: true,
+              content: <ModalTimeout timeoutThreshold={timeoutThreshold}/>
+            });
+          } else if(header === "user-rejoined") {
+            //close modal and stop timer
+            setModalState({ isOpen: false, content: null });
+          } else if(header === "user-disconnected") {
+            //close game, set result as tied, navigate to endscreen
+            localStorage.setItem("result", "tied");
+            cancelSubscription(subscription);
+            navigate("/endscreen");
           }
         };
 
