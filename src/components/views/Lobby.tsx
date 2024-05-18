@@ -26,11 +26,47 @@ const Player = ({ user }: { user: User }) => (
   </div>
 );
 
+const Friend = ({ key, profilePicture, username, func }) => (
+  <div
+    key={key}
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      width: "100%",
+      alignItems: "center",
+    }}
+  >
+    <div className="friend-container">
+      <BaseContainer className="friend-picture">
+        <img src={profilePicture} alt="Profile" />
+      </BaseContainer>
+      <div className="friend-value">{username}</div>
+    </div>
+    <Button
+      style={{ backgroundColor: "green", marginBottom: "15px" }}
+      onClick={() => {
+        func(username);
+      }}
+    >
+      Invite
+    </Button>
+  </div>
+);
+
+Friend.propTypes = {
+  key: PropTypes.num,
+  profilePicture: PropTypes.string,
+  username: PropTypes.string,
+  func: PropTypes.func,
+};
+
 const LobbyPage = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [playersInLobby, setPlayers] = useState(null);
+  const [invitableFriends, setInvitableFriends] = useState([]);
+  const [invitedFriend, setInvitedFriend] = useState("");
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
   const [strikes, setStrikes] = useState(3);
@@ -180,7 +216,20 @@ const LobbyPage = () => {
         setPlayers(playersComponent);
       }
     }
+
+    const fetchInvitableFriends = async () => {
+      try {
+        const response = await api.get(`users/${userId}/friends`);
+        console.log("GET friends: ", response);
+        setInvitableFriends(response.data);
+      } catch (error) {
+        console.error(
+          `Something went wrong while fetching friends: \n${handleError(error)}`
+        );
+      }
+    };
     loadPlayers();
+    fetchInvitableFriends();
   }, [users]);
 
   async function handleReturn() {
@@ -273,10 +322,12 @@ const LobbyPage = () => {
           <Button
             className="lobby button"
             disabled={
-              !(0 < Number(strikes) &&
-              Number(strikes) < 11 &&
-              29 < Number(timePerRound) &&
-              Number(timePerRound) < 301)
+              !(
+                0 < Number(strikes) &&
+                Number(strikes) < 11 &&
+                29 < Number(timePerRound) &&
+                Number(timePerRound) < 301
+              )
             }
             onClick={() => handleStart()}
           >
@@ -315,6 +366,23 @@ const LobbyPage = () => {
       );
     }
   }
+
+  const inviteFriend = async (userName) => {
+    try {
+      const requestBody = JSON.stringify({
+        creatorId: userId,
+        invitedUserName: userName,
+        lobbyId: lobbyId,
+      });
+
+      console.log("Request body: ", requestBody);
+      await api.post("lobbies/invite", requestBody);
+    } catch (error) {
+      console.error(
+        `Something went wrong while inviting a friend: \n${handleError(error)}`
+      );
+    }
+  };
 
   return (
     <BaseContainer className="lobby container">
@@ -367,13 +435,13 @@ const LobbyPage = () => {
           </li>
           <li>
             <BaseContainer className="main">
-              <h2>Lobby ID:</h2>
+              <h1>Lobby ID:</h1>
               <BaseContainer className="code-container">
                 <div className="code">
                   {/*lobbyId*/ localStorage.getItem("lobbyId")}
                 </div>
               </BaseContainer>
-              <h2>Players</h2>
+              <h1>Players</h1>
               <BaseContainer className="players">
                 {playersInLobby}
               </BaseContainer>
@@ -390,17 +458,17 @@ const LobbyPage = () => {
           </li>
           <li>
             <BaseContainer className="friends-container">
-              <h1>Friends</h1>
-              <div className="friends"></div>
-              <div className="username-adder">
-                <input
-                  className="input"
-                  type="text"
-                  value="Add by username"
-                  readOnly={!isCreator}
-                  onChange={(e) => e} //add function
-                />
-              </div>
+              <h1>Invitable Friends</h1>
+              <ul className="list">
+                {invitableFriends.map((friend) => (
+                  <Friend
+                    key={friend.friendId}
+                    profilePicture={friend.friendIcon}
+                    username={friend.friendUsername}
+                    func={inviteFriend}
+                  />
+                ))}
+              </ul>
             </BaseContainer>
           </li>
         </ul>
