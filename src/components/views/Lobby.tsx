@@ -64,7 +64,7 @@ const LobbyPage = () => {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
 
-            //cancelSubscription(subscription);
+            cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
 
           } else if (header === "user-left") {

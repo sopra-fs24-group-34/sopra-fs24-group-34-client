@@ -61,6 +61,7 @@ function onConnect() {
   isConnected = true;
   reconnectAttempts = 0;
 
+  /*
   // Resubscribe to all previous subscriptions
   subscriptionsMap.forEach((subscriptionInfo, endpoint) => {
     console.log("Trying to resubscribe: ", subscriptionInfo);
@@ -71,6 +72,7 @@ function onConnect() {
     //}
   });
   saveSubscriptionsToLocalStorage();
+  */
 }
 
 function onError() {
@@ -105,7 +107,7 @@ export async function makeSubscription(endpoint: string, callback: Function) {
     return;
   }
 
-  if (!subscriptionsMap.has(endpoint) || !subscriptionsMap.get(endpoint).subscription) {
+  //if (!subscriptionsMap.has(endpoint) || !subscriptionsMap.get(endpoint).subscription) {
     const subscription = stompClient.subscribe(endpoint, callback);
     subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
     /*
@@ -118,20 +120,19 @@ export async function makeSubscription(endpoint: string, callback: Function) {
     console.log("New sub:", subscription, endpoint);
     console.log("NEW submap:", subscriptionsMap);
     return subscription;
-  } else {
-    console.log("Subscription already exists in subscriptionsMap");
-  }
+  //} else {
+  //  console.log("Subscription already exists in subscriptionsMap");
+  //}
 }
 
-export async function cancelSubscription(subscription) {
+export async function cancelSubscription(endpoint: string, subscription) {
   if (stompClient && stompClient.connected && subscription) {
     /*
     await subscriptionsMap.delete(subscription.id);
     localStorage.setItem("subscriptionsMap", JSON.stringify(Array.from(subscriptionsMap.entries())));
     */
-
-    //properly delete
-    subscriptionsMap.delete(subscription);
+   
+    subscriptionsMap.delete(endpoint);
     saveSubscriptionsToLocalStorage();
 
     subscription.unsubscribe();

@@ -57,7 +57,7 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "lost");
               }
-              cancelSubscription(subscription);
+              cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -69,7 +69,7 @@ const CharacterGrid = ({ persons }) => {
                 localStorage.setItem("result", "won");
               }
               //cancelGameSubscriptions();
-              cancelSubscription(subscription);
+              cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -97,7 +97,7 @@ const CharacterGrid = ({ persons }) => {
           } else if(header === "user-disconnected") {
             //close game, set result as tied, navigate to endscreen
             localStorage.setItem("result", "tied");
-            cancelSubscription(subscription);
+            cancelSubscription(`/games/${gameId}`, subscription);
             navigate("/endscreen");
           }
         };
@@ -105,7 +105,7 @@ const CharacterGrid = ({ persons }) => {
         const subscription = await makeSubscription(`/games/${gameId}`, callback);
 
         return () => {
-          cancelSubscription(subscription);
+          cancelSubscription(`/games/${gameId}`, subscription);
         };
       }
     }
