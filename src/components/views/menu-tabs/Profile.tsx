@@ -15,7 +15,7 @@ const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
 // code is only written for jpeg
 
-const Invitation = ({ key, profilePicture, username, lobbyId, func }) => (
+const Invitation = ({ creatorId, profilePicture, username, lobbyId, func }) => (
   <>
     <div className="friend-container">
       <BaseContainer className="friend-picture">
@@ -35,13 +35,13 @@ const Invitation = ({ key, profilePicture, username, lobbyId, func }) => (
           backgroundColor: "green",
           marginRight: "10px",
         }}
-        onClick={() => func(true, lobbyId)}
+        onClick={() => func(true, creatorId, lobbyId)}
       >
         Join
       </Button>
       <Button
         style={{ backgroundColor: "red" }}
-        onClick={() => func(false, lobbyId)}
+        onClick={() => func(false, creatorId, lobbyId)}
       >
         Decline
       </Button>
@@ -50,7 +50,7 @@ const Invitation = ({ key, profilePicture, username, lobbyId, func }) => (
 );
 
 Invitation.propTypes = {
-  key: PropTypes.num,
+  creatorId: PropTypes.num,
   profilePicture: PropTypes.string,
   username: PropTypes.string,
   lobbyId: PropTypes.num,
@@ -61,7 +61,7 @@ const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
   const userToken = localStorage.getItem("userToken");
-  const userId = localStorage.getItem("userId");
+  const userId = Number(localStorage.getItem("userId"));
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUsername, setEditedUsername] = useState(user.username);
@@ -154,18 +154,26 @@ const Profile = ({ user }: { user: User }) => {
   if (loading) {
     return <Spinner />;
   }
-  const answerLobbyInvitation = async (answer: boolean, lobbyId: number) => {
+  const answerLobbyInvitation = async (
+    answer: boolean,
+    creatorId: number,
+    lobbyId: number
+  ) => {
     try {
       const requestBody = JSON.stringify({
-        creatorId: "Never received",
+        creatorId: creatorId,
         invitedUserId: userId,
         lobbyId: lobbyId,
         answer: answer,
       });
 
       await api.put("/lobbies/invitation/answer", requestBody);
+      if (answer) {
+        await api.put(`/lobbies/join/${lobbyId}/${userId}`);
+        localStorage.setItem("lobbyId", lobbyId.toString());
 
-      navigate("/lobby");
+        navigate("/lobby");
+      }
     } catch (error) {
       alert(
         `Something went wrong while answering a friend request: \n${handleError(
@@ -242,7 +250,7 @@ const Profile = ({ user }: { user: User }) => {
           <ul className="list">
             {lobbyInvitations.map((invitation) => (
               <div
-                key={invitation.createrId}
+                key={invitation.creatorId}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -251,9 +259,9 @@ const Profile = ({ user }: { user: User }) => {
                 }}
               >
                 <Invitation
-                  key={invitation.friendId}
-                  profilePicture={invitation.friendIcon}
-                  username={invitation.friendUsername}
+                  creatorId={invitation.creatorId}
+                  profilePicture={invitation.creatorIcon}
+                  username={invitation.creatorUsername}
                   lobbyId={invitation.lobbyId}
                   func={answerLobbyInvitation}
                 />

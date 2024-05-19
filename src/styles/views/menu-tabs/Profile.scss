@@ -8,7 +8,7 @@
  */
 
 .profile {
-  padding: 1em;
+  padding: 15px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -25,10 +25,7 @@
   }
 
   .profile-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
+    @include centerColumn;
     background-color: transparentize($color: #ffe0b2, $amount: 0.5);
     width: 55%;
     height: 100%;
@@ -44,9 +41,12 @@
       height: 100%;
 
       .picture {
+        display: flex;
+        align-items: center;
         border-radius: $borderRadius;
-        justify-content: left;
-        width: 200px;
+        min-width: 70px;
+        max-width: 120px;
+        padding: 0;
       }
 
       .details {
@@ -54,14 +54,15 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        font-size: 18px;
+        font-size: 16px;
+        padding-left: 10px;
+        padding-right: 0px;
 
         .item {
           display: flex;
           align-items: center;
           justify-content: space-between;
           margin: 0;
-          margin-left: 2em;
           padding: 0;
 
           .label {
@@ -99,8 +100,8 @@
     align-items: center;
     justify-content: flex-start;
     background-color: transparentize($color: #c6e2ff, $amount: 0.5);
-    width: 40%;
-    max-height: 200px;
+    width: 42%;
+    max-height: 300px;
     border-radius: $borderRadius;
     box-shadow: $dropShadow;
     overflow-y: auto;
@@ -114,7 +115,7 @@
     .list {
       display: flex;
       flex-direction: column;
-      padding-left: 0;
+      padding: 10px;
       align-items: flex-start;
       width: 100%;
 
@@ -125,15 +126,15 @@
         margin-bottom: 1em;
 
         .friend-picture {
-          background: lighten($background, 20%);
           border-radius: $borderRadius;
-          height: 50px;
-          width: 50px;
-
+          height: 70px;
+          width: 70px;
+          padding: 0;
           margin-right: 1em;
         }
 
         .value {
+          @include centerColumn;
           margin-right: 0.5em;
           text-align: right;
           font-family: $fontNormal;
@@ -157,6 +158,17 @@
           padding-right: 0px;
           .item {
             margin: 0;
+          }
+        }
+      }
+    }
+    .invitations-container {
+      .list {
+        .friend-container {
+          font-size: 14px;
+          .friend-picture {
+            height: 50px;
+            width: 50px;
           }
         }
       }
