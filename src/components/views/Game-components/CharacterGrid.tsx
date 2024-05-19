@@ -99,6 +99,8 @@ const CharacterGrid = ({ persons }) => {
             localStorage.setItem("result", "tied");
             cancelSubscription(`/games/${gameId}`, subscription);
             navigate("/endscreen");
+          } else if(header === "update-game-state") {
+            
           }
         };
 
