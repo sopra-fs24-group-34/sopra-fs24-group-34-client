@@ -9,26 +9,34 @@
 
 .lobby {
   &.container {
+    margin-top: 1em;
     background: $background;
     padding: 1.5em;
     border-radius: $borderRadius;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    @include alignCenterColumn;
     box-shadow: $dropShadow;
     width: 50%;
+
+    .input {
+      margin-right: 0.25em;
+      @include center;
+      border: solid;
+      border-color: rgba(45, 44, 44, 0.653);
+      background: white;
+      text-align: center;
+      border-radius: 0.75em;
+      width: 100%;
+    }
   }
   &.user-list {
     list-style: none;
     padding-left: 0;
   }
   &.user-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    @include centerColumn;
   }
-  & p,h2 {
+  & p,
+  h2 {
     margin: 0.5em 0;
   }
   .buttonbar {
@@ -53,7 +61,7 @@
       flex: 1;
       position: relative;
       //width: 33%;
-      
+
       &:not(:last-child) {
         border-right: 1px solid #ccc; // Add a border-right to all items except the last one
       }
@@ -61,19 +69,20 @@
   }
 
   .settings {
-    display:flex;
-    flex-direction:column;
+    @include alignCenterColumn;
+    width: 100%;
+    height: 100%;
   }
 
   .main {
+    @include alignCenterColumn;
     .code-container {
       height: 2em;
       background: lighten($background, 100%);
       padding: 0;
       border-radius: $borderRadius;
       width: 100%;
-      display: flex;
-      justify-self: center;
+      @include alignCenterColumn;
     }
     .code {
       margin: auto;
@@ -87,26 +96,69 @@
       border-radius: $borderRadius;
       width: 100%;
       flex-direction: column;
+      font-family: $fontNormal;
       li {
         margin: 10px;
         border-right: none;
       }
     }
     .button-row {
-      display:flex;
-      flex-direction:column;
+      display: flex;
+      flex-direction: column;
     }
   }
 
   .friends-container {
-    .friends {
-      height: 6em;
-      background: lighten($background, 100%);
-      padding: 0;
-      border-radius: $borderRadius;
+    height: 100%;
+    @include alignCenterColumn;
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      padding-left: 0;
+      align-items: flex-start;
       width: 100%;
+
+      .friend-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 1em;
+
+        .friend-picture {
+          width: 60px;
+          height: 60px;
+          flex: 1;
+          position: relative;
+          background: lighten($background, 20%);
+          border-radius: $borderRadius;
+          //width: auto;
+          padding: 0; // remove any padding
+          margin-right: 1em;
+          display: flex;
+          justify-content: center;
+
+          img {
+            width: auto;
+            height: auto;
+            object-fit: cover;
+            display: block;
+            border-radius: $borderRadius;
+            max-width: 100%;
+            max-height: 100%;
+          }
+        }
+
+        .friend-value {
+          display: flex;
+          align-items: center;
+          margin-right: 0.5em;
+          color: black;
+          text-align: right;
+          font-family: $fontNormal;
+        }
+      }
     }
-    //.username-adder {}
   }
 }
 
@@ -115,23 +167,22 @@
   color: white;
   &.bottom {
     margin-bottom: 10px;
-  } 
+  }
 }
-.input{
-  flex:1;
+.input {
+  flex: 1;
   border-radius: 0.75em;
 }
 
-.popup-overlay { /*pop features */
+.popup-overlay {
+  /*pop features */
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include center;
 }
 
 .popup {
@@ -164,4 +215,17 @@
 }
 .empty-line {
   height: 20px;
+}
+
+@media (min-width: $SMALL_WIDTH) and (max-width: $SMALL_LAPTOPS_WIDTH) {
+  .lobby {
+    &.container {
+      width: 70%;
+      height: 100%;
+    }
+  }
+
+  h1 {
+    font-size: 20px;
+  }
 }

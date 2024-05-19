@@ -131,7 +131,10 @@ const Friends = () => {
   return (
     <BaseContainer className="friends">
       <div className="content-wrapper">
-        <BaseContainer className="friends-container">
+        <BaseContainer
+          className="friends-container"
+          style={{ backgroundColor: "rgba(255, 224, 178, 0.5)" }}
+        >
           <h1 className="h1">Friends</h1>
           <ul className="list">
             {friends.map((friend) => (
@@ -160,7 +163,10 @@ const Friends = () => {
           </ul>
         </BaseContainer>
 
-        <BaseContainer className="friendrequests-container">
+        <BaseContainer
+          className="friends-container"
+          style={{ backgroundColor: "rgba(198, 226, 255, 0.5)" }}
+        >
           <h1 className="h1">Friend requests</h1>
           <ul className="list">
             {friendRequests.map(
@@ -184,11 +190,14 @@ const Friends = () => {
                       style={{
                         display: "flex",
                         justifyContent: "space-around",
-                        marginBottom: "15px"
+                        marginBottom: "15px",
                       }}
                     >
                       <Button
-                        style={{ backgroundColor: "green", marginRight: "10px" }}
+                        style={{
+                          backgroundColor: "green",
+                          marginRight: "10px",
+                        }}
                         onClick={() =>
                           answerFriendRequest(true, requests.friendId)
                         }
@@ -211,7 +220,16 @@ const Friends = () => {
         </BaseContainer>
       </div>
 
-      <div className="add-friend-container">
+      <div
+        className="add-friend-container"
+        onKeyDown={(e) => {
+          {
+            if (e.key === "Enter" && newFriendUserName) {
+              addFriend();
+            }
+          }
+        }}
+      >
         <AddFriendField
           value={newFriendUserName}
           onChange={setNewFriendUserName}

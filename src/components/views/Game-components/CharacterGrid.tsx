@@ -12,19 +12,27 @@ import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
+  cancelGameSubscriptions,
   cancelSubscription,
+  connectWebSocket,
+  disconnectWebSocket,
   getStompClient,
   makeSubscription,
   sendMessage,
   waitForConnection,
 } from "../WebSocketService";
+import ModalTimeout from "./modalContent/ModalTimeout";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String> (null);
+  const [roundNumber, setRoundNumber] = useState (0);
+  const [strikes, setStrikes] = useState(0);
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END, IDLE
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
     persons.map((person) => true)
   );
@@ -32,14 +40,17 @@ const CharacterGrid = ({ persons }) => {
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
+  let timeoutThreshold = 10;
   //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
+    setSelectedCharacter(localStorage.getItem("selectedCharacter"));
     async function ws() {
       if (playerId && gameId) {
-        
+
+        await connectWebSocket();
         await waitForConnection();
-        
+
         const callback = function (message) {
           const body = JSON.parse(message.body);
           const header = body["event-type"];
@@ -48,14 +59,33 @@ const CharacterGrid = ({ persons }) => {
 
           setGameStatus(data.gameStatus);
           console.log(data);
+
+          if (header === "round0") {
+            if(data.roundNumber === 1) {
+              setGameStatus("GUESSING");
+              setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            }
+          }
+          //never called
+          if (header === "turnUpdate") {
+            console.log("Turn update: ", data);
+            setCurrentTurnPlayerId(data);
+          }
+
+
           if (header === "round-update") {
+            setCurrentTurnPlayerId(data.roundDTO.currentTurnPlayerId);
+            setRoundNumber(data.roundDTO.roundNumber);
+            setStrikes(data.strikes);
+
             if (data.guess === true && data.gameStatus === "END") {
               if (data.playerId === playerId) {
                 localStorage.setItem("result", "won");
               } else {
                 localStorage.setItem("result", "lost");
               }
-              cancelSubscription(subscription);
+              cancelGameSubscriptions();
+              //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -66,7 +96,8 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "won");
               }
-              cancelSubscription(subscription);
+              cancelGameSubscriptions();
+              //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -81,13 +112,35 @@ const CharacterGrid = ({ persons }) => {
                 content: <ModalGuessInformation strikes={data.strikes} />,
               });
             }
+          } else if(header === "user-timeout") {
+            //make timeout-modal with timer running down
+            timeoutThreshold = data;
+            setModalState({
+              isOpen: true,
+              content: <ModalTimeout timeoutThreshold={timeoutThreshold}/>
+            });
+          } else if(header === "user-rejoined") {
+            //close modal and stop timer
+            setModalState({ isOpen: false, content: null });
+          } else if(header === "user-disconnected") {
+            //close game, set result as tied, navigate to endscreen
+            localStorage.setItem("result", "tied");
+            cancelGameSubscriptions();
+            //cancelSubscription(`/games/${gameId}`, subscription);
+            navigate("/endscreen");
+          } else if(header === "update-game-state") {
+            console.log("Reconnected: ", data);
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            setRoundNumber(data.roundNumber);
           }
         };
 
         const subscription = await makeSubscription(`/games/${gameId}`, callback);
 
         return () => {
-          cancelSubscription(subscription);
+
+          cancelSubscription(`/games/${gameId}`, subscription);
+          disconnectWebSocket();
         };
       }
     }
@@ -96,6 +149,8 @@ const CharacterGrid = ({ persons }) => {
 
   async function pickCharacter(characterId, idx) {
     try {
+      const playerId = Number(localStorage.getItem("playerId"));
+
       const guessPostDTO = {
         gameid: gameId,
         playerid: playerId,
@@ -110,7 +165,9 @@ const CharacterGrid = ({ persons }) => {
         isOpen: true,
         content: <ModalPickInformation />,
       });
-      setGameStatus("IDLE");
+      setGameStatus("WAITING_FOR_OTHER_PLAYER");
+      setSelectedCharacter(characterId);
+      localStorage.setItem("selectedCharacter", characterId);
     } catch (error) {
       alert(
         `Something went wrong choosing your character: \n${handleError(error)}`
@@ -123,7 +180,7 @@ const CharacterGrid = ({ persons }) => {
     setVisibleCharacters((prevVisibleCharacters) => {
       const newVisibleCharacters = [...prevVisibleCharacters];
       newVisibleCharacters[characterIndex] =
-        !newVisibleCharacters[characterIndex];
+          !newVisibleCharacters[characterIndex];
 
       return newVisibleCharacters;
     });
@@ -131,6 +188,11 @@ const CharacterGrid = ({ persons }) => {
 
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
+    if (playerId !== currentTurnPlayerId) {
+      alert("It's not your turn to guess!");
+
+      return;
+    }
     const guessPostDTO = {
       gameid: gameId,
       playerid: playerId,
@@ -167,7 +229,11 @@ const CharacterGrid = ({ persons }) => {
           gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
-          guessCharacter={() => guessCharacter(character.id, idx)}
+          guessCharacter={playerId === currentTurnPlayerId ? () => guessCharacter(character.id, idx) : () => {
+          }}
+          highlight={character.id === selectedCharacter ? true : false}
+          currentTurnPlayerId={currentTurnPlayerId}
+          playerId={playerId}
         />
       ))}
       {

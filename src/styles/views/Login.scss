@@ -2,32 +2,27 @@
 
 .login {
   &.container {
-    margin-top: 2em;
+    margin-top: 1em;
     min-height: 200px;
     /* we include the center mixin defined in _theme.scss and save three duplicate lines :) */
-    @include center;
-    flex-direction: column;
+    @include centerColumn;
   }
   &.form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     width: 50%;
     max-width: 30em;
     height: 15em;
     font-size: 30px;
     font-weight: 300;
-    padding-left: 37px;
-    padding-right: 37px;
+    padding-left: 6%;
+    padding-right: 6%;
     border-radius: 0.75em;
     background-color: transparentize(white, 0.2);
     transition: opacity 0.5s ease, transform 0.5s ease;
     box-shadow: $dropShadow;
   }
   &.field {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     margin-top: 15px;
     font-family: $fontNormal;
   }
@@ -41,8 +36,6 @@
     margin-bottom: 20px;
     background: white;
     color: $textColor;
-    
-    
   }
   &.label {
     color: $textColor;
@@ -54,9 +47,7 @@
     font-size: 45px;
   }
   &.button-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    @include justifyCenterColumn;
     width: 50%;
     max-width: 30em;
     height: 5em;

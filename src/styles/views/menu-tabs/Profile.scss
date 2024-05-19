@@ -8,170 +8,170 @@
  */
 
 .profile {
-    padding: 1em;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
+  padding: 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 300px;
+
+  img {
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: $borderRadius;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .profile-wrapper {
+    @include centerColumn;
+    background-color: transparentize($color: #ffe0b2, $amount: 0.5);
+    width: 55%;
+    height: 100%;
+    padding: 10px;
+    box-shadow: $dropShadow;
+    border-radius: $borderRadius;
 
     .container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+
+      .picture {
         display: flex;
-        flex-direction: row;
-        margin-bottom: 2em;
-    }
-
-    .picture {
-        flex:1;
-        position: relative;
-        background: lighten($background, 20%);
+        align-items: center;
         border-radius: $borderRadius;
-        //width: auto;
-        padding: 0; // remove any padding
-        margin-right: 1em;
-        display: flex;
-        justify-content: center;
+        min-width: 70px;
+        max-width: 120px;
+        padding: 0;
+      }
 
-        img {
-            width: auto;
-            height: auto;
-            object-fit: cover;
-            display: block;
-            border-radius: $borderRadius;
-            max-width: 100%;
-            max-height: 100%;
-        }
-    }
-
-    .details {
-        background: lighten($background, 20%);
+      .details {
         border-radius: $borderRadius;
-
-        flex: 7;
         display: flex;
         flex-direction: column;
         width: 100%;
-
+        font-size: 16px;
+        padding-left: 10px;
+        padding-right: 0px;
 
         .item {
-            flex: 1;
-            display: flex;
-            margin: 0;
-            align-items: center;
-            justify-content: space-between;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin: 0;
+          padding: 0;
 
-            &.label {
-                margin-left: 0.5em;
-                text-align: left;
-            }
-
-            .value {
-                margin-right: 0.5em;
-                text-align: right;
-                font-family: $fontNormal;
-            }
-
-            .profile-input {
-                border-radius: 0.75em;
-                width: 50%;
-                background-color: transparent;
-                font-family: $fontNormal;
-
-            }
-
-            .player-container {
-                display: flex;
-                align-items: center;
-                flex:1;
-                flex-direction: row;
-                justify-content:space-between;
-                color: $textColor;
-            }
+          .label {
+            margin-left: 0.5em;
+            text-align: left;
+          }
+          .value {
+            margin-right: 0.5em;
+            text-align: right;
+            font-family: $fontNormal;
+          }
+          .profile-input {
+            border-radius: 0.75em;
+            width: 50%;
+            background-color: transparent;
+            font-family: $fontNormal;
+          }
         }
-        
-
-    }
-    .changeTextOverlay {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 32px;
-        font-family: $fontNormal;
-        color: black;
-        cursor: pointer;
-
+      }
     }
 
-    .delete-button {
+    .button-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      .delete-button {
         margin-top: 15px;
         background: #ad3a38;
+      }
     }
-}
-
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .invitations-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-}
-
-.popup {
-    position: relative;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 50%;
-    max-width: 500px;
-    max-height: 80%;
-    overflow-y: auto; /* vertical scrolling if needed */
-}
-
-.popup .close {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 34px;
-}
-
-.popup h2 {
-    margin-top: 0;
-}
-
-.popup p {
-    font-family: $fontNormal;
-    margin-bottom: 20px;
-}
-
-.popup .close:hover {
-    color: #666;
-}
-
-.imageGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* column numbers */
-    gap: 20px; /* gap between images */
-}
-
-.imageContainer {
-    position: relative;
-    width: 100%; /*  each image equal size */
-    padding-top: 100%; /*  aspect ratio for each container */
-    overflow: hidden; /* hide overflowing content */
-}
-
-.imageContainer img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    justify-content: flex-start;
+    background-color: transparentize($color: #c6e2ff, $amount: 0.5);
+    width: 42%;
+    max-height: 300px;
     border-radius: $borderRadius;
-    cursor: pointer;
+    box-shadow: $dropShadow;
+    overflow-y: auto;
+
+    h1 {
+      font-size: 1.5em;
+      font-weight: 300;
+      color: $textColor;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      align-items: flex-start;
+      width: 100%;
+
+      .friend-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 1em;
+
+        .friend-picture {
+          border-radius: $borderRadius;
+          height: 70px;
+          width: 70px;
+          padding: 0;
+          margin-right: 1em;
+        }
+
+        .value {
+          @include centerColumn;
+          margin-right: 0.5em;
+          text-align: right;
+          font-family: $fontNormal;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: $SMALL_WIDTH) and (max-width: $SMALL_LAPTOPS_WIDTH) {
+  .profile {
+    .profile-wrapper {
+      .container {
+        .picture {
+          width: 150px;
+        }
+
+        .details {
+          font-size: 14px;
+          padding-left: 10px;
+          padding-right: 0px;
+          .item {
+            margin: 0;
+          }
+        }
+      }
+    }
+    .invitations-container {
+      .list {
+        .friend-container {
+          font-size: 14px;
+          .friend-picture {
+            height: 50px;
+            width: 50px;
+          }
+        }
+      }
+    }
+  }
 }

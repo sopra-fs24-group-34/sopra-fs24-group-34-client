@@ -4,49 +4,130 @@ import SockJS from "sockjs-client";
 
 let stompClient: Stomp.Client | null = null;
 let isConnected = false;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 10;
+const reconnectDelay = 5000; // 5 seconds
+const connectionPoll = 100;
+
+interface SubscriptionInfo {
+  endpoint: string;
+  callback: Function;
+  subscription: Stomp.Subscription | null;
+}
+
+const subscriptionsMap = new Map<string, SubscriptionInfo>();
 
 export async function connectWebSocket() {
   if (!isConnected) {
-    if (isProduction()) {
-      const socket = new SockJS(
-        "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
-      );
-      stompClient = Stomp.over(socket);
-    } else {
-      const socket = new SockJS("http://localhost:8080/ws");
-      stompClient = Stomp.over(socket);
-    }
+    const socket = new SockJS(
+      isProduction()
+        ? "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
+        : "http://localhost:8080/ws"
+    );
 
-    stompClient.connect({}, () => {
-      console.log("Connected to WebSocket");
-      isConnected = true;
-    });
+    stompClient = Stomp.over(socket);
+    const userId = await localStorage.getItem("userId");
+    stompClient.connect({ userId: userId }, onConnect, onError);
   }
 
   return stompClient;
+}
+
+function onConnect() {
+  console.log("Connected to WebSocket");
+  isConnected = true;
+  reconnectAttempts = 0;
+
+  /*
+  // Resubscribe to all previous subscriptions
+  subscriptionsMap.forEach((subscriptionInfo, endpoint) => {
+    console.log("Trying to resubscribe: ", subscriptionInfo);
+    //if (subscriptionInfo.endpoint && subscriptionInfo.callback) {
+      const reSubscription = stompClient.subscribe(subscriptionInfo.endpoint, subscriptionInfo.callback);
+      subscriptionInfo.subscription = reSubscription;
+      console.log("RESUBSCRIBED: ", reSubscription);
+    //}
+  });
+  saveSubscriptionsToLocalStorage();
+  */
+}
+
+function onError() {
+  console.error("WebSocket connection error. Attempting to reconnect...");
+
+  isConnected = false;
+
+  subscriptionsMap.clear();
+
+  if (reconnectAttempts < maxReconnectAttempts) {
+    setTimeout(() => {
+      reconnectAttempts++;
+      connectWebSocket();
+    }, reconnectDelay);
+  } else {
+    console.error("Max WebSocket-reconnect attempts reached");
+  }
 }
 
 export function disconnectWebSocket() {
   if (stompClient !== null) {
     stompClient.disconnect();
     isConnected = false;
+    subscriptionsMap.clear();
   }
 }
 
-export async function makeSubscription(endpoint: string, callback) {
+export async function makeSubscription(endpoint: string, callback: Function) {
   await waitForConnection();
 
   if (!stompClient || !stompClient.connected) {
     alert("STOMP client is not connected");
+
+    return;
   }
 
-  return stompClient.subscribe(endpoint, callback);
+  //if (!subscriptionsMap.has(endpoint)) {
+  const subscription = stompClient.subscribe(endpoint, callback);
+  subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
+
+  /*
+  //debugging
+  console.log("New stomp:", stompClient);
+  console.log("New sub:", subscription, endpoint);
+  console.log("NEW submap:", subscriptionsMap);
+  */
+
+  return subscription;
+  //} else {
+  // console.log("Subscription already exists in subscriptionsMap");
+  //}
 }
 
-export function cancelSubscription(subscription) {
-  console.log("stompclient:", stompClient);
+export async function cancelSubscription(endpoint: string, subscription) {
   if (stompClient && stompClient.connected && subscription) {
+    subscriptionsMap.delete(endpoint);
+
     subscription.unsubscribe();
+    console.log("deleted from submap:", subscriptionsMap);
+  }
+}
+
+export async function cancelGameSubscriptions() {
+  if (stompClient && stompClient.connected) {
+    // Filter out subscriptions whose endpoint starts with "/games/"
+    const gameSubscriptions = Array.from(subscriptionsMap.entries()).filter(
+      ([endpoint, subscriptionInfo]) => endpoint.startsWith("/games/")
+    );
+
+    // Unsubscribe and remove each matching subscription
+    for (const [endpoint, subscriptionInfo] of gameSubscriptions) {
+      if (subscriptionInfo.subscription) {
+        subscriptionInfo.subscription.unsubscribe();
+        subscriptionsMap.delete(endpoint);
+        console.log(`Unsubscribed from ${endpoint}`);
+      }
+    }
+    console.log("Updated subscriptionsMap:", subscriptionsMap);
   }
 }
 
@@ -61,7 +142,7 @@ export function getStompClient() {
 }
 
 export async function waitForConnection() {
-  while (!stompClient.connected) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+  while (!stompClient || !stompClient.connected) {
+    await new Promise((resolve) => setTimeout(resolve, connectionPoll));
   }
 }

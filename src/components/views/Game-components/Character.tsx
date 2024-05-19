@@ -11,6 +11,9 @@ const Character = ({
   foldCharacter,
   guessCharacter,
   gameStatus,
+  highlight,
+  currentTurnPlayerId,
+  playerId,
 }) => {
   // functionality to display an overlay on top of character
   const interactCharacter = () => {
@@ -37,19 +40,24 @@ const Character = ({
         >
           Fold
         </button>
-        <button
-          className="character-button"
-          onClick={() => guessCharacter()}
-          style={{ color: "pink" }}
-        >
+        {playerId === currentTurnPlayerId && (
+          <button
+            className="character-button"
+            onClick={() => guessCharacter()}
+            style={{ color: "pink" }}
+          >
           Guess
-        </button>
+          </button>
+        )}
       </div>
     );
   };
 
   return (
-    <div className={"character container"} key={character.id}>
+    <div
+      className={`character container ${highlight ? "highlight" : ""}`}
+      key={character.id}
+    >
       <img className="character container img" src={character.url}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
@@ -63,11 +71,14 @@ const Character = ({
 Character.propTypes = {
   key: PropTypes.number,
   character: PropTypes.obj,
-  visibleCharacter: PropTypes.Func,
-  pickCharacter: PropTypes.Func,
-  foldCharacter: PropTypes.Func,
-  guessCharacter: PropTypes.Func,
-  gameStatus: PropTypes.String,
+  visibleCharacter: PropTypes.func,
+  pickCharacter: PropTypes.func,
+  foldCharacter: PropTypes.func,
+  guessCharacter: PropTypes.func,
+  gameStatus: PropTypes.string,
+  highlight: PropTypes.boolean,
+  currentTurnPlayerId: PropTypes.number,
+  playerId: PropTypes.number,
 };
 
 export default Character;

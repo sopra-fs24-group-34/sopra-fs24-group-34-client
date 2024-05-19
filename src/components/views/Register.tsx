@@ -41,6 +41,18 @@ const Register = () => {
   async function doRegister() {
     try {
       setLoading(true);
+      if (username.toUpperCase().includes("GUEST")) {
+        alert("Username cannot contain 'guest'");
+        
+        return;
+      }
+      else if (username === " " || password === " ") {
+        alert("Username and password cannot be empty");
+        
+        return;
+
+      }
+
       const requestBody = JSON.stringify({ username, password });
 
       if (userId === null && userToken === null) {
@@ -118,7 +130,7 @@ const Register = () => {
             ) : (
               <Button
                 style={{ marginLeft: "10px" }}
-                disabled={!username || !password}
+                disabled={(!username || !password)}
                 width="100%"
                 onClick={() => doRegister()}
               >
