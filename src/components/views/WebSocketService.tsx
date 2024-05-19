@@ -104,22 +104,24 @@ export async function makeSubscription(endpoint: string, callback: Function) {
 
   if (!stompClient || !stompClient.connected) {
     alert("STOMP client is not connected");
+
     return;
   }
 
   //if (!subscriptionsMap.has(endpoint) || !subscriptionsMap.get(endpoint).subscription) {
-    const subscription = stompClient.subscribe(endpoint, callback);
-    subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
-    /*
+  const subscription = stompClient.subscribe(endpoint, callback);
+  subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
+  /*
     subscriptionsMap.set(subscription.id, subscription);
     localStorage.setItem("subscriptionsMap", JSON.stringify(Array.from(subscriptionsMap.entries())));
     */
-    saveSubscriptionsToLocalStorage();
+  saveSubscriptionsToLocalStorage();
 
-    console.log("New stomp:", stompClient);
-    console.log("New sub:", subscription, endpoint);
-    console.log("NEW submap:", subscriptionsMap);
-    return subscription;
+  console.log("New stomp:", stompClient);
+  console.log("New sub:", subscription, endpoint);
+  console.log("NEW submap:", subscriptionsMap);
+
+  return subscription;
   //} else {
   //  console.log("Subscription already exists in subscriptionsMap");
   //}
@@ -131,7 +133,7 @@ export async function cancelSubscription(endpoint: string, subscription) {
     await subscriptionsMap.delete(subscription.id);
     localStorage.setItem("subscriptionsMap", JSON.stringify(Array.from(subscriptionsMap.entries())));
     */
-   
+
     subscriptionsMap.delete(endpoint);
     saveSubscriptionsToLocalStorage();
 
@@ -143,12 +145,13 @@ export async function cancelSubscription(endpoint: string, subscription) {
 export async function cancelGameSubscriptions() {
   if (!stompClient || !stompClient.connected) {
     console.error("STOMP client is not connected");
+    
     return;
   }
 
   // Filter out subscriptions whose endpoint starts with "/games/"
-  const gameSubscriptions = Array.from(subscriptionsMap.entries()).filter(([endpoint, subscriptionInfo]) =>
-    endpoint.startsWith("/games/")
+  const gameSubscriptions = Array.from(subscriptionsMap.entries()).filter(
+    ([endpoint, subscriptionInfo]) => endpoint.startsWith("/games/")
   );
 
   // Unsubscribe and remove each matching subscription
