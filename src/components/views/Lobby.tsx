@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +21,7 @@ import {
   sendMessage,
   waitForConnection,
 } from "./WebSocketService";
+import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -382,6 +385,8 @@ const LobbyPage = () => {
 
       console.log("Request body: ", requestBody);
       await api.post("lobbies/invite", requestBody);
+
+      toast.success("Friend invited successfully!");
     } catch (error) {
       console.error(
         `Something went wrong while inviting a friend: \n${handleError(error)}`
@@ -392,6 +397,7 @@ const LobbyPage = () => {
   return (
     <BaseContainer className="lobby container">
       <BaseContainer className="view">
+        <ToastContainer {...toastContainerSuccess} />
         <ul>
           <li>
             <BaseContainer className="settings">

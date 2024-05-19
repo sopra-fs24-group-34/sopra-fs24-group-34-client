@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../../../styles/views/Game-components/CharacterGrid.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
@@ -19,6 +21,8 @@ import {
   waitForConnection,
 } from "../WebSocketService";
 import ModalTimeout from "./modalContent/ModalTimeout";
+import { toastContainerError } from "../Toasts/ToastContainerError";
+import { toastContainerSuccess } from "../Toasts/ToastContainerSuccess";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();

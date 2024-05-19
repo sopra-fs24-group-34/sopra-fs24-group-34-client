@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
@@ -7,7 +9,8 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { LoginLogo } from "../ui/LoginLogo";
 import { Spinner } from "../ui/Spinner";
-
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const FormField = (props) => {
   return (
@@ -50,7 +53,7 @@ const Login = () => {
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
-      alert(`Something went wrong during the login: \n${handleError(error)}`);
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
@@ -62,6 +65,7 @@ const Login = () => {
 
   return (
     <BaseContainer>
+      <ToastContainer {...toastContainerError} />
       <div className="login container">
         <div
           className="login form"
@@ -101,7 +105,7 @@ const Login = () => {
                 width="100%"
                 onClick={() => doLogin()}
               >
-                  Sign-In
+                Sign-In
                 <span style={{ marginLeft: "10px" }}>
                   <LoginLogo width="25px" height="25px" />
                 </span>
