@@ -119,6 +119,7 @@ const Menu = () => {
 
   return (
     <BaseContainer className="menu container">
+      {loading && <Spinner />}
       <div className="buttonbar">
         <Button className="createLobby" onClick={() => createLobby()}
           disabled={loading}>
