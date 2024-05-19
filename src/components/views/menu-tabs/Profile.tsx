@@ -70,6 +70,7 @@ const Profile = ({ user }: { user: User }) => {
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lobbyInvitations, setLobbyInvitations] = useState([]);
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     getUser();
@@ -78,6 +79,9 @@ const Profile = ({ user }: { user: User }) => {
     if (storedProfilePicture) {
       setProfilePicture(storedProfilePicture);
     }
+  }, []);
+
+  useEffect(() => {
     async function fetchLobbyInvitations() {
       try {
         const response = await api.get(`users/${userId}/lobbies/invitations`);
@@ -87,7 +91,7 @@ const Profile = ({ user }: { user: User }) => {
       } catch (error) {}
     }
     fetchLobbyInvitations();
-  }, []);
+  }, [reload]);
 
   const sendEdit = async () => {
     setLoading(true);
@@ -174,6 +178,7 @@ const Profile = ({ user }: { user: User }) => {
 
         navigate("/lobby");
       }
+      setReload(!reload);
     } catch (error) {
       alert(
         `Something went wrong while answering a friend request: \n${handleError(
