@@ -30,6 +30,7 @@ const Game = () => {
   useEffect(() => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
     const fetchImages = async () => {
+      const stompClient = await connectWebSocket();
       setLoading(true);
       try {
         const response = await api.get(`/games/${gameId}/images`);
