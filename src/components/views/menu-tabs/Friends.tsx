@@ -220,7 +220,16 @@ const Friends = () => {
         </BaseContainer>
       </div>
 
-      <div className="add-friend-container">
+      <div
+        className="add-friend-container"
+        onKeyDown={(e) => {
+          {
+            if (e.key === "Enter" && newFriendUserName) {
+              addFriend();
+            }
+          }
+        }}
+      >
         <AddFriendField
           value={newFriendUserName}
           onChange={setNewFriendUserName}
