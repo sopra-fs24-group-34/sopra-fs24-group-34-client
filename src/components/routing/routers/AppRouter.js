@@ -31,8 +31,8 @@ const AppRouter = () => {
           <Route path="/game/" element={<GameRouter base="/game" />} />
         </Route>
 
-        <Route path="/menu/" element={<MenuGuard />}>
-          <Route path="/menu/" element={<MenuRouter base="/menu" />} />
+        <Route path="/menu/*" element={<MenuGuard />}>
+          <Route path="/menu/*" element={<MenuRouter base="/menu" />} />
         </Route>
 
         <Route path="/login" element={<LoginGuard />}>
