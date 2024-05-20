@@ -56,20 +56,17 @@ const LandingPage = () => {
       });
 
       // smailalijagic: added try/except
-      try{
-        api.get(`lobbies/${lobbyCode}`); // smailalijagic: just a check if lobby exists --> no error thrown
+      if (api.get(`lobbies/${lobbyCode}`)!== null) {
+        const responseCreateGuest = await api.post("/guestuser/create", requestGuestBody);
+        await api.put(`/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`);
 
-        const responseCreateGuest = await api.post(
-            "/guestuser/create",
-            requestGuestBody
-        );
+        localStorage.setItem("userToken", responseCreateGuest.data.token);
+        localStorage.setItem("userId", responseCreateGuest.data.id);
+        localStorage.setItem("lobbyId", lobbyCode);
 
-        await api.put(
-            `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
-        );
-      } catch(error) {
-        toast.error("Lobby does not exist");
-      }
+        navigate("/lobby");
+
+      }// smailalijagic: just a check if lobby exists --> no error thrown
 
 
       /*const responseCreateGuest = await api.post(
@@ -79,13 +76,14 @@ const LandingPage = () => {
 
       await api.put(
         `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
-      );*/
+      );
 
       localStorage.setItem("userToken", responseCreateGuest.data.token);
       localStorage.setItem("userId", responseCreateGuest.data.id);
       localStorage.setItem("lobbyId", lobbyCode);
 
       navigate("/lobby");
+      */
     } catch (error) {
       if (error.response.status === 404) {
         toast.error("Lobby does not exist.");
