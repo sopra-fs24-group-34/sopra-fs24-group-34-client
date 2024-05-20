@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +9,8 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { User } from "types";
 import "styles/views/menu-tabs/Leaderboard.scss";
+import { toastContainerError } from "../Toasts/ToastContainerError";
+import { doHandleError } from "helpers/errorHandler";
 
 const Player = ({ user }: { user: User }) => {
   const winPercentage =
@@ -44,15 +48,7 @@ const Leaderboard = () => {
 
         console.log(response);
       } catch (error) {
-        console.error(
-          `Something went wrong while fetching the users: \n${handleError(
-            error
-          )}`
-        );
-        console.error("Details:", error);
-        alert(
-          "Something went wrong while fetching the users! See the console for details."
-        );
+        toast.error(doHandleError(error));
       }
     }
 
@@ -98,7 +94,12 @@ const Leaderboard = () => {
     );
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      <ToastContainer {...toastContainerError} />
+      {content}
+    </div>
+  );
 };
 
 export default Leaderboard;

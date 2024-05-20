@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../../../styles/views/Game-components/CharacterGrid.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
@@ -22,13 +24,14 @@ import {
   waitForConnection,
 } from "../WebSocketService";
 import ModalTimeout from "./modalContent/ModalTimeout";
+import { toastContainerError } from "../Toasts/ToastContainerError";
 
 const CharacterGrid = ({ persons }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String> (null);
-  const [roundNumber, setRoundNumber] = useState (0);
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String>(null);
+  const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END, IDLE
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
@@ -47,8 +50,6 @@ const CharacterGrid = ({ persons }) => {
     setSelectedCharacter(localStorage.getItem("selectedCharacter"));
     async function ws() {
       if (playerId && gameId) {
-
-        await connectWebSocket();
         await waitForConnection();
 
         const callback = function (message) {
@@ -61,7 +62,7 @@ const CharacterGrid = ({ persons }) => {
           console.log(data);
 
           if (header === "round0") {
-            if(data.roundNumber === 1) {
+            if (data.roundNumber === 1) {
               setGameStatus("GUESSING");
               setCurrentTurnPlayerId(data.currentTurnPlayerId);
             }
@@ -71,7 +72,6 @@ const CharacterGrid = ({ persons }) => {
             console.log("Turn update: ", data);
             setCurrentTurnPlayerId(data);
           }
-
 
           if (header === "round-update") {
             setCurrentTurnPlayerId(data.roundDTO.currentTurnPlayerId);
@@ -112,22 +112,23 @@ const CharacterGrid = ({ persons }) => {
                 content: <ModalGuessInformation strikes={data.strikes} />,
               });
             }
-          } else if(header === "user-timeout") {
+          } else if (header === "user-timeout") {
             //make timeout-modal with timer running down
             timeoutThreshold = data;
             setModalState({
               isOpen: true,
-              content: <ModalTimeout timeoutThreshold={timeoutThreshold}/>
+              content: <ModalTimeout timeoutThreshold={timeoutThreshold} />,
             });
-          } else if(header === "user-rejoined") {
+          } else if (header === "user-rejoined") {
             //close modal and stop timer
             setModalState({ isOpen: false, content: null });
-          } else if(header === "user-disconnected") {
+          } else if (header === "user-disconnected") {
             //close game, set result as tied, navigate to endscreen
             localStorage.setItem("result", "tied");
             cancelGameSubscriptions();
             //cancelSubscription(`/games/${gameId}`, subscription);
             navigate("/endscreen");
+
           } else if(header === "update-game-state") {
             console.log("Reconnected: ", data);
             setCurrentTurnPlayerId(data.currentTurnPlayerId);
@@ -135,7 +136,10 @@ const CharacterGrid = ({ persons }) => {
           }
         };
 
-        const subscription = await makeSubscription(`/games/${gameId}`, callback);
+        const subscription = await makeSubscription(
+          `/games/${gameId}`,
+          callback
+        );
 
         return () => {
 
@@ -169,9 +173,7 @@ const CharacterGrid = ({ persons }) => {
       setSelectedCharacter(characterId);
       localStorage.setItem("selectedCharacter", characterId);
     } catch (error) {
-      alert(
-        `Something went wrong choosing your character: \n${handleError(error)}`
-      );
+      toast.error(handleError(error), { containerId: "2" });
     }
   }
 
@@ -180,7 +182,7 @@ const CharacterGrid = ({ persons }) => {
     setVisibleCharacters((prevVisibleCharacters) => {
       const newVisibleCharacters = [...prevVisibleCharacters];
       newVisibleCharacters[characterIndex] =
-          !newVisibleCharacters[characterIndex];
+        !newVisibleCharacters[characterIndex];
 
       return newVisibleCharacters;
     });
@@ -221,6 +223,7 @@ const CharacterGrid = ({ persons }) => {
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
     <BaseContainer className="character-grid">
+      <ToastContainer containerId="2" {...toastContainerError} />
       {persons.map((character, idx) => (
         <Character
           key={character.id}
@@ -229,8 +232,11 @@ const CharacterGrid = ({ persons }) => {
           gameStatus={gameStatus}
           pickCharacter={() => pickCharacter(character.id, idx)}
           foldCharacter={() => foldCharacter(idx)}
-          guessCharacter={playerId === currentTurnPlayerId ? () => guessCharacter(character.id, idx) : () => {
-          }}
+          guessCharacter={
+            playerId === currentTurnPlayerId
+              ? () => guessCharacter(character.id, idx)
+              : () => {}
+          }
           highlight={character.id === selectedCharacter ? true : false}
           currentTurnPlayerId={currentTurnPlayerId}
           playerId={playerId}

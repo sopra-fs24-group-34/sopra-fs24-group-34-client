@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { Spinner } from "components/ui/Spinner";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import BaseContainer from "components/ui/BaseContainer";
 import CharacterGrid from "./Game-components/CharacterGrid";
 import ChatLog from "./Game-components/ChatLog";
@@ -11,6 +13,8 @@ import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
@@ -36,11 +40,7 @@ const Game = () => {
         const response = await api.get(`/games/${gameId}/images`);
         setCharacters(response.data);
       } catch (error) {
-        alert(
-          `Something went wrong fetching the characters: \n${handleError(
-            error
-          )}`
-        );
+        toast.error(doHandleError(error));
       } finally {
         setLoading(false);
       }
@@ -80,9 +80,7 @@ const Game = () => {
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
     } catch (error) {
-      alert(
-        `Something went wrong removing the characters: \n${handleError(error)}`
-      );
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
@@ -95,6 +93,7 @@ const Game = () => {
   // Returns either the grid to potentially replace characters or the actual game
   return (
     <BaseContainer className="game container">
+      <ToastContainer {...toastContainerError} />
       {hasAccepted ? (
         <>
           <CharacterGrid persons={characters} />

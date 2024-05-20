@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { RegisterLogo } from "../ui/RegisterLogo";
 import { Spinner } from "../ui/Spinner";
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const FormField = (props) => {
   return (
@@ -31,8 +35,8 @@ FormField.propTypes = {
 
 const Register = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>(null);
-  const [password, setPassword] = useState<string>(null);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");
   const lobbyId = localStorage.getItem("lobbyId");
@@ -42,12 +46,12 @@ const Register = () => {
     try {
       setLoading(true);
       if (username.toUpperCase().includes("GUEST")) {
-        alert("Username cannot contain 'guest'");
+        toast.error("Username cannot contain 'guest'");
         
         return;
       }
       else if (username === " " || password === " ") {
-        alert("Username and password cannot be empty");
+        toast.error("Username and password cannot be empty");
         
         return;
 
@@ -78,7 +82,7 @@ const Register = () => {
       // Login successfully worked --> navigate to the route /game in the GameRouter
       navigate("/menu");
     } catch (error) {
-      alert(`Something went wrong during the login: \n${handleError(error)}`);
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
@@ -95,6 +99,7 @@ const Register = () => {
 
   return (
     <BaseContainer>
+      <ToastContainer {...toastContainerError} />
       <div className="login container">
         <div
           className="login form"
@@ -119,8 +124,7 @@ const Register = () => {
         <div className="login button-form">
           <div className="login button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width:"100%" }}
               onClick={doBack}
             >
               Back
@@ -129,9 +133,8 @@ const Register = () => {
               <Spinner />
             ) : (
               <Button
-                style={{ marginLeft: "10px" }}
+                style={{ marginLeft: "10px", width:"100%" }}
                 disabled={(!username || !password)}
-                width="100%"
                 onClick={() => doRegister()}
               >
                 Register
