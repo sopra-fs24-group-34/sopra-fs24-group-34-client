@@ -14,7 +14,10 @@ import ModalPickInformation from "./modalContent/ModalPickInformation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
+  cancelGameSubscriptions,
   cancelSubscription,
+  connectWebSocket,
+  disconnectWebSocket,
   getStompClient,
   makeSubscription,
   sendMessage,
@@ -44,6 +47,7 @@ const CharacterGrid = ({ persons }) => {
   //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
+    setSelectedCharacter(localStorage.getItem("selectedCharacter"));
     async function ws() {
       if (playerId && gameId) {
         await waitForConnection();
@@ -63,7 +67,9 @@ const CharacterGrid = ({ persons }) => {
               setCurrentTurnPlayerId(data.currentTurnPlayerId);
             }
           }
+          //never called
           if (header === "turnUpdate") {
+            console.log("Turn update: ", data);
             setCurrentTurnPlayerId(data);
           }
 
@@ -78,7 +84,8 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "lost");
               }
-              cancelSubscription(`/games/${gameId}`, subscription);
+              cancelGameSubscriptions();
+              //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -89,8 +96,8 @@ const CharacterGrid = ({ persons }) => {
               } else {
                 localStorage.setItem("result", "won");
               }
-              //cancelGameSubscriptions();
-              cancelSubscription(`/games/${gameId}`, subscription);
+              cancelGameSubscriptions();
+              //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
             }
 
@@ -118,9 +125,14 @@ const CharacterGrid = ({ persons }) => {
           } else if (header === "user-disconnected") {
             //close game, set result as tied, navigate to endscreen
             localStorage.setItem("result", "tied");
-            cancelSubscription(`/games/${gameId}`, subscription);
+            cancelGameSubscriptions();
+            //cancelSubscription(`/games/${gameId}`, subscription);
             navigate("/endscreen");
-          } else if (header === "update-game-state") {
+
+          } else if(header === "update-game-state") {
+            console.log("Reconnected: ", data);
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            setRoundNumber(data.roundNumber);
           }
         };
 
@@ -130,7 +142,9 @@ const CharacterGrid = ({ persons }) => {
         );
 
         return () => {
+
           cancelSubscription(`/games/${gameId}`, subscription);
+          disconnectWebSocket();
         };
       }
     }
@@ -157,6 +171,7 @@ const CharacterGrid = ({ persons }) => {
       });
       setGameStatus("WAITING_FOR_OTHER_PLAYER");
       setSelectedCharacter(characterId);
+      localStorage.setItem("selectedCharacter", characterId);
     } catch (error) {
       toast.error(handleError(error), { containerId: "2" });
     }

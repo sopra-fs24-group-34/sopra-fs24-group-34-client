@@ -119,6 +119,7 @@ const Menu = () => {
   return (
     <BaseContainer className="menu container">
       <ToastContainer {...toastContainerError} />
+      {loading && <Spinner />}
       <div className="buttonbar">
         <Button
           className="createLobby"

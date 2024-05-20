@@ -9,36 +9,13 @@ const maxReconnectAttempts = 10;
 const reconnectDelay = 5000; // 5 seconds
 const connectionPoll = 100;
 
-//const subscriptionsMap = new Map();
-//const subscriptionsMap = new Map(JSON.parse(localStorage.getItem('subscriptionsMap')) || []);
-
 interface SubscriptionInfo {
   endpoint: string;
   callback: Function;
   subscription: Stomp.Subscription | null;
 }
-//const subscriptionsMap = new Map<string, SubscriptionInfo>(JSON.parse(localStorage.getItem("subscriptionsMap")) || []);
 
-function loadSubscriptionsFromLocalStorage(): Map<string, SubscriptionInfo> {
-  const storedSubscriptions = localStorage.getItem("subscriptionsMap");
-  if (storedSubscriptions) {
-    const parsedSubscriptions = JSON.parse(storedSubscriptions);
-    console.log("Fetching subscriptions: ", storedSubscriptions);
-
-    return new Map<string, SubscriptionInfo>(parsedSubscriptions);
-  }
-
-  return new Map<string, SubscriptionInfo>();
-}
-
-function saveSubscriptionsToLocalStorage() {
-  localStorage.setItem(
-    "subscriptionsMap",
-    JSON.stringify(Array.from(subscriptionsMap.entries()))
-  );
-}
-
-const subscriptionsMap = loadSubscriptionsFromLocalStorage();
+const subscriptionsMap = new Map<string, SubscriptionInfo>();
 
 export async function connectWebSocket() {
   if (!isConnected) {
@@ -80,6 +57,8 @@ function onError() {
 
   isConnected = false;
 
+  subscriptionsMap.clear();
+
   if (reconnectAttempts < maxReconnectAttempts) {
     setTimeout(() => {
       reconnectAttempts++;
@@ -95,7 +74,6 @@ export function disconnectWebSocket() {
     stompClient.disconnect();
     isConnected = false;
     subscriptionsMap.clear();
-    localStorage.removeItem("subscriptionsMap");
   }
 }
 
@@ -108,34 +86,26 @@ export async function makeSubscription(endpoint: string, callback: Function) {
     return;
   }
 
-  //if (!subscriptionsMap.has(endpoint) || !subscriptionsMap.get(endpoint).subscription) {
+  //if (!subscriptionsMap.has(endpoint)) {
   const subscription = stompClient.subscribe(endpoint, callback);
   subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
-  /*
-    subscriptionsMap.set(subscription.id, subscription);
-    localStorage.setItem("subscriptionsMap", JSON.stringify(Array.from(subscriptionsMap.entries())));
-    */
-  saveSubscriptionsToLocalStorage();
 
+  /*
+  //debugging
   console.log("New stomp:", stompClient);
   console.log("New sub:", subscription, endpoint);
   console.log("NEW submap:", subscriptionsMap);
+  */
 
   return subscription;
   //} else {
-  //  console.log("Subscription already exists in subscriptionsMap");
+  // console.log("Subscription already exists in subscriptionsMap");
   //}
 }
 
 export async function cancelSubscription(endpoint: string, subscription) {
   if (stompClient && stompClient.connected && subscription) {
-    /*
-    await subscriptionsMap.delete(subscription.id);
-    localStorage.setItem("subscriptionsMap", JSON.stringify(Array.from(subscriptionsMap.entries())));
-    */
-
     subscriptionsMap.delete(endpoint);
-    saveSubscriptionsToLocalStorage();
 
     subscription.unsubscribe();
     console.log("deleted from submap:", subscriptionsMap);
@@ -143,29 +113,22 @@ export async function cancelSubscription(endpoint: string, subscription) {
 }
 
 export async function cancelGameSubscriptions() {
-  if (!stompClient || !stompClient.connected) {
-    console.error("STOMP client is not connected");
-    
-    return;
-  }
+  if (stompClient && stompClient.connected) {
+    // Filter out subscriptions whose endpoint starts with "/games/"
+    const gameSubscriptions = Array.from(subscriptionsMap.entries()).filter(
+      ([endpoint, subscriptionInfo]) => endpoint.startsWith("/games/")
+    );
 
-  // Filter out subscriptions whose endpoint starts with "/games/"
-  const gameSubscriptions = Array.from(subscriptionsMap.entries()).filter(
-    ([endpoint, subscriptionInfo]) => endpoint.startsWith("/games/")
-  );
-
-  // Unsubscribe and remove each matching subscription
-  for (const [endpoint, subscriptionInfo] of gameSubscriptions) {
-    if (subscriptionInfo.subscription) {
-      subscriptionInfo.subscription.unsubscribe();
-      subscriptionsMap.delete(endpoint);
-      console.log(`Unsubscribed from ${endpoint}`);
+    // Unsubscribe and remove each matching subscription
+    for (const [endpoint, subscriptionInfo] of gameSubscriptions) {
+      if (subscriptionInfo.subscription) {
+        subscriptionInfo.subscription.unsubscribe();
+        subscriptionsMap.delete(endpoint);
+        console.log(`Unsubscribed from ${endpoint}`);
+      }
     }
+    console.log("Updated subscriptionsMap:", subscriptionsMap);
   }
-  console.log("Updated subscriptionsMap:", subscriptionsMap);
-
-  // Save the updated subscriptionsMap to localStorage
-  saveSubscriptionsToLocalStorage();
 }
 
 export function sendMessage(destination: string, body: string) {
