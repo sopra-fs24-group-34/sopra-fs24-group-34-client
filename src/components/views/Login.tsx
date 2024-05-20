@@ -35,8 +35,8 @@ FormField.propTypes = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>(null);
-  const [password, setPassword] = useState<string>(null);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const doLogin = async () => {
@@ -53,7 +53,11 @@ const Login = () => {
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
-      toast.error(doHandleError(error));
+      if (error.response.status === 401) {
+        toast.error("Username or password is incorrect. Please try again.");
+      } else {
+        toast.error(doHandleError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -90,8 +94,7 @@ const Login = () => {
         <div className="login button-form">
           <div className="login button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width: "100%" }}
               onClick={doBack}
             >
               Back
@@ -100,9 +103,8 @@ const Login = () => {
               <Spinner />
             ) : (
               <Button
-                style={{ marginLeft: "10px" }}
+                style={{ marginLeft: "10px", width: "100%" }}
                 disabled={!username || !password}
-                width="100%"
                 onClick={() => doLogin()}
               >
                 Sign-In

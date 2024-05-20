@@ -35,8 +35,8 @@ FormField.propTypes = {
 
 const Register = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>(null);
-  const [password, setPassword] = useState<string>(null);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");
   const lobbyId = localStorage.getItem("lobbyId");
@@ -124,8 +124,7 @@ const Register = () => {
         <div className="login button-form">
           <div className="login button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width:"100%" }}
               onClick={doBack}
             >
               Back
@@ -134,9 +133,8 @@ const Register = () => {
               <Spinner />
             ) : (
               <Button
-                style={{ marginLeft: "10px" }}
+                style={{ marginLeft: "10px", width:"100%" }}
                 disabled={(!username || !password)}
-                width="100%"
                 onClick={() => doRegister()}
               >
                 Register

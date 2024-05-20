@@ -70,7 +70,11 @@ const LandingPage = () => {
 
       navigate("/lobby");
     } catch (error) {
-      toast.error(doHandleError(error));
+      if (error.response.status === 404) {
+        toast.error("Lobby does not exist.");
+      } else {
+        toast.error(doHandleError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -105,7 +109,11 @@ const LandingPage = () => {
             {loading ? (
               <Spinner />
             ) : (
-              <Button disabled={!lobbyCode} width="100%" onClick={doJoinLobby}>
+              <Button
+                disabled={!lobbyCode}
+                style={{ width: "100%" }}
+                onClick={doJoinLobby}
+              >
                 Join
               </Button>
             )}
@@ -114,8 +122,7 @@ const LandingPage = () => {
         <div className="landingPage button-form">
           <div className="landingPage button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width: "100%" }}
               onClick={doLogin}
             >
               Sign-In
@@ -124,8 +131,7 @@ const LandingPage = () => {
               </span>
             </Button>
             <Button
-              style={{ marginLeft: "10px" }}
-              width="100%"
+              style={{ marginLeft: "10px", width: "100%" }}
               onClick={doRegister}
             >
               Register
