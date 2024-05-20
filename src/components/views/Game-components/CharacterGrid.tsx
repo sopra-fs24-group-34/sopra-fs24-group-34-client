@@ -33,7 +33,9 @@ const CharacterGrid = ({ persons }) => {
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String>(null);
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
-  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END, IDLE
+  const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
+  const [timePerRound, setTimePerRound] = useState(Number(localStorage.getItem("timePerRound")));
+  //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
@@ -44,7 +46,6 @@ const CharacterGrid = ({ persons }) => {
     content: <ModalFirstInstructions />,
   });
   let timeoutThreshold = 10;
-  //const [stompClient, setStompClient] = useState(getStompClient());
 
   useEffect(() => {
     setSelectedCharacter(localStorage.getItem("selectedCharacter"));
@@ -78,24 +79,13 @@ const CharacterGrid = ({ persons }) => {
             setRoundNumber(data.roundDTO.roundNumber);
             setStrikes(data.strikes);
 
-            if (data.guess === true && data.gameStatus === "END") {
-              if (data.playerId === playerId) {
+            if (data.gameStatus === "END") {
+              if ((data.guess === true && data.playerId === playerId) || (data.guess === false && data.playerId !== playerId)) {
                 localStorage.setItem("result", "won");
               } else {
                 localStorage.setItem("result", "lost");
               }
-              cancelGameSubscriptions();
-              //cancelSubscription(`/games/${gameId}`, subscription);
-              navigate("/endscreen");
-            }
-
-            //nedim-j: is there a lock in the backend which prevents us from playing on?
-            if (data.strikes === 3 && data.gameStatus === "END") {
-              if (data.playerId === playerId) {
-                localStorage.setItem("result", "lost");
-              } else {
-                localStorage.setItem("result", "won");
-              }
+            
               cancelGameSubscriptions();
               //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
@@ -109,7 +99,7 @@ const CharacterGrid = ({ persons }) => {
             ) {
               setModalState({
                 isOpen: true,
-                content: <ModalGuessInformation strikes={data.strikes} />,
+                content: <ModalGuessInformation strikes={data.strikes} maxStrikes={maxStrikes} />,
               });
             }
           } else if (header === "user-timeout") {

@@ -68,7 +68,7 @@ function onError() {
 }
 
 export function disconnectWebSocket() {
-  if (stompClient !== null) {
+  if (stompClient !== null && isConnected === true) {
     stompClient.disconnect();
     isConnected = false;
     subscriptionsMap.clear();

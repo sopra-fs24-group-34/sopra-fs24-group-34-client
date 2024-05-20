@@ -11,6 +11,7 @@ import { RegisterLogo } from "../ui/RegisterLogo";
 import { Spinner } from "../ui/Spinner";
 import { doHandleError } from "../../helpers/errorHandler";
 import { toastContainerError } from "./Toasts/ToastContainerError";
+import { disconnectWebSocket } from "./WebSocketService";
 
 const FormField = (props) => {
   return (
@@ -45,8 +46,8 @@ const Register = () => {
   async function doRegister() {
     try {
       setLoading(true);
-      if (username.toUpperCase().includes("GUEST")) {
-        toast.error("Username cannot contain 'guest'");
+      if (username.toUpperCase().startsWith("GUEST")) {
+        toast.error("Username cannot begin with 'guest'");
         
         return;
       }
@@ -77,6 +78,17 @@ const Register = () => {
         });
 
         await api.put(`/users/${userId}`, requestBody);
+
+        localStorage.removeItem("lobbyId");
+        localStorage.removeItem("gameId");
+        localStorage.removeItem("users");
+        localStorage.removeItem("playerId");
+        localStorage.removeItem("isCreator");
+        localStorage.removeItem("result");
+        localStorage.removeItem("maxStrikes");
+        localStorage.removeItem("timePerRound");
+        localStorage.removeItem("selectedCharacter");
+        disconnectWebSocket();
       }
 
       // Login successfully worked --> navigate to the route /game in the GameRouter
