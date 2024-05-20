@@ -90,7 +90,11 @@ const Friends = () => {
       // Return a message that the friend request was successfully sent.
       toast.success("Friend request sent!", { containerId: "2" });
     } catch (error) {
-      toast.error(doHandleError(error), { containerId: "1" });
+      if (error.response.status === 404) {
+        toast.error("User not found.", { containerId: "1" });
+      } else {
+        toast.error(doHandleError(error), { containerId: "1" });
+      }
     }
   };
 

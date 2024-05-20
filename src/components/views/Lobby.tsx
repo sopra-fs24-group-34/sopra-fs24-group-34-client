@@ -22,6 +22,8 @@ import {
   waitForConnection,
 } from "./WebSocketService";
 import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
+import { toastContainerError } from "./Toasts/ToastContainerError";
+import { doHandleError } from "helpers/errorHandler";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -195,9 +197,7 @@ const LobbyPage = () => {
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
       console.error("Details:", error);
-      alert(
-        "Something went wrong while fetching data! See the console for details."
-      );
+      toast.error(doHandleError(error), { containerId: "2" })
     }
   }
 
@@ -231,9 +231,7 @@ const LobbyPage = () => {
         console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
-        console.error(
-          `Something went wrong while fetching friends: \n${handleError(error)}`
-        );
+        toast.error(doHandleError(error), { containerId: "2" });
       }
     };
     loadPlayers();
@@ -312,8 +310,9 @@ const LobbyPage = () => {
 
       //stompClient.send("/app/updateReadyStatus", {}, request);
       sendMessage("/app/updateReadyStatus", requestBody);
+      toast.info("Ready status updated successfully!", { containerId: "1" });
     } catch (error) {
-      alert(`Something went wrong with ready-status: \n${handleError(error)}`);
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   }
 
@@ -386,18 +385,17 @@ const LobbyPage = () => {
       console.log("Request body: ", requestBody);
       await api.post("lobbies/invite", requestBody);
 
-      toast.success("Friend invited successfully!");
+      toast.info("Friend invited successfully!", { containerId: "1" });
     } catch (error) {
-      console.error(
-        `Something went wrong while inviting a friend: \n${handleError(error)}`
-      );
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   };
 
   return (
     <BaseContainer className="lobby container">
       <BaseContainer className="view">
-        <ToastContainer {...toastContainerSuccess} />
+        <ToastContainer containerId="1" {...toastContainerSuccess} />
+        <ToastContainer containerId="2" {...toastContainerError} />
         <ul>
           <li>
             <BaseContainer className="settings">

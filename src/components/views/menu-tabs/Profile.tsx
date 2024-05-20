@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { json, useNavigate, useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { api, handleError } from "helpers/api";
 import PropTypes from "prop-types";
 import "styles/views/menu-tabs/Profile.scss";
@@ -10,6 +12,9 @@ import { User } from "types";
 import defaultImage from "images/puck.jpeg";
 import Image1 from "images/Cat.jpeg";
 import Image2 from "images/Dog.jpeg";
+import { doHandleError } from "../../../helpers/errorHandler";
+import { toastContainerError } from "../Toasts/ToastContainerError";
+import { Toast } from "react-toastify/dist/components";
 
 const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
@@ -88,7 +93,9 @@ const Profile = ({ user }: { user: User }) => {
 
         setLobbyInvitations(response.data);
         console.log("GET lobbyInvitations: ", response);
-      } catch (error) {}
+      } catch (error) {
+        toast.error(doHandleError(error));
+      }
     }
     fetchLobbyInvitations();
   }, [reload]);
@@ -108,11 +115,7 @@ const Profile = ({ user }: { user: User }) => {
       await getUser();
     } catch (error) {
       setEditedUsername(user.username);
-      alert(
-        `Something went wrong during updating the profile: \n${handleError(
-          error
-        )}`
-      );
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
@@ -127,7 +130,7 @@ const Profile = ({ user }: { user: User }) => {
       setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
       setLoading(false);
     } catch (error) {
-      alert(`Something went wrong fetching the user: \n${handleError(error)}`);
+      toast.error(doHandleError(error));
     }
   };
 
@@ -138,7 +141,7 @@ const Profile = ({ user }: { user: User }) => {
       localStorage.clear();
       navigate("/");
     } catch (error) {
-      alert(`Something went wrong deleting the user: \n${handleError(error)}`);
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
@@ -180,17 +183,14 @@ const Profile = ({ user }: { user: User }) => {
       }
       setReload(!reload);
     } catch (error) {
-      alert(
-        `Something went wrong while answering a friend request: \n${handleError(
-          error
-        )}`
-      );
+      toast.error(doHandleError(error));
     }
   };
 
   return (
     <>
       <div className="profile">
+        <ToastContainer {...toastContainerError} />
         <div className="profile-wrapper">
           <div className="container">
             <BaseContainer
