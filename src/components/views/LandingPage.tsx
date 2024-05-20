@@ -55,14 +55,31 @@ const LandingPage = () => {
         password: "12345",
       });
 
-      const responseCreateGuest = await api.post(
+      // smailalijagic: added try/except
+      try{
+        api.get(`lobbies/${lobbyCode}`); // smailalijagic: just a check if lobby exists --> no error thrown
+
+        const responseCreateGuest = await api.post(
+            "/guestuser/create",
+            requestGuestBody
+        );
+
+        await api.put(
+            `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
+        );
+      } catch(error) {
+        toast.error("Lobby does not exist");
+      }
+
+
+      /*const responseCreateGuest = await api.post(
         "/guestuser/create",
         requestGuestBody
       );
 
       await api.put(
         `/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`
-      );
+      );*/
 
       localStorage.setItem("userToken", responseCreateGuest.data.token);
       localStorage.setItem("userId", responseCreateGuest.data.id);
