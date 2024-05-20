@@ -1,6 +1,7 @@
 import { isProduction } from "../../helpers/isProduction";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
+import { getDomain } from "../../helpers/getDomain";
 
 let stompClient: Stomp.Client | null = null;
 let isConnected = false;
@@ -19,11 +20,8 @@ const subscriptionsMap = new Map<string, SubscriptionInfo>();
 
 export async function connectWebSocket() {
   if (!isConnected) {
-    const socket = new SockJS(
-      isProduction()
-        ? "https://sopra-fs24-group-34-server.oa.r.appspot.com/ws"
-        : "http://localhost:8080/ws"
-    );
+    const domain = getDomain();
+    const socket = new SockJS(`${domain}/ws`);
 
     stompClient = Stomp.over(socket);
     const userId = await localStorage.getItem("userId");
