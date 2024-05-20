@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Button } from "components/ui/Button";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { User } from "types";
 import "styles/views/menu-tabs/Friends.scss";
+import { doHandleError } from "../../../helpers/errorHandler";
+import { toastContainerError } from "../Toasts/ToastContainerError";
+import { toastContainerSuccess } from "../Toasts/ToastContainerSuccess";
 
 const AddFriendField = (props) => {
   return (
@@ -67,11 +72,7 @@ const Friends = () => {
         // Get the returned friend requests and update the state.
         setFriendRequests(responseFriendRequests.data);
       } catch (error) {
-        console.error(
-          `Something went wrong while fetching the friends: \n${handleError(
-            error
-          )}`
-        );
+        toast.error(doHandleError(error), { containerId: "1" });
       }
     }
     fetchData();
@@ -87,10 +88,13 @@ const Friends = () => {
       await api.post("/users/friends/add", requestBody);
 
       // Return a message that the friend request was successfully sent.
+      toast.success("Friend request sent!", { containerId: "2" });
     } catch (error) {
-      alert(
-        `Something went wrong while adding a friend: \n${handleError(error)}`
-      );
+      if (error.response.status === 404) {
+        toast.error("User not found.", { containerId: "1" });
+      } else {
+        toast.error(doHandleError(error), { containerId: "1" });
+      }
     }
   };
 
@@ -101,9 +105,7 @@ const Friends = () => {
       setReload(!reload);
       // Return a message that the friend was successfully removed.
     } catch (error) {
-      alert(
-        `Something went wrong while removing a friend: \n${handleError(error)}`
-      );
+      toast.error(doHandleError(error), { containerId: "1" });
     }
   };
 
@@ -120,16 +122,14 @@ const Friends = () => {
       // Remove the answered friend request from the list.
       setReload(!reload);
     } catch (error) {
-      alert(
-        `Something went wrong while answering a friend request: \n${handleError(
-          error
-        )}`
-      );
+      toast.error(doHandleError(error), { containerId: "1" });
     }
   };
 
   return (
     <BaseContainer className="friends">
+      <ToastContainer containerId="1" {...toastContainerError} />
+      <ToastContainer containerId="2" {...toastContainerSuccess} />
       <div className="content-wrapper">
         <BaseContainer
           className="friends-container"
@@ -220,7 +220,16 @@ const Friends = () => {
         </BaseContainer>
       </div>
 
-      <div className="add-friend-container">
+      <div
+        className="add-friend-container"
+        onKeyDown={(e) => {
+          {
+            if (e.key === "Enter" && newFriendUserName) {
+              addFriend();
+            }
+          }
+        }}
+      >
         <AddFriendField
           value={newFriendUserName}
           onChange={setNewFriendUserName}

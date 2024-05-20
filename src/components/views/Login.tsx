@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
@@ -7,7 +9,8 @@ import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import { LoginLogo } from "../ui/LoginLogo";
 import { Spinner } from "../ui/Spinner";
-
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const FormField = (props) => {
   return (
@@ -32,8 +35,8 @@ FormField.propTypes = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>(null);
-  const [password, setPassword] = useState<string>(null);
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const doLogin = async () => {
@@ -50,7 +53,11 @@ const Login = () => {
       // Login successfully worked --> navigate to the route /menu in the MenuRouter
       navigate("/menu");
     } catch (error) {
-      alert(`Something went wrong during the login: \n${handleError(error)}`);
+      if (error.response.status === 401) {
+        toast.error("Username or password is incorrect. Please try again.");
+      } else {
+        toast.error(doHandleError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -62,6 +69,7 @@ const Login = () => {
 
   return (
     <BaseContainer>
+      <ToastContainer {...toastContainerError} />
       <div className="login container">
         <div
           className="login form"
@@ -86,8 +94,7 @@ const Login = () => {
         <div className="login button-form">
           <div className="login button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width: "100%" }}
               onClick={doBack}
             >
               Back
@@ -96,12 +103,11 @@ const Login = () => {
               <Spinner />
             ) : (
               <Button
-                style={{ marginLeft: "10px" }}
+                style={{ marginLeft: "10px", width: "100%" }}
                 disabled={!username || !password}
-                width="100%"
                 onClick={() => doLogin()}
               >
-                  Sign-In
+                Sign-In
                 <span style={{ marginLeft: "10px" }}>
                   <LoginLogo width="25px" height="25px" />
                 </span>
