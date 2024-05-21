@@ -55,6 +55,22 @@ const LandingPage = () => {
         password: "12345",
       });
 
+      /*
+      // smailalijagic: added try/except
+      if (api.get(`lobbies/${lobbyCode}`)!== null) {
+        const responseCreateGuest = await api.post("/guestuser/create", requestGuestBody);
+        await api.put(`/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`);
+
+        localStorage.setItem("userToken", responseCreateGuest.data.token);
+        localStorage.setItem("userId", responseCreateGuest.data.id);
+        localStorage.setItem("lobbyId", lobbyCode);
+
+        navigate("/lobby");
+
+      }// smailalijagic: just a check if lobby exists --> no error thrown
+      */
+
+
       const responseCreateGuest = await api.post(
         "/guestuser/create",
         requestGuestBody
@@ -69,6 +85,7 @@ const LandingPage = () => {
       localStorage.setItem("lobbyId", lobbyCode);
 
       navigate("/lobby");
+
     } catch (error) {
       if (error.response.status === 404) {
         toast.error("Lobby does not exist.");
