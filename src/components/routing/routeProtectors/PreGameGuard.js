@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 
-export const GameGuard = () => {
+export const PreGameGuard = () => {
   if (localStorage.getItem("userToken")) {
     if (localStorage.getItem("gameId")) {
       return <Outlet />;
@@ -14,6 +14,6 @@ export const GameGuard = () => {
   return <Navigate to="/login" replace />;
 };
 
-GameGuard.propTypes = {
+PreGameGuard.propTypes = {
   children: PropTypes.node,
 };

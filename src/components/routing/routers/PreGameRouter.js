@@ -3,7 +3,7 @@ import {Navigate, Route, Routes} from "react-router-dom";
 import PreGame from "../../views/PreGame";
 import PropTypes from "prop-types";
 
-const GameRouter = () => {
+const PreGameRouter = () => {
   return (
     <>
       <Routes>
@@ -16,8 +16,8 @@ const GameRouter = () => {
   );
 };
 
-GameRouter.propTypes = {
+PreGameRouter.propTypes = {
   base: PropTypes.string
 }
 
-export default GameRouter;
+export default PreGameRouter;

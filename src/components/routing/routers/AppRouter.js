@@ -12,7 +12,7 @@ import { LobbyGuard } from "../routeProtectors/LobbyGuard";
 import LobbyRouter from "./LobbyRouter";
 import GameRouter from "./GameRouter";
 import { GameGuard } from "../routeProtectors/GameGuard";
-import { PreGameRouter } from "./PreGameRouter";
+import PreGameRouter from "./PreGameRouter";
 import { PreGameGuard } from "../routeProtectors/PreGameGuard";
 import Endscreen from "../../views/Endscreen";
 
@@ -29,8 +29,7 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-
-      <Route path="/pregame/" element={<PreGameGuard />}>
+        <Route path="/pregame/" element={<PreGameGuard />}>
           <Route path="/pregame/" element={<PreGameRouter base="/game" />} />
         </Route>
 
