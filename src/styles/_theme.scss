@@ -12,6 +12,10 @@ $accent: #a4c8de;
 $accentDark: #a4c8de;
 $textColor: rgb(10, 9, 9);
 $background: #e8e8ef;
+$background_transparent: transparentize($color: $background, $amount: 0.25);
+$background_focus_white: transparentize($color: white, $amount: 0.5);
+$background_focus_orange: transparentize($color: #ffe0b2, $amount: 0.2);
+$background_focus_blue: transparentize($color: #c6e2ff, $amount: 0.2);
 
 /* some constants */
 
@@ -28,7 +32,7 @@ $fontDefault: "fontText", "sans-serif";
 $fontNormal: "fontNormal", "sans-serif";
 
 /* a standard drop shadow */
-$dropShadow: 0 0.25em 0.25em rgba(0, 0, 0, 0.25);
+$dropShadow: 3px 3px 6px -2px rgba(0, 0, 0, 0.25);
 
 $borderRadius: 0.75em;
 

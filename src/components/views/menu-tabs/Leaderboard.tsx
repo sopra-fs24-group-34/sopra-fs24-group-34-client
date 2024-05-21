@@ -73,19 +73,25 @@ const Leaderboard = () => {
   if (users) {
     content = (
       <div className="leaderboard container">
-        <div className="sorting">
-          <select
-            value={selectedCriteria}
-            onChange={(e) => handleSort(e.target.value)}
-          >
-            <option value="username">Sort by Username</option>
-            <option value="totalwins">Sort by Total Wins</option>
-            <option value="totalplayed">Sort by Total Games Played</option>
-          </select>
+        <div className="title-row">
+          <div className="header">Top players</div>
+          <div className="sorting">
+            <select
+              value={selectedCriteria}
+              onChange={(e) => handleSort(e.target.value)}
+            >
+              <option value="username">Sort by Username</option>
+              <option value="totalwins">Sort by Total Wins</option>
+              <option value="totalplayed">Sort by Total Games Played</option>
+            </select>
+          </div>
+          <div className="titles">Total wins</div>
+          <div className="titles">Games played</div>
+          <div className="titles">Win percentage</div>
         </div>
         <ul className="leaderboard user-list">
           {users.map((user: User) => (
-            <li key={user.id}>
+            <li style={{ borderRight: 0 }} key={user.id}>
               <Player user={user} />
             </li>
           ))}

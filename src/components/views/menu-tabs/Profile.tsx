@@ -62,6 +62,26 @@ Invitation.propTypes = {
   func: PropTypes.func,
 };
 
+const Player = ({ user }: { user: User }) => {
+  const winPercentage =
+    user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
+
+  return (
+    <div className="item">
+      <div className="label">Game stats:</div>
+      <div className="stats-value">
+        {user.totalwins !== null ? user.totalwins : 0} won
+      </div>
+      <div className="stats-value">
+        {user.totalplayed !== null ? user.totalplayed : 0} played
+      </div>
+      <div className="stats-value">
+        {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
+      </div>
+    </div>
+  );
+};
+
 const Profile = ({ user }: { user: User }) => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
@@ -79,7 +99,6 @@ const Profile = ({ user }: { user: User }) => {
 
   useEffect(() => {
     getUser();
-
   }, []);
 
   useEffect(() => {
@@ -186,8 +205,8 @@ const Profile = ({ user }: { user: User }) => {
 
   return (
     <>
+      <ToastContainer {...toastContainerError} />
       <div className="profile">
-        <ToastContainer {...toastContainerError} />
         <div className="profile-wrapper">
           <div className="container">
             <BaseContainer
@@ -199,7 +218,7 @@ const Profile = ({ user }: { user: User }) => {
             </BaseContainer>
 
             <BaseContainer className="details">
-              <BaseContainer className="item">
+              <BaseContainer className="item" style={{ marginTop: "1em" }}>
                 <div className="label">Username:</div>
                 {isEditing ? (
                   <input
@@ -225,6 +244,10 @@ const Profile = ({ user }: { user: User }) => {
                 ) : (
                   <div className="value">********</div>
                 )}
+              </BaseContainer>
+
+              <BaseContainer className="item" style={{ marginBottom: "1em" }}>
+                <Player user={user} />
               </BaseContainer>
             </BaseContainer>
           </div>

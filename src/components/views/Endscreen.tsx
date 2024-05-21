@@ -19,14 +19,23 @@ const Player = ({
   user: User;
   result: string;
   isCurrentUser: boolean;
-}) => (
-  <div className="player container">
-    <div className="player username">{user.username}</div>
-    <div className="player result">
-      {isCurrentUser ? result : result === "won" ? "lost" : "won"}
+}) => {
+  let resultClass = '';
+  if (isCurrentUser) {
+    resultClass = result;
+  } else {
+    resultClass = result === "won" ? "lost" : "won";
+  }
+
+  return (
+    <div className="player container">
+      <div className="player username">{user.username}</div>
+      <div className={`player result ${resultClass}`}>
+        {resultClass.toUpperCase()}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 Player.propTypes = {
   user: PropTypes.object,
@@ -149,7 +158,7 @@ const Endscreen = () => {
   return (
     <BaseContainer className="endscreen container">
       <header>
-        <h1>You {gameResult}</h1>
+        <div className="gameresult">You {gameResult}</div>
       </header>
       <BaseContainer className="players">{players}</BaseContainer>
       <div className="buttonlist">

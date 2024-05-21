@@ -182,7 +182,7 @@ const Menu = () => {
           </li>
         </ul>
       </nav>
-      <BaseContainer className="view">
+      <div className="view">
         {activeTab === "profile" && (
           <Profile
             user={{
@@ -198,7 +198,7 @@ const Menu = () => {
         )}
         {activeTab === "leaderboard" && <Leaderboard />}
         {activeTab === "friends" && <Friends />}
-      </BaseContainer>
+      </div>
     </BaseContainer>
   );
 };

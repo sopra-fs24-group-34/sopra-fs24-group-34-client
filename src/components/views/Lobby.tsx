@@ -396,7 +396,7 @@ const LobbyPage = () => {
 
   return (
     <BaseContainer className="lobby container">
-      <BaseContainer className="view">
+      <div className="view">
         <ToastContainer containerId="1" {...toastContainerSuccess} />
         <ToastContainer containerId="2" {...toastContainerError} />
         <ul>
@@ -432,7 +432,6 @@ const LobbyPage = () => {
                       setTimePerRound(30);
                     }}
                   >
-                    {/**add functionality */}
                     Reset settings
                   </Button>
                 )}
@@ -460,7 +459,7 @@ const LobbyPage = () => {
               <div className="button-row">
                 {renderActionButtons()}
                 <Button
-                  className="lobby button bottom"
+                  className="lobby button"
                   onClick={() => handleReturn()}
                 >
                   Return to Menu
@@ -484,7 +483,7 @@ const LobbyPage = () => {
             </BaseContainer>
           </li>
         </ul>
-      </BaseContainer>
+      </div>
       {showExplanation && (
         <LobbyGameExplanation func={() => setShowExplanation()} />
       )}
