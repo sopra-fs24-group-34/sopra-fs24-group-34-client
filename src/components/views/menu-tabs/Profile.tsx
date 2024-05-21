@@ -80,10 +80,6 @@ const Profile = ({ user }: { user: User }) => {
   useEffect(() => {
     getUser();
 
-    const storedProfilePicture = localStorage.getItem("profilePicture");
-    if (storedProfilePicture) {
-      setProfilePicture(storedProfilePicture);
-    }
   }, []);
 
   useEffect(() => {
@@ -128,6 +124,7 @@ const Profile = ({ user }: { user: User }) => {
       console.log("GET response: ", response);
       setEditedUsername(response.data.username);
       setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
+      setProfilePicture(response.data.profilePicture);
       setLoading(false);
     } catch (error) {
       toast.error(doHandleError(error));
