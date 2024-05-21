@@ -107,7 +107,7 @@ const LobbyPage = () => {
             }
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
-            navigate("/game");
+            navigate("/pregame");
 
           } else if (header === "user-left") {
             console.log("User left: ", data.id);
