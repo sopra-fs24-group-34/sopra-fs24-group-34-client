@@ -8,8 +8,6 @@ import CharacterGrid from "./Game-components/CharacterGrid";
 import ChatLog from "./Game-components/ChatLog";
 import "styles/views/Game.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
-import ModalFirstInstructions from "./Game-components/modalContent/ModalFirstInstructions";
-import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
@@ -22,10 +20,9 @@ import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const Game = () => {
   const [characters, setCharacters] = useState<string[]>([]);
-  const [hasAccepted, setHasAccepted] = useState<Boolean>(false);
-  const gameId = localStorage.getItem("gameId");
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
+  const [Instructions, setInstructions] = useState<String>("Pick a character");
 
   const [stompClient, setStompClient] = useState(getStompClient());
 
@@ -52,8 +49,13 @@ const Game = () => {
   return (
     <BaseContainer className="game container">
       <ToastContainer {...toastContainerError} />
-      <CharacterGrid persons={characters} />
-      <ChatLog />
+      <div className="instructions">
+        <h1>Current Instruction: {Instructions}</h1>
+      </div>
+      <div className="game">
+        <CharacterGrid persons={characters} updateInstruction={setInstructions}/>
+        <ChatLog updateInstruction={setInstructions}/>
+      </div>
     </BaseContainer>
   );
 };
