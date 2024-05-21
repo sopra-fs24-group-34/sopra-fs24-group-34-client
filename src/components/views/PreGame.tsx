@@ -5,9 +5,8 @@ import { Spinner } from "components/ui/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BaseContainer from "components/ui/BaseContainer";
-import CharacterGrid from "./Game-components/CharacterGrid";
-import ChatLog from "./Game-components/ChatLog";
-import "styles/views/Game.scss";
+import { Button } from "components/ui/Button";
+import "styles/views/PreGame.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
 import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
@@ -88,55 +87,65 @@ const PreGame = () => {
   const handleAcceptCharacters = async () => {
     setLoading(true);
     try {
-      await api.post(`/games/${gameId}/acceptCharacters`);
+      await api.post(`somtheing new here`);
       Navigate("/game");
     } catch (error) {
       toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   // Returns either the grid to potentially replace characters or the actual game
   return (
-    <BaseContainer className="game container">
-      <ToastContainer {...toastContainerError} />
+    <>
       {isCreator ? (
-        <>
-          <div className="character-grid">
-            {characters.map((character, idx) => (
-              <div className="character container" key={character.id}>
-                <img
-                  className="character container img"
-                  src={character.url}
-                ></img>
-                {isCreator && (
-                  <div className="character overlay">
-                    {ReplaceCharacter(idx, character.id)}
-                  </div>
-                )}
-              </div>
-            ))}
+        <BaseContainer className="pregame container">
+          <ToastContainer {...toastContainerError} />
+          <div className="instructions">
+            <h1>Current Instruction: Remove unsuited characters</h1>
           </div>
-          <button
-            className="accept-character-button"
-            onClick={() => handleAcceptCharacters()}
-          >
-            Accept characters
-          </button>
-          <ModalDisplay
-            isOpen={modalState.isOpen}
-            content={modalState.content}
-            handleClose={handleCloseModal}
-          />
-        </>
+          <div className="game">
+            <div className="character-grid">
+              {characters.map((character, idx) => (
+                <div className="character container" key={character.id}>
+                  <img
+                    className="character container img"
+                    src={character.url}
+                  ></img>
+                  {isCreator && (
+                    <div className="character overlay">
+                      {ReplaceCharacter(idx, character.id)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="button">
+              <Button
+                className="accept-character-button"
+                onClick={() => handleAcceptCharacters()}
+              >
+                Accept characters
+              </Button>
+            </div>
+
+            <ModalDisplay
+              isOpen={modalState.isOpen}
+              content={modalState.content}
+              handleClose={handleCloseModal}
+            />
+          </div>
+        </BaseContainer>
       ) : (
         <div>
           <Spinner />
-          <p>Waiting for the creator to accept the characters</p>
+          <div className="pregame waiting-container">
+            <h1>Waiting for the creator to accept the characters</h1>
+          </div>
         </div>
       )}
-    </BaseContainer>
+    </>
   );
 };
 
