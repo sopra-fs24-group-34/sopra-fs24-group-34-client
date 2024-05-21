@@ -10,6 +10,7 @@ import { User } from "types";
 import { LogoutLogo } from "components/ui/LogoutLogo";
 import { disconnectWebSocket, getStompClient } from "./WebSocketService";
 import { closeLobby } from "./Lobby";
+import { changeStatus } from "./Menu";
 
 const Player = ({
   user,
@@ -144,6 +145,8 @@ const Endscreen = () => {
   }
 
   function handleToLobby() {
+    changeStatus("Inlobby_preparing");
+    console.log("changed status");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");

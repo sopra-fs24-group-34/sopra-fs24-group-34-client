@@ -64,6 +64,8 @@ const Menu = () => {
   const logout = (): void => {
     setLoading(true);
     try {
+      changeStatus("offline");
+      console.log("CHANGE U");
       localStorage.clear();
       navigate("/landingPage");
     } catch (error) {
@@ -202,5 +204,15 @@ const Menu = () => {
     </BaseContainer>
   );
 };
+
+export async function changeStatus(newStatus: string) {
+  try {
+    await api.post(`users/${localStorage.getItem("userId")}/status/change`, newStatus);
+    console.log("CHANGE USER STATUS");
+  } catch (error) {
+    console.log("User Status was not changed");
+    toast.error(doHandleError(error), { containerId: "2" });
+  }
+}
 
 export default Menu;

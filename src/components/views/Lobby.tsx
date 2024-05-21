@@ -24,6 +24,7 @@ import {
 import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
 import { toastContainerError } from "./Toasts/ToastContainerError";
 import { doHandleError } from "helpers/errorHandler";
+import { changeStatus } from "./Menu";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -250,6 +251,7 @@ const LobbyPage = () => {
       localStorage.removeItem("lobbyId");
       localStorage.removeItem("isCreator");
       localStorage.removeItem("users");
+      await changeStatus("online");
       disconnectWebSocket();
       navigate("/menu");
     } else {
@@ -260,7 +262,7 @@ const LobbyPage = () => {
     }
   }
 
-  async function handleStart() {
+    async function handleStart() {
     const lobbyId = localStorage.getItem("lobbyId");
     const userId = localStorage.getItem("userId");
     const userToken = localStorage.getItem("userToken");
