@@ -74,8 +74,8 @@ const LobbyPage = () => {
   const [invitedFriend, setInvitedFriend] = useState("");
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
-  const [strikes, setStrikes] = useState(3);
-  const [timePerRound, setTimePerRound] = useState(60);
+  const [maxStrikes, setMaxStrikes] = useState(3);
+  const [timePerRound, setTimePerRound] = useState(30);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
@@ -105,6 +105,9 @@ const LobbyPage = () => {
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
+
+            localStorage.setItem("maxStrikes", data.maxStrikes);
+            localStorage.setItem("timePerRound", data.timePerRound);
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
@@ -196,7 +199,7 @@ const LobbyPage = () => {
       console.error(
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
-      console.error("Details:", error);
+      navigate("/menu");
       toast.error(doHandleError(error), { containerId: "2" })
     }
   }
@@ -242,7 +245,7 @@ const LobbyPage = () => {
     if (isCreator) {
       const lobbyId = localStorage.getItem("lobbyId");
       if (lobbyId !== null || lobbyId !== undefined) {
-        closeLobby(getStompClient());
+        closeLobby();
       }
       localStorage.removeItem("lobbyId");
       localStorage.removeItem("isCreator");
@@ -271,13 +274,13 @@ const LobbyPage = () => {
         const gamePostDto = {
           creator_userid: lobby.data.creator_userid,
           invited_userid: lobby.data.invited_userid,
+          maxStrikes: maxStrikes,
+          timePerRound: timePerRound,
         };
         const auth = {
           id: userId,
           token: userToken,
         };
-
-        //const response = await api.post(`/game/${lobbyId}/start`, requestBody);
 
         const requestBody = JSON.stringify({
           lobbyId: lobbyId,
@@ -330,8 +333,8 @@ const LobbyPage = () => {
             className="lobby button"
             disabled={
               !(
-                0 < Number(strikes) &&
-                Number(strikes) < 11 &&
+                0 < Number(maxStrikes) &&
+                Number(maxStrikes) < 11 &&
                 29 < Number(timePerRound) &&
                 Number(timePerRound) < 301
               )
@@ -417,16 +420,16 @@ const LobbyPage = () => {
                   type="number"
                   min="1"
                   max="10"
-                  value={strikes}
+                  value={maxStrikes}
                   readOnly={!isCreator}
-                  onChange={(e) => setStrikes(e.target.value)} //add function
+                  onChange={(e) => setMaxStrikes(e.target.value)} //add function
                 />
                 {isCreator && (
                   <Button
                     className="lobby button"
                     onClick={() => {
-                      setStrikes(3);
-                      setTimePerRound(60);
+                      setMaxStrikes(3);
+                      setTimePerRound(30);
                     }}
                   >
                     {/**add functionality */}
@@ -489,7 +492,7 @@ const LobbyPage = () => {
   );
 };
 
-export async function closeLobby(stompClient) {
+export async function closeLobby() {
   const lobbyId = localStorage.getItem("lobbyId");
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");
