@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +21,9 @@ import {
   sendMessage,
   waitForConnection,
 } from "./WebSocketService";
+import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
+import { toastContainerError } from "./Toasts/ToastContainerError";
+import { doHandleError } from "helpers/errorHandler";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -69,8 +74,8 @@ const LobbyPage = () => {
   const [invitedFriend, setInvitedFriend] = useState("");
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
-  const [strikes, setStrikes] = useState(3);
-  const [timePerRound, setTimePerRound] = useState(60);
+  const [maxStrikes, setMaxStrikes] = useState(3);
+  const [timePerRound, setTimePerRound] = useState(30);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
@@ -100,6 +105,9 @@ const LobbyPage = () => {
             } else if (isCr === false) {
               localStorage.setItem("playerId", data.invitedPlayerId);
             }
+
+            localStorage.setItem("maxStrikes", data.maxStrikes);
+            localStorage.setItem("timePerRound", data.timePerRound);
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
@@ -191,10 +199,8 @@ const LobbyPage = () => {
       console.error(
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
-      console.error("Details:", error);
-      alert(
-        "Something went wrong while fetching data! See the console for details."
-      );
+      navigate("/menu");
+      toast.error(doHandleError(error), { containerId: "2" })
     }
   }
 
@@ -228,9 +234,7 @@ const LobbyPage = () => {
         console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
-        console.error(
-          `Something went wrong while fetching friends: \n${handleError(error)}`
-        );
+        toast.error(doHandleError(error), { containerId: "2" });
       }
     };
     loadPlayers();
@@ -241,7 +245,7 @@ const LobbyPage = () => {
     if (isCreator) {
       const lobbyId = localStorage.getItem("lobbyId");
       if (lobbyId !== null || lobbyId !== undefined) {
-        closeLobby(getStompClient());
+        closeLobby();
       }
       localStorage.removeItem("lobbyId");
       localStorage.removeItem("isCreator");
@@ -270,13 +274,13 @@ const LobbyPage = () => {
         const gamePostDto = {
           creator_userid: lobby.data.creator_userid,
           invited_userid: lobby.data.invited_userid,
+          maxStrikes: maxStrikes,
+          timePerRound: timePerRound,
         };
         const auth = {
           id: userId,
           token: userToken,
         };
-
-        //const response = await api.post(`/game/${lobbyId}/start`, requestBody);
 
         const requestBody = JSON.stringify({
           lobbyId: lobbyId,
@@ -309,8 +313,9 @@ const LobbyPage = () => {
 
       //stompClient.send("/app/updateReadyStatus", {}, request);
       sendMessage("/app/updateReadyStatus", requestBody);
+      toast.info("Ready status updated successfully!", { containerId: "1" });
     } catch (error) {
-      alert(`Something went wrong with ready-status: \n${handleError(error)}`);
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   }
 
@@ -328,8 +333,8 @@ const LobbyPage = () => {
             className="lobby button"
             disabled={
               !(
-                0 < Number(strikes) &&
-                Number(strikes) < 11 &&
+                0 < Number(maxStrikes) &&
+                Number(maxStrikes) < 11 &&
                 29 < Number(timePerRound) &&
                 Number(timePerRound) < 301
               )
@@ -382,16 +387,18 @@ const LobbyPage = () => {
 
       console.log("Request body: ", requestBody);
       await api.post("lobbies/invite", requestBody);
+
+      toast.info("Friend invited successfully!", { containerId: "1" });
     } catch (error) {
-      console.error(
-        `Something went wrong while inviting a friend: \n${handleError(error)}`
-      );
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   };
 
   return (
     <BaseContainer className="lobby container">
       <BaseContainer className="view">
+        <ToastContainer containerId="1" {...toastContainerSuccess} />
+        <ToastContainer containerId="2" {...toastContainerError} />
         <ul>
           <li>
             <BaseContainer className="settings">
@@ -413,16 +420,16 @@ const LobbyPage = () => {
                   type="number"
                   min="1"
                   max="10"
-                  value={strikes}
+                  value={maxStrikes}
                   readOnly={!isCreator}
-                  onChange={(e) => setStrikes(e.target.value)} //add function
+                  onChange={(e) => setMaxStrikes(e.target.value)} //add function
                 />
                 {isCreator && (
                   <Button
                     className="lobby button"
                     onClick={() => {
-                      setStrikes(3);
-                      setTimePerRound(60);
+                      setMaxStrikes(3);
+                      setTimePerRound(30);
                     }}
                   >
                     {/**add functionality */}
@@ -485,7 +492,7 @@ const LobbyPage = () => {
   );
 };
 
-export async function closeLobby(stompClient) {
+export async function closeLobby() {
   const lobbyId = localStorage.getItem("lobbyId");
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");

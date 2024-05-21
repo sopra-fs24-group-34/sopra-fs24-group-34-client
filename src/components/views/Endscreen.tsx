@@ -98,13 +98,16 @@ const Endscreen = () => {
   }
 
   const handleBack = (): void => {
-    closeLobby(getStompClient());
+    closeLobby();
     localStorage.removeItem("lobbyId");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
     localStorage.removeItem("result");
+    localStorage.removeItem("maxStrikes");
+    localStorage.removeItem("timePerRound");
+    localStorage.removeItem("selectedCharacter");
     disconnectWebSocket();
   };
 
@@ -127,9 +130,7 @@ const Endscreen = () => {
   }
 
   function handleToLandingPage() {
-    handleBack();
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userToken");
+    localStorage.clear();
     navigate("/landingPage");
   }
 
@@ -139,6 +140,9 @@ const Endscreen = () => {
     localStorage.removeItem("playerId");
     localStorage.removeItem("isCreator");
     localStorage.removeItem("result");
+    localStorage.removeItem("maxStrikes");
+    localStorage.removeItem("timePerRound");
+    localStorage.removeItem("selectedCharacter");
     navigate("/lobby");
   }
 

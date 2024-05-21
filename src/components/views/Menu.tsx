@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +13,8 @@ import Profile from "./menu-tabs/Profile";
 import Leaderboard from "./menu-tabs/Leaderboard";
 import Friends from "./menu-tabs/Friends";
 import { LogoutLogo } from "components/ui/LogoutLogo";
+import { toastContainerError } from "./Toasts/ToastContainerError";
+import { doHandleError } from "helpers/errorHandler";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -64,7 +68,7 @@ const Menu = () => {
       navigate("/landingPage");
     } catch (error) {
       console.error("Error during logout:", error);
-      alert("Something went wrong during logout! Please try again.");
+      toast.error("Something went wrong during logout! Please try again.");
     } finally {
       setLoading(false);
     }
@@ -83,24 +87,17 @@ const Menu = () => {
 
       navigate("/lobby");
     } catch (error) {
-      console.error(
-        `Something went wrong while creating the lobby: \n${handleError(error)}`
-      );
-      console.error("Details:", error);
-      alert(
-        "Something went wrong while creating the lobby! See the console for details."
-      );
+      toast.error(doHandleError(error));
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const [lobbyCode, setLobbyCode] = useState(null);
   async function doJoinLobby() {
     setLoading(true);
 
     try {
-
       const userId = localStorage.getItem("userId");
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await api.put(`/lobbies/join/${lobbyCode}/${userId}`);
@@ -109,9 +106,11 @@ const Menu = () => {
 
       navigate("/lobby");
     } catch (error) {
-      alert(
-        `Something went wrong during the lobby join: \n${handleError(error)}`
-      );
+      if (error.response.status === 404) {
+        toast.error("Lobby not found.");
+      } else {
+        toast.error(doHandleError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -119,9 +118,14 @@ const Menu = () => {
 
   return (
     <BaseContainer className="menu container">
+      <ToastContainer {...toastContainerError} />
+      {loading && <Spinner />}
       <div className="buttonbar">
-        <Button className="createLobby" onClick={() => createLobby()}
-          disabled={loading}>
+        <Button
+          className="createLobby"
+          onClick={() => createLobby()}
+          disabled={loading}
+        >
           {loading ? <Spinner /> : "Create new Lobby"}
         </Button>
 
@@ -148,7 +152,9 @@ const Menu = () => {
           </Button>
         </div>
 
-        <Button className="buttonbar logout" onClick={() => logout()}
+        <Button
+          className="buttonbar logout"
+          onClick={() => logout()}
           disabled={loading}
         >
           {loading ? <Spinner /> : "Logout"}

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { api, handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Button } from "components/ui/Button";
 import "styles/views/LandingPage.scss";
 import BaseContainer from "components/ui/BaseContainer";
@@ -8,6 +10,8 @@ import PropTypes from "prop-types";
 import { LoginLogo } from "../ui/LoginLogo";
 import { RegisterLogo } from "../ui/RegisterLogo";
 import { Spinner } from "../ui/Spinner";
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const FormField = (props) => {
   const initialValue = /^[0-9\b]+$/.test(props.value) ? props.value : "";
@@ -51,6 +55,22 @@ const LandingPage = () => {
         password: "12345",
       });
 
+      /*
+      // smailalijagic: added try/except
+      if (api.get(`lobbies/${lobbyCode}`)!== null) {
+        const responseCreateGuest = await api.post("/guestuser/create", requestGuestBody);
+        await api.put(`/lobbies/join/${lobbyCode}/${responseCreateGuest.data.id}`);
+
+        localStorage.setItem("userToken", responseCreateGuest.data.token);
+        localStorage.setItem("userId", responseCreateGuest.data.id);
+        localStorage.setItem("lobbyId", lobbyCode);
+
+        navigate("/lobby");
+
+      }// smailalijagic: just a check if lobby exists --> no error thrown
+      */
+
+
       const responseCreateGuest = await api.post(
         "/guestuser/create",
         requestGuestBody
@@ -65,8 +85,13 @@ const LandingPage = () => {
       localStorage.setItem("lobbyId", lobbyCode);
 
       navigate("/lobby");
+
     } catch (error) {
-      alert(`Something went wrong during the login: \n${handleError(error)}`);
+      if (error.response.status === 404) {
+        toast.error("Lobby does not exist.");
+      } else {
+        toast.error(doHandleError(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -82,6 +107,7 @@ const LandingPage = () => {
 
   return (
     <BaseContainer>
+      <ToastContainer {...toastContainerError} />
       <div className="landingPage container">
         <div
           className="landingPage form"
@@ -100,7 +126,11 @@ const LandingPage = () => {
             {loading ? (
               <Spinner />
             ) : (
-              <Button disabled={!lobbyCode} width="100%" onClick={doJoinLobby}>
+              <Button
+                disabled={!lobbyCode}
+                style={{ width: "100%" }}
+                onClick={doJoinLobby}
+              >
                 Join
               </Button>
             )}
@@ -109,8 +139,7 @@ const LandingPage = () => {
         <div className="landingPage button-form">
           <div className="landingPage button-container">
             <Button
-              style={{ marginRight: "10px" }}
-              width="100%"
+              style={{ marginRight: "10px", width: "100%" }}
               onClick={doLogin}
             >
               Sign-In
@@ -119,8 +148,7 @@ const LandingPage = () => {
               </span>
             </Button>
             <Button
-              style={{ marginLeft: "10px" }}
-              width="100%"
+              style={{ marginLeft: "10px", width: "100%" }}
               onClick={doRegister}
             >
               Register
