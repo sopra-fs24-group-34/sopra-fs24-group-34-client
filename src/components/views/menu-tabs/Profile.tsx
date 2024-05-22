@@ -89,8 +89,10 @@ const Profile = ({ user }: { user: User }) => {
   const userId = Number(localStorage.getItem("userId"));
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUsername, setEditedUsername] = useState(user.username);
-  const [editedPassword, setEditedPassword] = useState(user.password);
+  const [initialUsername, setInitialUsername] = useState("");
+  const [initialPassword, setInitialPassword] = useState("");
+  const [editedUsername, setEditedUsername] = useState("");
+  const [editedPassword, setEditedPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -119,6 +121,12 @@ const Profile = ({ user }: { user: User }) => {
     setLoading(true);
     setIsEditing(false);
     try {
+      if (editedUsername.toUpperCase().startsWith("GUEST")) {
+        toast.error("Username cannot begin with 'guest'");
+        setEditedPassword(""); setEditedUsername("");
+
+        return;
+      }
       const requestBody = JSON.stringify({
         id: userId,
         username: editedUsername,
@@ -129,7 +137,7 @@ const Profile = ({ user }: { user: User }) => {
       await api.put(`/users/${userId}`, requestBody);
       await getUser();
     } catch (error) {
-      setEditedUsername(user.username);
+      setEditedPassword(""); setEditedUsername("");
       toast.error(doHandleError(error));
     } finally {
       setLoading(false);
@@ -141,8 +149,8 @@ const Profile = ({ user }: { user: User }) => {
       setLoading(true);
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
-      setEditedUsername(response.data.username);
-      setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
+      setInitialUsername(response.data.username);
+      setInitialPassword(response.data.password); //dario: needed, else password field is first time used empty
       setProfilePicture(response.data.profilePicture);
       setLoading(false);
     } catch (error) {
@@ -224,11 +232,12 @@ const Profile = ({ user }: { user: User }) => {
                   <input
                     className="profile-input"
                     type="text"
+                    placeholder={initialUsername}
                     value={editedUsername}
                     onChange={(e) => setEditedUsername(e.target.value)}
                   />
                 ) : (
-                  <div className="value">{editedUsername}</div>
+                  <div className="value">{initialUsername}</div>
                 )}
               </BaseContainer>
 
@@ -238,6 +247,7 @@ const Profile = ({ user }: { user: User }) => {
                   <input
                     className="profile-input"
                     type="password"
+                    placeholder={initialPassword}
                     value={editedPassword}
                     onChange={(e) => setEditedPassword(e.target.value)}
                   />
@@ -256,7 +266,7 @@ const Profile = ({ user }: { user: User }) => {
             <Button
               className="editButton"
               onClick={() => sendEdit()}
-              disabled={!editedUsername || !editedPassword}
+              disabled={!editedUsername.trim() || !editedPassword.trim()}
             >
               Save
             </Button>
