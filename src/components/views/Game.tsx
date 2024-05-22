@@ -24,28 +24,27 @@ const Game = () => {
   const [loading, setLoading] = useState(false);
   const [Instructions, setInstructions] = useState<String>("Pick a character");
 
-  const [stompClient, setStompClient] = useState(getStompClient());
+  const fetchImages = async () => {
+    const stompClient = await connectWebSocket();
+    setLoading(true);
+    const gameId = await localStorage.getItem("gameId");
+    try {
+      const response = await api.get(`/games/${gameId}/images`);
+      setCharacters(response.data);
+    } catch (error) {
+      toast.error(doHandleError(error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // useEffect to fetch images from DB
   useEffect(() => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
-    const fetchImages = async () => {
-      const stompClient = await connectWebSocket();
-      setLoading(true);
-      try {
-        const response = await api.get(`something new here`);
-        setCharacters(response.data);
-      } catch (error) {
-        toast.error(doHandleError(error));
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchImages();
   }, []);
 
-  // Returns either the grid to potentially replace characters or the actual game
+  // useEffect to fetch images from DB
+
   return (
     <BaseContainer className="game container">
       <ToastContainer {...toastContainerError} />
@@ -53,8 +52,11 @@ const Game = () => {
         <h1>Current Instruction: {Instructions}</h1>
       </div>
       <div className="game">
-        <CharacterGrid persons={characters} updateInstruction={setInstructions}/>
-        <ChatLog updateInstruction={setInstructions}/>
+        <CharacterGrid
+          persons={characters}
+          updateInstruction={setInstructions}
+        />
+        <ChatLog updateInstruction={setInstructions} />
       </div>
     </BaseContainer>
   );

@@ -79,14 +79,20 @@ export async function makeSubscription(endpoint: string, callback: Function) {
   await waitForConnection();
 
   if (!stompClient || !stompClient.connected) {
-    alert("STOMP client is not connected");
+    console.error("Couldn't make subscription, STOMP client is not connected");
 
     return;
   }
 
-  //if (!subscriptionsMap.has(endpoint)) {
-  const subscription = stompClient.subscribe(endpoint, callback);
-  subscriptionsMap.set(endpoint, { endpoint, callback, subscription });
+  const newSubscription = stompClient.subscribe(endpoint, callback);
+
+  if (subscriptionsMap.has(endpoint)) {
+    const oldSubscription = subscriptionsMap.get(endpoint);
+    oldSubscription.subscription.unsubscribe();
+    console.log("Unsubscribed from old subscription:", oldSubscription.subscription, endpoint);
+  }
+
+  subscriptionsMap.set(endpoint, { endpoint, callback, subscription: newSubscription });
 
   /*
   //debugging
@@ -95,7 +101,7 @@ export async function makeSubscription(endpoint: string, callback: Function) {
   console.log("NEW submap:", subscriptionsMap);
   */
 
-  return subscription;
+  return newSubscription;
   //} else {
   // console.log("Subscription already exists in subscriptionsMap");
   //}
@@ -106,7 +112,6 @@ export async function cancelSubscription(endpoint: string, subscription) {
     subscriptionsMap.delete(endpoint);
 
     subscription.unsubscribe();
-    console.log("deleted from submap:", subscriptionsMap);
   }
 }
 
@@ -132,7 +137,10 @@ export async function cancelGameSubscriptions() {
 export function sendMessage(destination: string, body: string) {
   if (stompClient && stompClient.connected) {
     stompClient.send(destination, {}, body);
+  } else {
+    console.error("Couldn't send message, STOMP client is not connected");
   }
+
 }
 
 export function getStompClient() {
