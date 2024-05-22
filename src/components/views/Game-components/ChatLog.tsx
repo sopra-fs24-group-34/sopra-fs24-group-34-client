@@ -77,11 +77,10 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage, updateInstruction }) => {
   };
 
   const switchTurn = () => {
-      sendMessage("/app/switchTurn", JSON.stringify({ gameId: gameId }));
+    sendMessage("/app/switchTurn", JSON.stringify({ gameId: gameId }));
   }
 
-
-        // Creates the question field as functional component
+  // Creates the question field as functional component
   const QField = () => {
     return (
       <div className="chat-log-input-container">
@@ -89,24 +88,24 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage, updateInstruction }) => {
           value={prompt}
           onChange={(q: string) => setPrompt(q)}
         ></QuestionField>
-          <div className="chat-log-button-container">
+        <div className="chat-log-button-container">
 
           <button
-          className="chat-log-send-button"
-          disabled={!prompt}
-          onClick={() => updateChat()}
-        >
-          Send
-        </button>
-        {hasSentMessage && (
-          <button
-          className="chat-log-send-button"
-          onClick={switchTurn}
+            className="chat-log-send-button"
+            disabled={!prompt}
+            onClick={() => updateChat()}
           >
-          Switch Turn
+          Send
           </button>
-        )}
-          </div>
+          {hasSentMessage && (
+            <button
+              className="chat-log-send-button"
+              onClick={switchTurn}
+            >
+          Switch Turn
+            </button>
+          )}
+        </div>
       </div>
     );
   };

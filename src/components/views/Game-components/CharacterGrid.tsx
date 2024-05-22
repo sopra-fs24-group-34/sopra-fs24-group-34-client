@@ -49,8 +49,6 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
   });
   let timeoutThreshold = 10;
 
-
-
   useEffect(() => {
     setSelectedCharacter(localStorage.getItem("selectedCharacter"));
 
