@@ -240,6 +240,11 @@ const Profile = () => {
                     placeholder={initialUsername}
                     value={editedUsername}
                     onChange={(e) => setEditedUsername(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isEditing) {
+                        sendEdit();
+                      }
+                    }}
                   />
                 ) : (
                   <div className="value">{initialUsername}</div>
@@ -255,6 +260,11 @@ const Profile = () => {
                     placeholder={initialPassword}
                     value={editedPassword}
                     onChange={(e) => setEditedPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isEditing) {
+                        sendEdit();
+                      }
+                    }}
                   />
                 ) : (
                   <div className="value">********</div>
