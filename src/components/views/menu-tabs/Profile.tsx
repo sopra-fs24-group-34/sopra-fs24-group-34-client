@@ -222,7 +222,7 @@ const Profile = ({ user }: { user: User }) => {
               onClick={handleProfilePictureClick}
             >
               <img src={profilePicture} alt="Profile" />
-              {isEditing && <div className="changeTextOverlay">Switch</div>}
+              {isEditing && <div className="overlay">Switch</div>}
             </BaseContainer>
 
             <BaseContainer className="details">
