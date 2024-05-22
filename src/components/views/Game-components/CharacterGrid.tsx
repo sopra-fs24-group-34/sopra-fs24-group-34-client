@@ -34,7 +34,6 @@ const CharacterGrid = ({ persons }) => {
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
   const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
-  const [timePerRound, setTimePerRound] = useState(Number(localStorage.getItem("timePerRound")));
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
