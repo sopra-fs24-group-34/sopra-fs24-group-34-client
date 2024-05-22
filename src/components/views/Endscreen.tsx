@@ -107,7 +107,7 @@ const Endscreen = () => {
     );
   }
 
-  const handleBack = (): void => {
+  function handleBack() {
     closeLobby();
     localStorage.removeItem("lobbyId");
     localStorage.removeItem("gameId");
@@ -145,7 +145,7 @@ const Endscreen = () => {
   }
 
   function handleToLobby() {
-    changeStatus("Inlobby_preparing");
+    changeStatus("INLOBBY_PREPARING");
     console.log("changed status");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");

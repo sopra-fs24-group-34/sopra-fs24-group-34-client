@@ -26,7 +26,7 @@ import {
 import ModalTimeout from "./modalContent/ModalTimeout";
 import { toastContainerError } from "../Toasts/ToastContainerError";
 
-const CharacterGrid = ({ persons }) => {
+const CharacterGrid = ({ persons, updateInstruction }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
@@ -161,6 +161,7 @@ const CharacterGrid = ({ persons }) => {
       setGameStatus("WAITING_FOR_OTHER_PLAYER");
       setSelectedCharacter(characterId);
       localStorage.setItem("selectedCharacter", characterId);
+      updateInstruction("Waiting for other player to pick a character");
     } catch (error) {
       toast.error(handleError(error), { containerId: "2" });
     }
@@ -246,6 +247,7 @@ const CharacterGrid = ({ persons }) => {
 
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
+  updateInstruction: PropTypes.func,
 };
 
 export default CharacterGrid;

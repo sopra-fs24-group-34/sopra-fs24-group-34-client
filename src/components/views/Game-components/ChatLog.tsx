@@ -27,7 +27,7 @@ QuestionField.propTypes = {
   onChange: PropTypes.func,
 };
 
-const ChatLog = () => {
+const ChatLog = ({updateInstruction}) => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
@@ -143,6 +143,10 @@ const ChatLog = () => {
       </div>
     </BaseContainer>
   );
+};
+
+ChatLog.propTypes = {
+  updateInstruction: PropTypes.func,
 };
 
 export default ChatLog;
