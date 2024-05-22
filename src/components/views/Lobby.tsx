@@ -76,7 +76,6 @@ const LobbyPage = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
   const [maxStrikes, setMaxStrikes] = useState(3);
-  const [timePerRound, setTimePerRound] = useState(30);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
@@ -107,7 +106,6 @@ const LobbyPage = () => {
             }
 
             localStorage.setItem("maxStrikes", data.maxStrikes);
-            localStorage.setItem("timePerRound", data.timePerRound);
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
@@ -274,7 +272,6 @@ const LobbyPage = () => {
           creator_userid: lobby.data.creator_userid,
           invited_userid: lobby.data.invited_userid,
           maxStrikes: maxStrikes,
-          timePerRound: timePerRound,
         };
         const auth = {
           id: userId,
@@ -333,9 +330,7 @@ const LobbyPage = () => {
             disabled={
               !(
                 0 < Number(maxStrikes) &&
-                Number(maxStrikes) < 11 &&
-                29 < Number(timePerRound) &&
-                Number(timePerRound) < 301
+                Number(maxStrikes) < 11
               )
             }
             onClick={() => handleStart()}
@@ -403,16 +398,6 @@ const LobbyPage = () => {
             <BaseContainer className="settings">
               <h1>Settings</h1>
               <div>
-                <p>Time per round in seconds (30 - 300):</p>
-                <input
-                  className="input"
-                  type="number"
-                  min="30"
-                  max="300"
-                  value={timePerRound}
-                  readOnly={!isCreator}
-                  onChange={(e) => setTimePerRound(e.target.value)} //add function
-                />
                 <p>Number of Strikes (1 - 10):</p>
                 <input
                   className="input"
@@ -428,7 +413,6 @@ const LobbyPage = () => {
                     className="lobby button"
                     onClick={() => {
                       setMaxStrikes(3);
-                      setTimePerRound(30);
                     }}
                   >
                     Reset settings
