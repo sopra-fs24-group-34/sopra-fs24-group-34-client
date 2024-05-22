@@ -14,7 +14,6 @@ import Image1 from "images/Cat.jpeg";
 import Image2 from "images/Dog.jpeg";
 import { doHandleError } from "../../../helpers/errorHandler";
 import { toastContainerError } from "../Toasts/ToastContainerError";
-import { Toast } from "react-toastify/dist/components";
 
 const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
@@ -123,7 +122,8 @@ const Profile = ({ user }: { user: User }) => {
     try {
       if (editedUsername.toUpperCase().startsWith("GUEST")) {
         toast.error("Username cannot begin with 'guest'");
-        setEditedPassword(""); setEditedUsername("");
+        setEditedPassword("");
+        setEditedUsername("");
 
         return;
       }
@@ -137,7 +137,8 @@ const Profile = ({ user }: { user: User }) => {
       await api.put(`/users/${userId}`, requestBody);
       await getUser();
     } catch (error) {
-      setEditedPassword(""); setEditedUsername("");
+      setEditedPassword("");
+      setEditedUsername("");
       toast.error(doHandleError(error));
     } finally {
       setLoading(false);
@@ -304,30 +305,32 @@ const Profile = ({ user }: { user: User }) => {
             ))}
           </ul>
         </div>
-      </div>
 
-      {showImagePicker && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <button className="close" onClick={() => setShowImagePicker(false)}>
-              &times;
-            </button>
-            <h2>Choose Profile Picture</h2>
-            <div className="imageGrid">
-              {imageUrls.map((imageUrl, index) => (
-                <div className="imageContainer" key={index}>
-                  <img
-                    src={imageUrl}
-                    alt={`Image ${index + 1}`}
-                    className="image"
-                    onClick={() => handleImageSelect(imageUrl)}
-                  />
-                </div>
-              ))}
+        {showImagePicker && (
+          <div className="popup-overlay">
+            <div className="popup">
+              <button
+                className="close"
+                onClick={() => setShowImagePicker(false)}
+              >
+                &times;
+              </button>
+              <h2>Choose Profile Picture</h2>
+              <ul className="horizontal-list">
+                {imageUrls.map((imageUrl, index) => (
+                  <div className="imageContainer" key={index}>
+                    <img
+                      src={imageUrl}
+                      alt={`Image ${index + 1}`}
+                      onClick={() => handleImageSelect(imageUrl)}
+                    />
+                  </div>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };
