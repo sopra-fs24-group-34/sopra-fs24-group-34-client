@@ -34,7 +34,6 @@ const CharacterGrid = ({ persons }) => {
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
   const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
-  const [timePerRound, setTimePerRound] = useState(Number(localStorage.getItem("timePerRound")));
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
@@ -212,34 +211,36 @@ const CharacterGrid = ({ persons }) => {
 
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
-    <BaseContainer className="character-grid">
+    <>
       <ToastContainer containerId="2" {...toastContainerError} />
-      {persons.map((character, idx) => (
-        <Character
-          key={character.id}
-          character={character}
-          visibleCharacter={visibleCharacters[idx]}
-          gameStatus={gameStatus}
-          pickCharacter={() => pickCharacter(character.id, idx)}
-          foldCharacter={() => foldCharacter(idx)}
-          guessCharacter={
-            playerId === currentTurnPlayerId
-              ? () => guessCharacter(character.id, idx)
-              : () => {}
-          }
-          highlight={character.id === selectedCharacter ? true : false}
-          currentTurnPlayerId={currentTurnPlayerId}
-          playerId={playerId}
-        />
-      ))}
-      {
-        <ModalDisplay
-          isOpen={modalState.isOpen}
-          content={modalState.content}
-          handleClose={handleCloseModal}
-        />
-      }
-    </BaseContainer>
+      <BaseContainer className="character-grid">
+        {persons.map((character, idx) => (
+          <Character
+            key={character.id}
+            character={character}
+            visibleCharacter={visibleCharacters[idx]}
+            gameStatus={gameStatus}
+            pickCharacter={() => pickCharacter(character.id, idx)}
+            foldCharacter={() => foldCharacter(idx)}
+            guessCharacter={
+              playerId === currentTurnPlayerId
+                ? () => guessCharacter(character.id, idx)
+                : () => {}
+            }
+            highlight={character.id === selectedCharacter ? true : false}
+            currentTurnPlayerId={currentTurnPlayerId}
+            playerId={playerId}
+          />
+        ))}
+        {
+          <ModalDisplay
+            isOpen={modalState.isOpen}
+            content={modalState.content}
+            handleClose={handleCloseModal}
+          />
+        }
+      </BaseContainer>
+    </>
   );
 };
 

@@ -77,8 +77,7 @@ const Game = () => {
       return newCharacters;
     }); */
       await api.delete(`/games/${gameId}/images/${imageId}`);
-      const response = await api.get(`/games/${gameId}/images`);
-      setCharacters(response.data);
+      fetchCharacters();
     } catch (error) {
       toast.error(doHandleError(error));
     } finally {

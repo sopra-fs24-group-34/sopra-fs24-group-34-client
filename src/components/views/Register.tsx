@@ -65,16 +65,14 @@ const Register = () => {
 
         localStorage.setItem("userToken", response.data.token);
         localStorage.setItem("userId", response.data.id);
-        localStorage.setItem("profilePicture", response.data.profilePicture);
       } else {
-        const profilePicture = localStorage.getItem("profilePicture");
         const requestBody = JSON.stringify({
           id: userId,
           username: username,
           password: password,
           token: userToken,
           status: "ONLINE",
-          profilePicture: profilePicture,
+          profilePicture: null,
         });
 
         await api.put(`/users/${userId}`, requestBody);

@@ -10,12 +10,18 @@
 .menu {
   &.container {
     margin-top: 1em;
-    background: $background;
+    background: $background_transparent;
     padding: 1.5em;
     border-radius: $borderRadius;
     @include alignCenterColumn;
     box-shadow: $dropShadow;
     width: 60%;
+  }
+  .view {
+    background: transparent;
+    padding: 0;
+    border-radius: $borderRadius;
+    width: 100%;
   }
   &.user-list {
     list-style: none;
@@ -106,12 +112,6 @@
     }
   }
   
-}
-.view {
-  background: lighten($background, 5%);
-  padding: 0;
-  border-radius: $borderRadius;
-  width: 100%;
 }
 
 

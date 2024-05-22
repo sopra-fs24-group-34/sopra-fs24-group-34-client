@@ -14,7 +14,6 @@ import Image1 from "images/Cat.jpeg";
 import Image2 from "images/Dog.jpeg";
 import { doHandleError } from "../../../helpers/errorHandler";
 import { toastContainerError } from "../Toasts/ToastContainerError";
-import { Toast } from "react-toastify/dist/components";
 
 const imageUrls = [defaultImage, Image1, Image2];
 // dario: add more images as needed (but first import them)
@@ -62,16 +61,40 @@ Invitation.propTypes = {
   func: PropTypes.func,
 };
 
-const Profile = ({ user }: { user: User }) => {
+const Player = ({ totalwins, totalplayed }: { totalwins: number, totalplayed: number }) => {
+  const winPercentage =
+    totalplayed !== 0 ? (totalwins / totalplayed) * 100 : 0;
+
+  return (
+    <div className="item">
+      <div className="label">Game stats:</div>
+      <div className="stats-value">
+        {totalwins !== null ? totalwins : 0} won
+      </div>
+      <div className="stats-value">
+        {totalplayed !== null ? totalplayed : 0} played
+      </div>
+      <div className="stats-value">
+        {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
+      </div>
+    </div>
+  );
+};
+
+const Profile = () => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
   const userToken = localStorage.getItem("userToken");
   const userId = Number(localStorage.getItem("userId"));
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUsername, setEditedUsername] = useState(user.username);
-  const [editedPassword, setEditedPassword] = useState(user.password);
+  const [initialUsername, setInitialUsername] = useState("");
+  const [initialPassword, setInitialPassword] = useState("");
+  const [editedUsername, setEditedUsername] = useState("");
+  const [editedPassword, setEditedPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
+  const [totalPlayed, setTotalPlayed] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lobbyInvitations, setLobbyInvitations] = useState([]);
@@ -79,11 +102,6 @@ const Profile = ({ user }: { user: User }) => {
 
   useEffect(() => {
     getUser();
-
-    const storedProfilePicture = localStorage.getItem("profilePicture");
-    if (storedProfilePicture) {
-      setProfilePicture(storedProfilePicture);
-    }
   }, []);
 
   useEffect(() => {
@@ -104,6 +122,13 @@ const Profile = ({ user }: { user: User }) => {
     setLoading(true);
     setIsEditing(false);
     try {
+      if (editedUsername.toUpperCase().startsWith("GUEST")) {
+        toast.error("Username cannot begin with 'guest'");
+        setEditedPassword("");
+        setEditedUsername("");
+
+        return;
+      }
       const requestBody = JSON.stringify({
         id: userId,
         username: editedUsername,
@@ -114,7 +139,8 @@ const Profile = ({ user }: { user: User }) => {
       await api.put(`/users/${userId}`, requestBody);
       await getUser();
     } catch (error) {
-      setEditedUsername(user.username);
+      setEditedPassword("");
+      setEditedUsername("");
       toast.error(doHandleError(error));
     } finally {
       setLoading(false);
@@ -126,8 +152,11 @@ const Profile = ({ user }: { user: User }) => {
       setLoading(true);
       const response = await api.get(`/users/${userId}`);
       console.log("GET response: ", response);
-      setEditedUsername(response.data.username);
-      setEditedPassword(response.data.password); //dario: needed, else password field is first time used empty
+      setInitialUsername(response.data.username);
+      setInitialPassword(response.data.password); //dario: needed, else password field is first time used empty
+      setProfilePicture(response.data.profilePicture);
+      setTotalPlayed(response.data.totalplayed);
+      setTotalWins(response.data.totalwins);
       setLoading(false);
     } catch (error) {
       toast.error(doHandleError(error));
@@ -189,8 +218,8 @@ const Profile = ({ user }: { user: User }) => {
 
   return (
     <>
+      <ToastContainer {...toastContainerError} />
       <div className="profile">
-        <ToastContainer {...toastContainerError} />
         <div className="profile-wrapper">
           <div className="container">
             <BaseContainer
@@ -198,21 +227,27 @@ const Profile = ({ user }: { user: User }) => {
               onClick={handleProfilePictureClick}
             >
               <img src={profilePicture} alt="Profile" />
-              {isEditing && <div className="changeTextOverlay">Switch</div>}
+              {isEditing && <div className="overlay">Switch</div>}
             </BaseContainer>
 
             <BaseContainer className="details">
-              <BaseContainer className="item">
+              <BaseContainer className="item" style={{ marginTop: "1em" }}>
                 <div className="label">Username:</div>
                 {isEditing ? (
                   <input
                     className="profile-input"
                     type="text"
+                    placeholder={initialUsername}
                     value={editedUsername}
                     onChange={(e) => setEditedUsername(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isEditing) {
+                        sendEdit();
+                      }
+                    }}
                   />
                 ) : (
-                  <div className="value">{editedUsername}</div>
+                  <div className="value">{initialUsername}</div>
                 )}
               </BaseContainer>
 
@@ -222,12 +257,22 @@ const Profile = ({ user }: { user: User }) => {
                   <input
                     className="profile-input"
                     type="password"
+                    placeholder={initialPassword}
                     value={editedPassword}
                     onChange={(e) => setEditedPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isEditing) {
+                        sendEdit();
+                      }
+                    }}
                   />
                 ) : (
                   <div className="value">********</div>
                 )}
+              </BaseContainer>
+
+              <BaseContainer className="item" style={{ marginBottom: "1em" }}>
+                <Player totalwins={totalWins} totalplayed={totalPlayed}  />
               </BaseContainer>
             </BaseContainer>
           </div>
@@ -236,7 +281,7 @@ const Profile = ({ user }: { user: User }) => {
             <Button
               className="editButton"
               onClick={() => sendEdit()}
-              disabled={!editedUsername || !editedPassword}
+              disabled={!editedUsername.trim() || !editedPassword.trim()}
             >
               Save
             </Button>
@@ -274,30 +319,32 @@ const Profile = ({ user }: { user: User }) => {
             ))}
           </ul>
         </div>
-      </div>
 
-      {showImagePicker && (
-        <div className="popup-overlay">
-          <div className="popup">
-            <button className="close" onClick={() => setShowImagePicker(false)}>
-              &times;
-            </button>
-            <h2>Choose Profile Picture</h2>
-            <div className="imageGrid">
-              {imageUrls.map((imageUrl, index) => (
-                <div className="imageContainer" key={index}>
-                  <img
-                    src={imageUrl}
-                    alt={`Image ${index + 1}`}
-                    className="image"
-                    onClick={() => handleImageSelect(imageUrl)}
-                  />
-                </div>
-              ))}
+        {showImagePicker && (
+          <div className="popup-overlay">
+            <div className="popup">
+              <button
+                className="close"
+                onClick={() => setShowImagePicker(false)}
+              >
+                &times;
+              </button>
+              <h2>Choose Profile Picture</h2>
+              <ul className="horizontal-list">
+                {imageUrls.map((imageUrl, index) => (
+                  <div className="imageContainer" key={index}>
+                    <img
+                      src={imageUrl}
+                      alt={`Image ${index + 1}`}
+                      onClick={() => handleImageSelect(imageUrl)}
+                    />
+                  </div>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };
