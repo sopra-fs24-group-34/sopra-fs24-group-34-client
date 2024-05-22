@@ -61,18 +61,18 @@ Invitation.propTypes = {
   func: PropTypes.func,
 };
 
-const Player = ({ user }: { user: User }) => {
+const Player = ({ totalwins, totalplayed }: { totalwins: number, totalplayed: number }) => {
   const winPercentage =
-    user.totalplayed !== 0 ? (user.totalwins / user.totalplayed) * 100 : 0;
+    totalplayed !== 0 ? (totalwins / totalplayed) * 100 : 0;
 
   return (
     <div className="item">
       <div className="label">Game stats:</div>
       <div className="stats-value">
-        {user.totalwins !== null ? user.totalwins : 0} won
+        {totalwins !== null ? totalwins : 0} won
       </div>
       <div className="stats-value">
-        {user.totalplayed !== null ? user.totalplayed : 0} played
+        {totalplayed !== null ? totalplayed : 0} played
       </div>
       <div className="stats-value">
         {isNaN(winPercentage) ? 0 : winPercentage.toFixed(2)}%
@@ -81,7 +81,7 @@ const Player = ({ user }: { user: User }) => {
   );
 };
 
-const Profile = ({ user }: { user: User }) => {
+const Profile = () => {
   // nedim-j: rewrite to get token & id from menu
   const navigate = useNavigate();
   const userToken = localStorage.getItem("userToken");
@@ -93,6 +93,8 @@ const Profile = ({ user }: { user: User }) => {
   const [editedUsername, setEditedUsername] = useState("");
   const [editedPassword, setEditedPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
+  const [totalPlayed, setTotalPlayed] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lobbyInvitations, setLobbyInvitations] = useState([]);
@@ -153,6 +155,8 @@ const Profile = ({ user }: { user: User }) => {
       setInitialUsername(response.data.username);
       setInitialPassword(response.data.password); //dario: needed, else password field is first time used empty
       setProfilePicture(response.data.profilePicture);
+      setTotalPlayed(response.data.totalplayed);
+      setTotalWins(response.data.totalwins);
       setLoading(false);
     } catch (error) {
       toast.error(doHandleError(error));
@@ -258,7 +262,7 @@ const Profile = ({ user }: { user: User }) => {
               </BaseContainer>
 
               <BaseContainer className="item" style={{ marginBottom: "1em" }}>
-                <Player user={user} />
+                <Player totalwins={totalWins} totalplayed={totalPlayed}  />
               </BaseContainer>
             </BaseContainer>
           </div>
