@@ -62,11 +62,9 @@ const CharacterGrid = ({ persons }) => {
           setGameStatus(data.gameStatus);
           console.log(data);
 
-          if (header === "round0") {
-            if (data.roundNumber === 1) {
-              setGameStatus("GUESSING");
-              setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            }
+          if (header === "round0" && data.roundNumber === 1) {
+            setGameStatus("GUESSING");
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
           }
           //never called
           if (header === "turnUpdate") {
@@ -171,8 +169,7 @@ const CharacterGrid = ({ persons }) => {
   const foldCharacter = (characterIndex) => {
     setVisibleCharacters((prevVisibleCharacters) => {
       const newVisibleCharacters = [...prevVisibleCharacters];
-      newVisibleCharacters[characterIndex] =
-        !newVisibleCharacters[characterIndex];
+      newVisibleCharacters[characterIndex] = !newVisibleCharacters[characterIndex];
 
       return newVisibleCharacters;
     });

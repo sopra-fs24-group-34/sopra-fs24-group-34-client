@@ -10,9 +10,7 @@ import "styles/views/Game.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
 import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
-import { connectWebSocket, disconnectWebSocket, getStompClient } from "./WebSocketService";
+import { disconnectWebSocket, getStompClient, sendMessage, waitForConnection, makeSubscription, cancelSubscription } from "./WebSocketService";
 import { doHandleError } from "../../helpers/errorHandler";
 import { toastContainerError } from "./Toasts/ToastContainerError";
 
@@ -31,25 +29,56 @@ const Game = () => {
   const [stompClient, setStompClient] = useState(getStompClient());
 
   // useEffect to fetch images from DB
-  useEffect(() => {
-    setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
-    const fetchImages = async () => {
-      const stompClient = await connectWebSocket();
-      setLoading(true);
-      try {
-        const response = await api.get(`/games/${gameId}/images`);
-        setCharacters(response.data);
-      } catch (error) {
-        toast.error(doHandleError(error));
-      } finally {
-        setLoading(false);
-      }
+  const fetchCharacters = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/games/${gameId}/images`);
+      setCharacters(response.data);
+    } catch (error) {
+      toast.error(doHandleError(error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
+
+  useEffect(() => {
+    const initializeWebSocket = async () => {
+
+      setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
+      await fetchCharacters();
+      await waitForConnection();
+
+      const callback = (message) => {
+        const body = JSON.parse(message.body);
+        handleIncomingMessage(body);
+      };
+      const subscription = await makeSubscription(`/games/${gameId}`, callback);
+
+      return () => {
+        cancelSubscription(`/games/${gameId}`, subscription);
+        disconnectWebSocket();
+      };
     };
 
-    fetchImages();
+    initializeWebSocket();
   }, []);
 
+
+  const handleIncomingMessage = (body) => {
+    const eventType = body["event-type"];
+
+    if (eventType === "acceptCharacters") {
+      fetchCharacters();
+      setHasAccepted(true);
+    }
+  };
+  const handleAcceptCharacters = () => {
+    const gameId = String(localStorage.getItem("gameId"));
+    if (stompClient) {
+      sendMessage("/app/acceptCharacters", JSON.stringify({ gameId }));
+    }
+  };
   // function to display an overlay which should replace a character
   const ReplaceCharacter = (idx, id) => {
     return (
@@ -107,6 +136,7 @@ const Game = () => {
                 <img
                   className="character container img"
                   src={character.url}
+                  alt={`character-${idx}`}
                 ></img>
                 {isCreator && (
                   <div className="character overlay">
@@ -118,9 +148,10 @@ const Game = () => {
           </div>
           <button
             className="accept-character-button"
-            onClick={() => setHasAccepted(true)}
+            onClick={handleAcceptCharacters}
+            disabled={!isCreator}
           >
-            Accept characters
+            {isCreator ? "Accept characters" :"Waiting for host to accept characters"}
           </button>
         </>
       )}
