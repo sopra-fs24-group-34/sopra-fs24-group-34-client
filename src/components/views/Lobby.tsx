@@ -72,7 +72,7 @@ const LobbyPage = () => {
   const [isCreator, setIsCreator] = useState(false);
   const [playersInLobby, setPlayers] = useState(null);
   const [invitableFriends, setInvitableFriends] = useState([]);
-  const [invitedFriend, setInvitedFriend] = useState("");
+  const [reload, setReload] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
   const [maxStrikes, setMaxStrikes] = useState(3);
@@ -200,6 +200,19 @@ const LobbyPage = () => {
     }
   }
 
+  useEffect(() => {
+    const fetchInvitableFriends = async () => {
+      try {
+        const response = await api.get(`users/${userId}/friends/online`);
+        console.log("GET friends: ", response);
+        setInvitableFriends(response.data);
+      } catch (error) {
+        toast.error(doHandleError(error), { containerId: "2" });
+      }
+    };
+    fetchInvitableFriends();
+  }, [reload]);
+
   //Set players to render
   useEffect(() => {
     async function loadPlayers() {
@@ -221,20 +234,10 @@ const LobbyPage = () => {
           </ul>
         );
         setPlayers(playersComponent);
+        setReload(!reload);
       }
     }
-
-    const fetchInvitableFriends = async () => {
-      try {
-        const response = await api.get(`users/${userId}/friends/online`);
-        console.log("GET friends: ", response);
-        setInvitableFriends(response.data);
-      } catch (error) {
-        toast.error(doHandleError(error), { containerId: "2" });
-      }
-    };
     loadPlayers();
-    fetchInvitableFriends();
   }, [users]);
 
   async function handleReturn() {
@@ -327,12 +330,7 @@ const LobbyPage = () => {
         return (
           <Button
             className="lobby button"
-            disabled={
-              !(
-                0 < Number(maxStrikes) &&
-                Number(maxStrikes) < 11
-              )
-            }
+            disabled={!(0 < Number(maxStrikes) && Number(maxStrikes) < 11)}
             onClick={() => handleStart()}
           >
             Start Game
@@ -450,7 +448,7 @@ const LobbyPage = () => {
           <li>
             <BaseContainer className="friends-container">
               <h1>Invitable Friends</h1>
-              <ul className="list">
+              {isCreator ? (<ul className="list">
                 {invitableFriends.map((friend) => (
                   <Friend
                     key={friend.friendId}
@@ -459,7 +457,10 @@ const LobbyPage = () => {
                     func={inviteFriend}
                   />
                 ))}
-              </ul>
+              </ul>) : (
+                <p>Only the host can invite friends</p>
+              )}
+              
             </BaseContainer>
           </li>
         </ul>
