@@ -127,13 +127,12 @@ const Friends = () => {
   };
 
   return (
-    <BaseContainer className="friends">
+    <div className="friends">
       <ToastContainer containerId="1" {...toastContainerError} />
       <ToastContainer containerId="2" {...toastContainerSuccess} />
       <div className="content-wrapper">
-        <BaseContainer
+        <div
           className="friends-container"
-          style={{ backgroundColor: "rgba(255, 224, 178, 0.5)" }}
         >
           <h1 className="h1">Friends</h1>
           <ul className="list">
@@ -161,11 +160,10 @@ const Friends = () => {
               </div>
             ))}
           </ul>
-        </BaseContainer>
+        </div>
 
-        <BaseContainer
-          className="friends-container"
-          style={{ backgroundColor: "rgba(198, 226, 255, 0.5)" }}
+        <div
+          className="requests-container"
         >
           <h1 className="h1">Friend requests</h1>
           <ul className="list">
@@ -217,7 +215,7 @@ const Friends = () => {
                 )
             )}
           </ul>
-        </BaseContainer>
+        </div>
       </div>
 
       <div
@@ -238,7 +236,7 @@ const Friends = () => {
           Send Friend Request
         </Button>
       </div>
-    </BaseContainer>
+    </div>
   );
 };
 

@@ -55,14 +55,17 @@ const Leaderboard = () => {
     fetchData();
   }, []);
 
-  // experimental
-  const handleSort = (criteria: string) => {
-    const sortedUsers = [...users].sort((a, b) => {
-      if (a[criteria] < b[criteria]) return -1;
-      if (a[criteria] > b[criteria]) return 1;
 
-      return 0;
-    });
+  const handleSort = (criteria: string) => {
+    let sortedUsers = [...users];
+  
+    if (criteria === "username") {
+      sortedUsers.sort((a, b) => a.username.localeCompare(b.username));
+    } else if (criteria === "totalwins") {
+      sortedUsers.sort((a, b) => b.totalwins - a.totalwins);
+    } else if (criteria === "totalplayed") {
+      sortedUsers.sort((a, b) => b.totalplayed - a.totalplayed);
+    }
 
     setUsers(sortedUsers);
     setSelectedCriteria(criteria);
@@ -73,23 +76,29 @@ const Leaderboard = () => {
   if (users) {
     content = (
       <div className="leaderboard container">
-        <div className="sorting">
-          <select
-            value={selectedCriteria}
-            onChange={(e) => handleSort(e.target.value)}
-          >
-            <option value="username">Sort by Username</option>
-            <option value="totalwins">Sort by Total Wins</option>
-            <option value="totalplayed">Sort by Total Games Played</option>
-          </select>
+        <div className="title-row">
+          <div className="header">Top players</div>
+          <div className="sorting">
+            <select
+              value={selectedCriteria}
+              onChange={(e) => handleSort(e.target.value)}
+            >
+              <option value="username">Sort by Username</option>
+              <option value="totalwins">Sort by Total Wins</option>
+              <option value="totalplayed">Sort by Total Games Played</option>
+            </select>
+          </div>
+          <div className="titles">Total wins</div>
+          <div className="titles">Games played</div>
+          <div className="titles">Win percentage</div>
         </div>
-        <ul className="leaderboard user-list">
+        <div className="leaderboard user-list">
           {users.map((user: User) => (
-            <li key={user.id}>
+            <li style={{ borderRight: 0 }} key={user.id}>
               <Player user={user} />
             </li>
           ))}
-        </ul>
+        </div>
       </div>
     );
   }

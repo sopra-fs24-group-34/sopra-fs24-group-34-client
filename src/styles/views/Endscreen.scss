@@ -9,70 +9,110 @@
 
 .endscreen {
   &.container {
-    background: $background;
+    margin-top: 1em;
+    background: $background_transparent;
     padding: 1.5em;
     border-radius: $borderRadius;
     @include centerColumn;
     box-shadow: $dropShadow;
     width: 40%;
-  }
-  .players {
-    padding: 0;
-    border-radius: $borderRadius;
-    width: 100%;
-    flex-direction: column;
-    
-    .user-list {
+
+    .gameresult {
       font-family: $fontNormal;
+      font-size: 2.5em;
+      font-weight: 500;
+    }
+
+    .players {
+      padding: 0;
+      border-radius: $borderRadius;
+      width: 100%;
+      flex-direction: column;
+
+      .user-list {
+        font-family: $fontNormal;
         list-style: none;
         padding-left: 0;
         li {
-            margin-top: 10px;
-          }
+          margin-top: 10px;
+        }
       }
       .user-item {
         @include centerColumn;
       }
-}
-  
-  & p,h2 {
-    margin: 0.5em 0;
-  }
-  .buttonbar {
-    display: flex;
-    //flex-direction: row;
-    width: 100%;
-  }
-  .buttonlist {
-    width: 100%;
-    //margin: 1.5em;
-    border-radius: $borderRadius;
-    @include centerColumn;
-    ul {
+    }
+
+    & p,
+    h2 {
+      margin: 0.5em 0;
+    }
+    .buttonbar {
+      display: flex;
+      //flex-direction: row;
+      width: 100%;
+    }
+    .buttonlist {
+      width: 100%;
+      //margin: 1.5em;
+      border-radius: $borderRadius;
+      @include centerColumn;
+      ul {
         width: 100%;
         margin: 0;
         list-style: none;
         padding: 0;
-      
-      li {
-        margin-top: 1em;
-        margin-bottom: 1em;
+
+        li {
+          margin-top: 1em;
+          margin-bottom: 1em;
+          flex: 1;
+          //width: 100%;
+        }
+      }
+    }
+
+    .player {
+      &.container {
+        background: $background_focus_white;
+        padding: 10px;
+        border-radius: $borderRadius;
+        display: flex;
+        align-items: center;
         flex: 1;
-        //width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        color: $textColor;
+      }
+      &.username {
+        font-weight: 500;
+        color: $accent;
+        width: 50%;
+      }
+      .result {
+        &.won {
+          color: darkgreen;
+        }
+
+        &.lost {
+          color: red;
+        }
+
+        &.tied {
+          color: blue;
+        }
       }
     }
   }
-  
-}
-.view {
-  background: lighten($background, 5%);
-  padding: 0;
-  border-radius: $borderRadius;
-  width: 100%;
-
+  .view {
+    background: lighten($background, 5%);
+    padding: 0;
+    border-radius: $borderRadius;
+    width: 100%;
   }
 
-.buttons {
+  .buttons {
     //flex:1;
-    width:100%;
+    width: 100%;
+  }
 }

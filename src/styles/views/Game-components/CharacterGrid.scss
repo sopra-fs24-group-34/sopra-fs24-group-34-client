@@ -7,7 +7,7 @@
   grid-template-rows: repeat(5, 1fr);
   border-radius: $borderRadius;
   border-radius: 0.75em;
-  background-color: transparentize(white, 0.2);
+  background: $background_transparent;
   transition: opacity 0.5s ease, transform 0.5s ease;
   box-shadow: $dropShadow;
   padding: 1em;

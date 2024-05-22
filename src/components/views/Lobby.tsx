@@ -24,6 +24,7 @@ import {
 import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
 import { toastContainerError } from "./Toasts/ToastContainerError";
 import { doHandleError } from "helpers/errorHandler";
+import { changeStatus } from "./Menu";
 
 const Player = ({ user }: { user: User }) => (
   <div className="player container">
@@ -75,7 +76,6 @@ const LobbyPage = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [userStatus, setUserStatus] = useState("INLOBBY_PREPARING");
   const [maxStrikes, setMaxStrikes] = useState(3);
-  const [timePerRound, setTimePerRound] = useState(30);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
 
@@ -94,7 +94,6 @@ const LobbyPage = () => {
           if (header === "user-joined") {
             console.log("Invited User: ", data);
             setUsers((prevUsers) => [...prevUsers, data]);
-            
           } else if (header === "game-started") {
             localStorage.setItem("gameId", data.gameId);
             //nedim-j: should be fine? small limitation, but the following requests require authentication header anyway
@@ -107,15 +106,15 @@ const LobbyPage = () => {
             }
 
             localStorage.setItem("maxStrikes", data.maxStrikes);
-            localStorage.setItem("timePerRound", data.timePerRound);
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/pregame");
 
           } else if (header === "user-left") {
             console.log("User left: ", data.id);
-            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
-
+            setUsers((prevUsers) =>
+              prevUsers.filter((user) => user.id !== data.id)
+            );
           } else if (header === "user-statusUpdate") {
             setUsers((prevUsers) => {
               const updatedUsers = [...prevUsers];
@@ -128,11 +127,9 @@ const LobbyPage = () => {
 
               return updatedUsers;
             });
-
           } else if (header === "lobby-closed") {
             console.log(data);
             handleReturn();
-
           } else {
             console.log("Unknown message from WS");
           }
@@ -200,7 +197,7 @@ const LobbyPage = () => {
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
       navigate("/menu");
-      toast.error(doHandleError(error), { containerId: "2" })
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   }
 
@@ -230,7 +227,7 @@ const LobbyPage = () => {
 
     const fetchInvitableFriends = async () => {
       try {
-        const response = await api.get(`users/${userId}/friends`);
+        const response = await api.get(`users/${userId}/friends/online`);
         console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
@@ -250,6 +247,7 @@ const LobbyPage = () => {
       localStorage.removeItem("lobbyId");
       localStorage.removeItem("isCreator");
       localStorage.removeItem("users");
+      await changeStatus("online");
       disconnectWebSocket();
       navigate("/menu");
     } else {
@@ -275,7 +273,6 @@ const LobbyPage = () => {
           creator_userid: lobby.data.creator_userid,
           invited_userid: lobby.data.invited_userid,
           maxStrikes: maxStrikes,
-          timePerRound: timePerRound,
         };
         const auth = {
           id: userId,
@@ -334,9 +331,7 @@ const LobbyPage = () => {
             disabled={
               !(
                 0 < Number(maxStrikes) &&
-                Number(maxStrikes) < 11 &&
-                29 < Number(timePerRound) &&
-                Number(timePerRound) < 301
+                Number(maxStrikes) < 11
               )
             }
             onClick={() => handleStart()}
@@ -396,7 +391,7 @@ const LobbyPage = () => {
 
   return (
     <BaseContainer className="lobby container">
-      <BaseContainer className="view">
+      <div className="view">
         <ToastContainer containerId="1" {...toastContainerSuccess} />
         <ToastContainer containerId="2" {...toastContainerError} />
         <ul>
@@ -404,16 +399,6 @@ const LobbyPage = () => {
             <BaseContainer className="settings">
               <h1>Settings</h1>
               <div>
-                <p>Time per round in seconds (30 - 300):</p>
-                <input
-                  className="input"
-                  type="number"
-                  min="30"
-                  max="300"
-                  value={timePerRound}
-                  readOnly={!isCreator}
-                  onChange={(e) => setTimePerRound(e.target.value)} //add function
-                />
                 <p>Number of Strikes (1 - 10):</p>
                 <input
                   className="input"
@@ -429,10 +414,8 @@ const LobbyPage = () => {
                     className="lobby button"
                     onClick={() => {
                       setMaxStrikes(3);
-                      setTimePerRound(30);
                     }}
                   >
-                    {/**add functionality */}
                     Reset settings
                   </Button>
                 )}
@@ -459,10 +442,7 @@ const LobbyPage = () => {
               </BaseContainer>
               <div className="button-row">
                 {renderActionButtons()}
-                <Button
-                  className="lobby button bottom"
-                  onClick={() => handleReturn()}
-                >
+                <Button className="lobby button" onClick={() => handleReturn()}>
                   Return to Menu
                 </Button>
               </div>
@@ -484,7 +464,7 @@ const LobbyPage = () => {
             </BaseContainer>
           </li>
         </ul>
-      </BaseContainer>
+      </div>
       {showExplanation && (
         <LobbyGameExplanation func={() => setShowExplanation()} />
       )}
