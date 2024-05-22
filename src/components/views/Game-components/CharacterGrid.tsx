@@ -26,28 +26,38 @@ import {
 import ModalTimeout from "./modalContent/ModalTimeout";
 import { toastContainerError } from "../Toasts/ToastContainerError";
 
-const CharacterGrid = ({ persons, updateInstruction }) => {
+
+const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstruction}) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String>(null);
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
   const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
-  const [visibleCharacters, setVisibleCharacters] = useState<Boolean[]>(
-    persons.map((person) => true)
-  );
+  const [visibleCharacters, setVisibleCharacters] = useState([]);
+
+  console.log(persons);
+  console.log(visibleCharacters);
+
   const [modalState, setModalState] = useState({
     isOpen: true,
     content: <ModalFirstInstructions />,
   });
   let timeoutThreshold = 10;
 
+
+
   useEffect(() => {
     setSelectedCharacter(localStorage.getItem("selectedCharacter"));
+
+    // Update visibleCharacters when persons changes
+    if (persons.length > 0) {
+      setVisibleCharacters(Array(persons.length).fill(true));  // Initialize as visible
+    }
     async function ws() {
       if (playerId && gameId) {
         await waitForConnection();
@@ -67,40 +77,41 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
               setCurrentTurnPlayerId(data.currentTurnPlayerId);
             }
           }
-          //never called
-          if (header === "turnUpdate") {
+          if (header === "turn-update") {
             console.log("Turn update: ", data);
-            setCurrentTurnPlayerId(data);
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            setHasSentMessage(false);
           }
 
           if (header === "round-update") {
-            setCurrentTurnPlayerId(data.roundDTO.currentTurnPlayerId);
-            setRoundNumber(data.roundDTO.roundNumber);
-            setStrikes(data.strikes);
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            setRoundNumber(data.roundNumber);
+            setHasSentMessage(false);
+          }
 
-            if (data.gameStatus === "END") {
-              if ((data.guess === true && data.playerId === playerId) || (data.guess === false && data.playerId !== playerId)) {
-                localStorage.setItem("result", "won");
-              } else {
-                localStorage.setItem("result", "lost");
-              }
-            
-              cancelGameSubscriptions();
-              //cancelSubscription(`/games/${gameId}`, subscription);
-              navigate("/endscreen");
+
+          if (data.gameStatus === "END") {
+            if ((data.guess === true && data.playerId === playerId) || (data.guess === false && data.playerId !== playerId)) {
+              localStorage.setItem("result", "won");
+            } else {
+              localStorage.setItem("result", "lost");
             }
 
-            if (
-              data.guess === false &&
-              data.gameStatus !== "END" &&
-              data.playerId === playerId &&
-              data.strikes !== 0
-            ) {
-              setModalState({
-                isOpen: true,
-                content: <ModalGuessInformation strikes={data.strikes} maxStrikes={maxStrikes} />,
-              });
-            }
+            cancelGameSubscriptions();
+            //cancelSubscription(`/games/${gameId}`, subscription);
+            navigate("/endscreen");
+          }
+
+          if (
+            data.guess === false &&
+            data.gameStatus !== "END" &&
+            data.playerId === playerId &&
+            data.strikes !== 0
+          ) {
+            setModalState({
+              isOpen: true,
+              content: <ModalGuessInformation strikes={data.strikes} maxStrikes={maxStrikes} />,
+            });
           } else if (header === "user-timeout") {
             //make timeout-modal with timer running down
             timeoutThreshold = data;
@@ -138,7 +149,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
       }
     }
     ws();
-  }, []);
+  }, [persons]);
 
   async function pickCharacter(characterId, idx) {
     try {
@@ -185,6 +196,11 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
 
       return;
     }
+    if (hasSentMessage) {  // check if a message has been sent
+      alert("You cannot make a guess after sending a message!");
+
+      return;
+    }
     const guessPostDTO = {
       gameid: gameId,
       playerid: playerId,
@@ -205,6 +221,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
   if (!persons) {
     return <div>Loading...</div>;
   }
+  console.log(visibleCharacters);
 
   const handleCloseModal = () => {
     setModalState({ isOpen: false, content: null });
@@ -224,13 +241,14 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
             pickCharacter={() => pickCharacter(character.id, idx)}
             foldCharacter={() => foldCharacter(idx)}
             guessCharacter={
-              playerId === currentTurnPlayerId
+              playerId ===  currentTurnPlayerId && !hasSentMessage
                 ? () => guessCharacter(character.id, idx)
                 : () => {}
             }
             highlight={character.id === selectedCharacter ? true : false}
             currentTurnPlayerId={currentTurnPlayerId}
             playerId={playerId}
+            hasSentMessage={hasSentMessage}
           />
         ))}
         {
@@ -248,6 +266,8 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
   updateInstruction: PropTypes.func,
+  hasSentMessage: PropTypes.boolean,
+  setHasSentMessage: PropTypes.func,
 };
 
 export default CharacterGrid;

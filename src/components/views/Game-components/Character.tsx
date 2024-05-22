@@ -13,6 +13,7 @@ const Character = ({
   highlight,
   currentTurnPlayerId,
   playerId,
+  hasSentMessage,
 }) => {
   // functionality to display an overlay on top of character
   const interactCharacter = () => {
@@ -39,15 +40,14 @@ const Character = ({
         >
           Fold
         </button>
-        {playerId === currentTurnPlayerId && (
-          <button
-            className="character-button"
-            onClick={() => guessCharacter()}
-            style={{ color: "pink" }}
-          >
-          Guess
-          </button>
-        )}
+        <button
+          className="character-button"
+          onClick={() => guessCharacter()}
+          style={{ color: "pink" }}
+          disabled={hasSentMessage || playerId !== currentTurnPlayerId}
+        >
+          {hasSentMessage || playerId !== currentTurnPlayerId ? "" :"Guess"}
+        </button>
       </div>
     );
   };
@@ -69,7 +69,7 @@ const Character = ({
 
 Character.propTypes = {
   character: PropTypes.object,
-  visibleCharacter: PropTypes.func,
+  visibleCharacter: PropTypes.boolean,
   pickCharacter: PropTypes.func,
   foldCharacter: PropTypes.func,
   guessCharacter: PropTypes.func,
@@ -77,6 +77,7 @@ Character.propTypes = {
   highlight: PropTypes.boolean,
   currentTurnPlayerId: PropTypes.number,
   playerId: PropTypes.number,
+  hasSentMessage: PropTypes.boolean,
 };
 
 export default Character;

@@ -23,6 +23,7 @@ const Game = () => {
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [Instructions, setInstructions] = useState<String>("Pick a character");
+  const [hasSentMessage, setHasSentMessage] = useState(false);  // state for the charactergrid/chatlog
 
   const fetchImages = async () => {
     const stompClient = await connectWebSocket();
@@ -54,9 +55,15 @@ const Game = () => {
       <div className="game">
         <CharacterGrid
           persons={characters}
+          hasSentMessage={hasSentMessage}  // pass down the state
+          setHasSentMessage={setHasSentMessage}  // pass down the state setter
           updateInstruction={setInstructions}
         />
-        <ChatLog updateInstruction={setInstructions} />
+        <ChatLog
+          hasSentMessage={hasSentMessage}  // pass down the state
+          setHasSentMessage={setHasSentMessage}  // pass down the state setter
+          updateInstruction={setInstructions}
+        />
       </div>
     </BaseContainer>
   );
