@@ -228,7 +228,7 @@ const LobbyPage = () => {
 
     const fetchInvitableFriends = async () => {
       try {
-        const response = await api.get(`users/${userId}/friends`);
+        const response = await api.get(`users/${userId}/friends/online`);
         console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
