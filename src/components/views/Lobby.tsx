@@ -95,7 +95,6 @@ const LobbyPage = () => {
           if (header === "user-joined") {
             console.log("Invited User: ", data);
             setUsers((prevUsers) => [...prevUsers, data]);
-            
           } else if (header === "game-started") {
             localStorage.setItem("gameId", data.gameId);
             //nedim-j: should be fine? small limitation, but the following requests require authentication header anyway
@@ -112,11 +111,11 @@ const LobbyPage = () => {
 
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
-
           } else if (header === "user-left") {
             console.log("User left: ", data.id);
-            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
-
+            setUsers((prevUsers) =>
+              prevUsers.filter((user) => user.id !== data.id)
+            );
           } else if (header === "user-statusUpdate") {
             setUsers((prevUsers) => {
               const updatedUsers = [...prevUsers];
@@ -129,11 +128,9 @@ const LobbyPage = () => {
 
               return updatedUsers;
             });
-
           } else if (header === "lobby-closed") {
             console.log(data);
             handleReturn();
-
           } else {
             console.log("Unknown message from WS");
           }
@@ -201,7 +198,7 @@ const LobbyPage = () => {
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
       navigate("/menu");
-      toast.error(doHandleError(error), { containerId: "2" })
+      toast.error(doHandleError(error), { containerId: "2" });
     }
   }
 
@@ -262,7 +259,7 @@ const LobbyPage = () => {
     }
   }
 
-    async function handleStart() {
+  async function handleStart() {
     const lobbyId = localStorage.getItem("lobbyId");
     const userId = localStorage.getItem("userId");
     const userToken = localStorage.getItem("userToken");
@@ -460,10 +457,7 @@ const LobbyPage = () => {
               </BaseContainer>
               <div className="button-row">
                 {renderActionButtons()}
-                <Button
-                  className="lobby button"
-                  onClick={() => handleReturn()}
-                >
+                <Button className="lobby button" onClick={() => handleReturn()}>
                   Return to Menu
                 </Button>
               </div>

@@ -21,7 +21,7 @@ const Player = ({
   result: string;
   isCurrentUser: boolean;
 }) => {
-  let resultClass = '';
+  let resultClass = "";
   if (isCurrentUser) {
     resultClass = result;
   } else {
