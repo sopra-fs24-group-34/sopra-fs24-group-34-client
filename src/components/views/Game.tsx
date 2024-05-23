@@ -29,7 +29,7 @@ const Game = () => {
     isOpen: false,
     content: <ModalFirstInstructions />,
   });
-  const [hasSentMessage, setHasSentMessage] = useState(false);  // state for the charactergrid/chatlog
+  const [hasSentMessage, setHasSentMessage] = useState(false); // state for the charactergrid/chatlog
 
   const fetchImages = async () => {
     const stompClient = await connectWebSocket();
@@ -68,22 +68,20 @@ const Game = () => {
           <h1>Current Instruction: {Instructions}</h1>
         </div>
         <Button className="help-button" onClick={() => handleOpenModal()}>
-          ?
+          &#63;
         </Button>
       </div>
       <div className="game">
         <CharacterGrid
           persons={characters}
-          hasSentMessage={hasSentMessage}  // pass down the state
-          setHasSentMessage={setHasSentMessage}  // pass down the state setter
+          hasSentMessage={hasSentMessage} // pass down the state
+          setHasSentMessage={setHasSentMessage} // pass down the state setter
           updateInstruction={setInstructions}
           updateModal={setModalState}
         />
         <ChatLog
-          hasSentMessage={hasSentMessage}  // pass down the state
-          setHasSentMessage={setHasSentMessage}  // pass down the state setter
-          updateInstruction={setInstructions}
-          
+          hasSentMessage={hasSentMessage} // pass down the state
+          setHasSentMessage={setHasSentMessage} // pass down the state setter
         />
         <ModalDisplay
           isOpen={modalState.isOpen}

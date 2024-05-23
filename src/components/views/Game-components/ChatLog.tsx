@@ -28,12 +28,11 @@ QuestionField.propTypes = {
 };
 
 
-const ChatLog = ({ hasSentMessage, setHasSentMessage, updateInstruction }) => {
+const ChatLog = ({ hasSentMessage, setHasSentMessage }) => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
-  const [isQuestion, setIsQuestion] = useState<Boolean>(true);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -110,34 +109,6 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage, updateInstruction }) => {
     );
   };
 
-  // Creates the button-answer field as functional component
-  const BoolField = () => {
-    return (
-      <div>
-        <button
-          className="chat-log-send-button"
-          style={{ backgroundColor: "green" }}
-          onClick={() => {
-            setPrompt("yes");
-            updateChat();
-          }}
-        >
-          Yes
-        </button>
-        <button
-          className="chat-log-send-button"
-          style={{ backgroundColor: "red" }}
-          onClick={() => {
-            setPrompt("no");
-            updateChat();
-          }}
-        >
-          No
-        </button>
-      </div>
-    );
-  };
-
   return (
     <BaseContainer className="game-log">
       <BaseContainer className="game-log chat">
@@ -155,7 +126,7 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage, updateInstruction }) => {
           }
         }}
       >
-        {isQuestion ? QField() : BoolField()}
+        {QField()}
       </div>
     </BaseContainer>
   );
