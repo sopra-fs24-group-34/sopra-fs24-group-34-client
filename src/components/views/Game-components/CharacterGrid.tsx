@@ -42,8 +42,13 @@ const CharacterGrid = ({
     Number(localStorage.getItem("maxStrikes"))
   );
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
-  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [gameStatus, setGameStatus] = useState("CHOOSING");
+  const storedCharacterId = Number(localStorage.getItem("selectedCharacter"));
+  const [selectedCharacter, setSelectedCharacter] = useState(
+    !isNaN(storedCharacterId) && storedCharacterId !== 0
+      ? storedCharacterId
+      : null
+  );
   const [visibleCharacters, setVisibleCharacters] = useState([]);
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -52,124 +57,98 @@ const CharacterGrid = ({
   let timeoutThreshold = 10;
 
   useEffect(() => {
-    setSelectedCharacter(localStorage.getItem("selectedCharacter"));
-
     async function ws() {
-      if (playerId && gameId) {
-        await waitForConnection();
+      await waitForConnection();
 
-        const callback = function (message) {
-          const body = JSON.parse(message.body);
-          const header = body["event-type"];
-          console.log("Header: ", header);
-          const data = body.data;
+      const callback = function (message) {
+        const body = JSON.parse(message.body);
+        const header = body["event-type"];
+        console.log("Header: ", header);
+        const data = body.data;
 
-          setGameStatus(data.gameStatus);
-          console.log(data);
+        console.log("Data: ", data);
 
-          if (header === "round0") {
-            if (data.roundNumber === 1) {
-              setGameStatus("GUESSING");
-              setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            }
-          }
-          if (header === "turn-update") {
-            console.log("Turn update: ", data);
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setHasSentMessage(false);
-          }
-
-          if (header === "round-update") {
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setRoundNumber(data.roundNumber);
-            setHasSentMessage(false);
-          }
-
-          if (data.gameStatus === "END") {
-            if (
-              (data.guess === true && data.playerId === playerId) ||
-              (data.guess === false && data.playerId !== playerId)
-            ) {
-              localStorage.setItem("result", "won");
-            } else {
-              localStorage.setItem("result", "lost");
-            }
-
-            cancelGameSubscriptions();
-            //cancelSubscription(`/games/${gameId}`, subscription);
-            navigate("/endscreen");
-          }
-
+        if (data.gameStatus === "END") {
           if (
-            data.guess === false &&
-            data.gameStatus !== "END" &&
-            data.playerId === playerId &&
-            data.strikes !== 0
+            (data.guess === true && data.playerId === playerId) ||
+            (data.guess === false && data.playerId !== playerId)
           ) {
-            updateModal({
-              isOpen: false,
-              content: (
-                <ModalGuessInformation
-                  strikes={data.strikes}
-                  maxStrikes={maxStrikes}
-                />
-              ),
-            });
-            if (
-              data.guess === false &&
-              data.gameStatus !== "END" &&
-              data.playerId === playerId &&
-              data.strikes !== 0
-            ) {
-              updateModal({
-                isOpen: false,
-                content: (
-                  <ModalGuessInformation
-                    strikes={data.strikes}
-                    maxStrikes={maxStrikes}
-                  />
-                ),
-              });
-            }
-          } else if (header === "user-timeout") {
-            //make timeout-modal with timer running down
-            timeoutThreshold = data;
-            setModalState({
-              isOpen: true,
-              content: <ModalTimeout timeoutThreshold={timeoutThreshold} />,
-            });
-          } else if (header === "user-rejoined") {
-            //close modal and stop timer
-            setModalState({ isOpen: false, content: null });
-          } else if (header === "user-disconnected") {
-            //close game, set result as tied, navigate to endscreen
-            localStorage.setItem("result", "tied");
-            cancelGameSubscriptions();
-            //cancelSubscription(`/games/${gameId}`, subscription);
-            navigate("/endscreen");
-          } else if (header === "update-game-state") {
-            console.log("Reconnected: ", data);
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setRoundNumber(data.roundNumber);
+            localStorage.setItem("result", "won");
+          } else {
+            localStorage.setItem("result", "lost");
           }
-        };
 
-        const subscription = await makeSubscription(
-          `/games/${gameId}`,
-          callback
-        );
+          cancelGameSubscriptions();
+          navigate("/endscreen");
+        } else if (
+          data.guess === false &&
+          data.gameStatus !== "END" &&
+          data.playerId === playerId &&
+          data.strikes !== 0
+        ) {
+          updateModal({
+            isOpen: false,
+            content: (
+              <ModalGuessInformation
+                strikes={data.strikes}
+                maxStrikes={maxStrikes}
+              />
+            ),
+          });
+        } else if (header === "round0") {
+          if (data.roundNumber === 1) {
+            setGameStatus("GUESSING");
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          }
+        } else if (header === "turn-update") {
+          console.log("Turn update: ", data);
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setHasSentMessage(false);
+        } else if (header === "round-update") {
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setRoundNumber(data.roundNumber);
+          setHasSentMessage(false);
+        } else if (header === "user-timeout") {
+          //make timeout-modal with timer running down
+          timeoutThreshold = data;
+          setModalState({
+            isOpen: true,
+            content: <ModalTimeout timeoutThreshold={timeoutThreshold} />,
+          });
+        } else if (header === "user-rejoined") {
+          //close modal and stop timer
+          setModalState({ isOpen: false, content: null });
+        } else if (header === "user-disconnected") {
+          //close game, set result as tied, navigate to endscreen
+          localStorage.setItem("result", "tied");
+          cancelGameSubscriptions();
+          //cancelSubscription(`/games/${gameId}`, subscription);
+          navigate("/endscreen");
+        } else if (header === "update-game-state") {
+          console.log("Reconnected: ", data);
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setRoundNumber(data.roundNumber);
+          if (data.roundNumber >= 1 || selectedCharacter !== null) {
+            setGameStatus("GUESSING");
+          }
+        }
+      };
 
-        return () => {
-          cancelSubscription(`/games/${gameId}`, subscription);
-        };
-      }
+      const subscription = await makeSubscription(`/games/${gameId}`, callback);
     }
-
+    console.log("Gamestate: ", gameStatus);
     // Update visibleCharacters when persons changes
-    if (persons.length > 0) {
+    if (persons.length > 0 && playerId && gameId) {
+      console.log("Selected character: ", selectedCharacter);
       setVisibleCharacters(Array(persons.length).fill(true)); // Initialize as visible
       ws();
     }
+
+    /*
+    return () => {
+      cancelSubscription(`/games/${gameId}`, subscription);
+    };
+    */
   }, [persons]);
 
   async function pickCharacter(characterId, idx) {
