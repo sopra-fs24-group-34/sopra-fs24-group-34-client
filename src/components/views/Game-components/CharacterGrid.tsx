@@ -26,14 +26,16 @@ import {
 import ModalTimeout from "./modalContent/ModalTimeout";
 import { toastContainerError } from "../Toasts/ToastContainerError";
 
-const CharacterGrid = ({ persons, updateInstruction }) => {
+const CharacterGrid = ({ persons, updateInstruction, updateModal }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<String>(null);
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
-  const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
+  const [maxStrikes, setMaxStrikes] = useState(
+    Number(localStorage.getItem("maxStrikes"))
+  );
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
   const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const [selectedCharacter, setSelectedCharacter] = useState(null);
@@ -41,7 +43,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
     persons.map((person) => true)
   );
   const [modalState, setModalState] = useState({
-    isOpen: true,
+    isOpen: false,
     content: <ModalFirstInstructions />,
   });
   let timeoutThreshold = 10;
@@ -79,12 +81,15 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
             setStrikes(data.strikes);
 
             if (data.gameStatus === "END") {
-              if ((data.guess === true && data.playerId === playerId) || (data.guess === false && data.playerId !== playerId)) {
+              if (
+                (data.guess === true && data.playerId === playerId) ||
+                (data.guess === false && data.playerId !== playerId)
+              ) {
                 localStorage.setItem("result", "won");
               } else {
                 localStorage.setItem("result", "lost");
               }
-            
+
               cancelGameSubscriptions();
               //cancelSubscription(`/games/${gameId}`, subscription);
               navigate("/endscreen");
@@ -96,9 +101,14 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
               data.playerId === playerId &&
               data.strikes !== 0
             ) {
-              setModalState({
-                isOpen: true,
-                content: <ModalGuessInformation strikes={data.strikes} maxStrikes={maxStrikes} />,
+              updateModal({
+                isOpen: false,
+                content: (
+                  <ModalGuessInformation
+                    strikes={data.strikes}
+                    maxStrikes={maxStrikes}
+                  />
+                ),
               });
             }
           } else if (header === "user-timeout") {
@@ -117,8 +127,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
             cancelGameSubscriptions();
             //cancelSubscription(`/games/${gameId}`, subscription);
             navigate("/endscreen");
-
-          } else if(header === "update-game-state") {
+          } else if (header === "update-game-state") {
             console.log("Reconnected: ", data);
             setCurrentTurnPlayerId(data.currentTurnPlayerId);
             setRoundNumber(data.roundNumber);
@@ -131,7 +140,6 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
         );
 
         return () => {
-
           cancelSubscription(`/games/${gameId}`, subscription);
           disconnectWebSocket();
         };
@@ -154,8 +162,8 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
       });
       sendMessage("/app/chooseImage", requestBody);
 
-      setModalState({
-        isOpen: true,
+      updateModal({
+        isOpen: false,
         content: <ModalPickInformation />,
       });
       setGameStatus("WAITING_FOR_OTHER_PLAYER");
@@ -181,7 +189,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
     if (playerId !== currentTurnPlayerId) {
-      alert("It's not your turn to guess!");
+      toast.error("It's not your turn to guess!");
 
       return;
     }
@@ -233,13 +241,11 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
             playerId={playerId}
           />
         ))}
-        {
-          <ModalDisplay
-            isOpen={modalState.isOpen}
-            content={modalState.content}
-            handleClose={handleCloseModal}
-          />
-        }
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
       </BaseContainer>
     </>
   );
@@ -248,6 +254,7 @@ const CharacterGrid = ({ persons, updateInstruction }) => {
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
   updateInstruction: PropTypes.func,
+  updateModal: PropTypes.func,
 };
 
 export default CharacterGrid;
