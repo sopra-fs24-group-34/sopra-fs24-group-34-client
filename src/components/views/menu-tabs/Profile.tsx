@@ -35,16 +35,17 @@ const Invitation = ({ creatorId, profilePicture, username, lobbyId, func }) => (
         style={{
           backgroundColor: "green",
           marginRight: "10px",
+          padding: "10px"
         }}
         onClick={() => func(true, creatorId, lobbyId)}
       >
-        Join
+        &#10003;
       </Button>
       <Button
-        style={{ backgroundColor: "red" }}
+        style={{ backgroundColor: "red", padding: "10px" }}
         onClick={() => func(false, creatorId, lobbyId)}
       >
-        Decline
+        &#10005;
       </Button>
     </div>
   </>
