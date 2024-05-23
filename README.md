@@ -1,4 +1,4 @@
-# SoPra FS24 group 34 Server - Guess Who?
+# SoPra FS24 group 34 Client - Guess Who?
 
 ## Introduction
 Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We implemented the traditional tabletop game where users have to guess characters by asking yes or no questions. 
