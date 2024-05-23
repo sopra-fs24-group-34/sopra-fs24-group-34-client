@@ -1,33 +1,70 @@
-#### Prerequisites and Installation
-After the installation, update the npm package manager to **10.4.0** by running ```npm install -g npm@10.4.0```\
-You can ensure the correct version of node and npm by running ```node -v``` and ```npm --version```, which should give you **v20.11.0** and **10.4.0** respectively.\
-Before you start your application for the first time, run this command to install all other dependencies, including React:
+# SoPra FS24 group 34 Server - Guess Who?
 
-```npm install```
+## Introduction
+Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We implemented the traditional tabletop game where users have to guess characters by asking yes or no questions. 
+The rules are simple:
+1. **Setup**:  Each player selects a character card without revealing it to their opponent. This card represents the character the opponent must guess.
+2. **Taking Turns**: Players take turns asking yes or no questions about the opponent's character in order to narrow down the possibilities.
+3. **Elimination**: Based on the answers to the questions, players can start eliminating characters that do not fit the description until they are confident enough to make a guess.
+4. **Winning**: The first player to correctly guess their opponent's character wins the game!
 
-Next, you can start the app with:
 
-```npm run dev```
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Technologies](#technologies)
+3. [High-level Components](#HLC)
+4. [Launch & Deployment](#LD)
+5. [Interface User Flow](#IUF)
+6. [Roadmap](#roadmap)
+7. [Authors and Acknowledgment](#AAA)
+8. [Licencse](#licence)
+9. [Further Material](#FM)
+   1. [UML Diagram](#uml)
+   2. [Component Diagram](#component)
+   3. [Activity Diagram](#activity)
+   4. [Figma Mockups](#figma)
 
-Now you can open [http://localhost:3000](http://localhost:3000) to view it in the browser.\
-Notice that the page will reload if you make any edits. You will also see any lint errors in the console (use a Chrome-based browser).\
-The client will send HTTP requests to the server which can be found [here](https://github.com/HASEL-UZH/sopra-fs24-template-server).\
-In order for these requests to work, you need to install and start the server as well.
+## Technologies
+For the frontend we used TypeScript and React. For styling we used SCSS. 
 
-### Testing
-Testing is optional, and you can run the tests with `npm run test`\
-This launches the test runner in an interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+To establish a connection between the front- and backend REST is used. When creating a lobby and eventually playing a game a stomp websocket connection gets established.
 
-> For macOS user running into a 'fsevents' error: https://github.com/jest-community/vscode-jest/issues/423
+## High-level Components
+some text
 
-### Build
-Finally, `npm run build` builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance:\
-The build is minified, and the filenames include hashes.<br>
+## Launch & Deployment
+- npm run dev
+    Runs the app in the development mode. Open http://localhost:3000 to view it in the browser. The page will reload if you make edits. You will also see any lint errors in the console.
 
-### DockerHub
-Link: https://hub.docker.com/repository/docker/sopragroup34/client/general
+- npm run build
+    Builds the app for production to the build folder. It correctly bundles React in production mode and optimizes the build for the best performance.
 
-## Web Page
-Link: https://sopra-fs24-group-34-client.oa.r.appspot.com/
+    The build is minified and the filenames include the hashes. Your app is ready to be deployed!
+
+
+## Interface User Flow
+some text
+
+## Roadmap
+- 3D animations for (un-)folding characters
+- Upload an individual profile picture
+- Extend the game with different categories. 
+
+## Authors and Acknowledgment
+- [Smail Alijagic](https://www.github.com/smailalijagic)
+- [Dario Giuliani](https://github.com/DarioTheCoder)
+- [Nedim Jukic](https://github.com/nedim-j)
+- [Liam Kontopulos](https://github.com/LiamK21)
+- [Till Sollberger](https://github.com/Tillsollberger)
+
+We want to express our sincere gratitude to [Marco Leder](https://www.github.com/marcoleder) for his outstanding expertise and support throughout the development of our project.
+
+
+## Licencse
+[MIT license](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/LICENSE)
+
+## Appendix
+- [UML Diagram](https://lucid.app/lucidchart/bdc43c7c-3a02-4163-9724-150a430a899a/edit?invitationId=inv_7c71d23b-ad34-4ca4-b878-67235064b5df&page=0_0#)
+- [Component Diagram](https://lucid.app/lucidchart/49acbc96-3e66-4064-99c4-4174bcf3b833/edit?invitationId=inv_56df17db-d1b8-4ae0-b4c8-e27462ec2213&page=0_0#)
+- [Activity Diagram](https://lucid.app/lucidchart/e5d280ab-f80c-4e6c-8c0b-7544ba9b8936/edit?invitationId=inv_10376661-1660-47e2-b32b-fbf7d82989de&page=0_0#)
+- [Figma Mockups](https://www.figma.com/file/b6orEYoJfIJ8n25mSPVsY7/Untitled?type=design&node-id=0-1&mode=design&t=ch054pYdPzTn8U1s-0)
