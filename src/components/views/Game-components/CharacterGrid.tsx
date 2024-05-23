@@ -146,29 +146,32 @@ const CharacterGrid = ({
           navigate("/endscreen");
         } else if (header === "update-game-state") {
           console.log("Reconnected: ", data);
+          if(!data.currentTurnPlayerId) {
+            setGameStatus("CHOOSING");
+          } else {
           setCurrentTurnPlayerId(data.currentTurnPlayerId);
           setRoundNumber(data.roundNumber);
+          }
           if (data.roundNumber >= 1 || selectedCharacter !== null) {
             setGameStatus("GUESSING");
           }
+        }
+        else {
+          console.log("Unhandled WS event: ", header, data);
         }
       };
 
       const subscription = await makeSubscription(`/games/${gameId}`, callback);
     }
+
     console.log("Gamestate: ", gameStatus);
-    // Update visibleCharacters when persons changes
+
     if (persons.length > 0 && playerId && gameId) {
       console.log("Selected character: ", selectedCharacter);
       setVisibleCharacters(Array(persons.length).fill(true)); // Initialize as visible
       ws();
     }
-
-    /*
-    return () => {
-      cancelSubscription(`/games/${gameId}`, subscription);
-    };
-    */
+    
   }, [persons]);
 
   const instructionUpdate = (data) =>{
