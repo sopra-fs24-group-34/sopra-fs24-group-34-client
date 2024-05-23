@@ -106,6 +106,7 @@ const PreGame = () => {
         <button
           className="character-button"
           onClick={() => RemoveCharacter(idx, id)}
+          disabled={loading}
         >
           Replace
         </button>
@@ -208,6 +209,7 @@ const PreGame = () => {
               <Button
                 className="accept-character-button"
                 onClick={() => handleAcceptCharacters()}
+                disbale={loading}
               >
                 Accept characters
               </Button>
