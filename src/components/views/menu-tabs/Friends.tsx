@@ -67,7 +67,7 @@ const Friends = () => {
         // Get the returned friend requests and update the state.
         setFriendRequests(responseFriendRequests.data);
       } catch (error) {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), {containerId: "friend"});
       }
     }
     fetchData();
@@ -83,12 +83,12 @@ const Friends = () => {
       await api.post("/users/friends/add", requestBody);
 
       // Return a message that the friend request was successfully sent.
-      toast.success("Friend request sent!");
+      toast.success("Friend request sent!", {containerId: "friend"});
     } catch (error) {
       if (error.response.status === 404) {
-        toast.error("User not found.");
+        toast.error("User not found.", {containerId: "friend"});
       } else {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), {containerId: "friend"});
       }
     }
   };
@@ -99,9 +99,9 @@ const Friends = () => {
       await api.delete(`/users/${userId}/friends/delete/${friendId}`); //Mapping incorrect
       setReload(!reload);
       // Return a message that the friend was successfully removed.
-      toast.success("Friend successfully removed!");
+      toast.success("Friend successfully removed!", {containerId: "friend"});
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), {containerId: "friend"});
     }
   };
 
@@ -116,16 +116,16 @@ const Friends = () => {
       await api.put("/users/friends/answer", requestBody);
 
       // Remove the answered friend request from the list.
-      toast.success("Friend request successfully answered!");
+      toast.success("Friend request successfully answered!", {containerId: "friend"});
       setReload(!reload);
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), {containerId: "friend"});
     }
   };
 
   return (
     <div className="friends">
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="friend" {...toastContainerError} />
       <div className="content-wrapper">
         <div
           className="friends-container"

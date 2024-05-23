@@ -58,9 +58,14 @@ Invitation.propTypes = {
   func: PropTypes.func,
 };
 
-const Player = ({ totalwins, totalplayed }: { totalwins: number, totalplayed: number }) => {
-  const winPercentage =
-    totalplayed !== 0 ? (totalwins / totalplayed) * 100 : 0;
+const Player = ({
+  totalwins,
+  totalplayed,
+}: {
+  totalwins: number;
+  totalplayed: number;
+}) => {
+  const winPercentage = totalplayed !== 0 ? (totalwins / totalplayed) * 100 : 0;
 
   return (
     <div className="item">
@@ -108,7 +113,7 @@ const Profile = () => {
 
         setLobbyInvitations(response.data);
       } catch (error) {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), { containerId: "profile" });
       }
     }
     fetchLobbyInvitations();
@@ -119,7 +124,9 @@ const Profile = () => {
     setIsEditing(false);
     try {
       if (editedUsername.toUpperCase().startsWith("GUEST")) {
-        toast.error("Username cannot begin with 'guest'");
+        toast.error("Username cannot begin with 'guest'", {
+          containerId: "profile",
+        });
         setEditedPassword("");
         setEditedUsername("");
 
@@ -133,12 +140,12 @@ const Profile = () => {
         profilePicture: profilePicture,
       });
       await api.put(`/users/${userId}`, requestBody);
-      toast.success("Profile updated successfully");
+      toast.success("Profile updated successfully", { containerId: "profile" });
       await getUser();
     } catch (error) {
       setEditedPassword("");
       setEditedUsername("");
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), { containerId: "profile" });
     } finally {
       setLoading(false);
     }
@@ -155,7 +162,7 @@ const Profile = () => {
       setTotalWins(response.data.totalwins);
       setLoading(false);
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), { containerId: "profile" });
     }
   };
 
@@ -166,7 +173,7 @@ const Profile = () => {
       localStorage.clear();
       navigate("/");
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), { containerId: "profile" });
     } finally {
       setLoading(false);
     }
@@ -208,13 +215,13 @@ const Profile = () => {
       }
       setReload(!reload);
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), { containerId: "profile" });
     }
   };
 
   return (
     <>
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="profile" {...toastContainerError} />
       <div className="profile">
         <div className="profile-wrapper">
           <div className="container">
@@ -268,7 +275,7 @@ const Profile = () => {
               </BaseContainer>
 
               <BaseContainer className="item" style={{ marginBottom: "1em" }}>
-                <Player totalwins={totalWins} totalplayed={totalPlayed}  />
+                <Player totalwins={totalWins} totalplayed={totalPlayed} />
               </BaseContainer>
             </BaseContainer>
           </div>

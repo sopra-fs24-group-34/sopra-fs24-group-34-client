@@ -68,7 +68,7 @@ const Menu = () => {
       navigate("/landingPage");
     } catch (error) {
       console.error("Error during logout:", error);
-      toast.error("Something went wrong during logout! Please try again.");
+      toast.error("Something went wrong during logout! Please try again.", {containerId: "menu"});
     } finally {
       setLoading(false);
     }
@@ -84,11 +84,11 @@ const Menu = () => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       navigate("/lobby");
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), {containerId: "menu"});
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const [lobbyCode, setLobbyCode] = useState(null);
   async function doJoinLobby() {
@@ -104,9 +104,9 @@ const Menu = () => {
       navigate("/lobby");
     } catch (error) {
       if (error.response.status === 404) {
-        toast.error("Lobby not found.");
+        toast.error("Lobby not found.", {containerId: "menu"});
       } else {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), {containerId: "menu"});
       }
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ const Menu = () => {
 
   return (
     <BaseContainer className="menu container">
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="menu" {...toastContainerError} />
       {loading && <Spinner />}
       <div className="buttonbar">
         <Button
@@ -204,7 +204,7 @@ export async function changeStatus(newStatus: string) {
   try {
     await api.post(`users/${localStorage.getItem("userId")}/status/change`, newStatus);
   } catch (error) {
-    toast.error(doHandleError(error), { containerId: "2" });
+    toast.error(doHandleError(error), { containerId: "menu" });
   }
 }
 

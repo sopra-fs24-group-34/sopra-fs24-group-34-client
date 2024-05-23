@@ -41,19 +41,17 @@ const Leaderboard = () => {
 
         // Get the returned users and update the state.
         setUsers(response.data);
-
       } catch (error) {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), { containerId: "leaderboard" });
       }
     }
 
     fetchData();
   }, []);
 
-
   const handleSort = (criteria: string) => {
     let sortedUsers = [...users];
-  
+
     if (criteria === "username") {
       sortedUsers.sort((a, b) => a.username.localeCompare(b.username));
     } else if (criteria === "totalwins") {
@@ -100,7 +98,7 @@ const Leaderboard = () => {
 
   return (
     <div>
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="leaderboard" {...toastContainerError} />
       {content}
     </div>
   );
