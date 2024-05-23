@@ -130,7 +130,6 @@ const Endscreen = () => {
 
   function handleToRegister() {
     disconnectWebSocket();
-    //implement
     navigate("/register");
   }
 
@@ -141,6 +140,7 @@ const Endscreen = () => {
 
   function handleToLandingPage() {
     localStorage.clear();
+    disconnectWebSocket();
     navigate("/landingPage");
   }
 
