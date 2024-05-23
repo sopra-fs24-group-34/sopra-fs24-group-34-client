@@ -34,7 +34,7 @@ const PreGame = () => {
   const navigate = useNavigate();
 
   const [modalState, setModalState] = useState({
-    isOpen: true,
+    isOpen: false,
     content: <GameModalContent />,
   });
   const [stompClient, setStompClient] = useState(getStompClient());
@@ -131,6 +131,10 @@ const PreGame = () => {
     setModalState({ isOpen: false, content: null });
   };
 
+  const handleOpenModal = () => {
+    setModalState({ isOpen: true, content: <GameModalContent /> });
+  };
+
   const handleAcceptCharacters = async () => {
     setLoading(true);
     try {
@@ -174,9 +178,15 @@ const PreGame = () => {
       {isCreator ? (
         <BaseContainer className="pregame container">
           <ToastContainer {...toastContainerError} />
-          <div className="instructions">
-            <h1>Current Instruction: Remove unsuited characters</h1>
+          <div className="header">
+            <div className="instructions">
+              <h1>Current Instruction: Remove unsuited characters</h1>
+            </div>
+            <Button className="help-button" onClick={() => handleOpenModal()}>
+              ?
+            </Button>
           </div>
+
           <div className="game">
             <div className="character-grid">
               {characters.map((character, idx) => (
