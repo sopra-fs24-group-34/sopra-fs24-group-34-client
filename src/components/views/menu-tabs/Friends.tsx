@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import { api } from "helpers/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "components/ui/Button";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import { User } from "types";
 import "styles/views/menu-tabs/Friends.scss";
 import { doHandleError } from "../../../helpers/errorHandler";
 import { toastContainerError } from "../Toasts/ToastContainerError";
@@ -58,7 +57,6 @@ const Friends = () => {
     async function fetchData() {
       try {
         const responseFriends = await api.get(`/users/${userId}/friends`);
-        console.log("GET responseFriends: ", responseFriends);
 
         // Get the returned friends and update the state.
         setfriends(responseFriends.data);
@@ -66,13 +64,10 @@ const Friends = () => {
         const responseFriendRequests = await api.get(
           `/users/${userId}/friends/requests`
         );
-
-        console.log("GET responseFriendRequests: ", responseFriendRequests);
-
         // Get the returned friend requests and update the state.
         setFriendRequests(responseFriendRequests.data);
       } catch (error) {
-        toast.error(doHandleError(error), { containerId: "1" });
+        toast.error(doHandleError(error), {containerId: "friend"});
       }
     }
     fetchData();
@@ -88,12 +83,12 @@ const Friends = () => {
       await api.post("/users/friends/add", requestBody);
 
       // Return a message that the friend request was successfully sent.
-      toast.success("Friend request sent!", { containerId: "2" });
+      toast.success("Friend request sent!", {containerId: "friend"});
     } catch (error) {
       if (error.response.status === 404) {
-        toast.error("User not found.", { containerId: "1" });
+        toast.error("User not found.", {containerId: "friend"});
       } else {
-        toast.error(doHandleError(error), { containerId: "1" });
+        toast.error(doHandleError(error), {containerId: "friend"});
       }
     }
   };
@@ -104,8 +99,9 @@ const Friends = () => {
       await api.delete(`/users/${userId}/friends/delete/${friendId}`); //Mapping incorrect
       setReload(!reload);
       // Return a message that the friend was successfully removed.
+      toast.success("Friend successfully removed!", {containerId: "friend"});
     } catch (error) {
-      toast.error(doHandleError(error), { containerId: "1" });
+      toast.error(doHandleError(error), {containerId: "friend"});
     }
   };
 
@@ -120,16 +116,16 @@ const Friends = () => {
       await api.put("/users/friends/answer", requestBody);
 
       // Remove the answered friend request from the list.
+      toast.success("Friend request successfully answered!", {containerId: "friend"});
       setReload(!reload);
     } catch (error) {
-      toast.error(doHandleError(error), { containerId: "1" });
+      toast.error(doHandleError(error), {containerId: "friend"});
     }
   };
 
   return (
     <div className="friends">
-      <ToastContainer containerId="1" {...toastContainerError} />
-      <ToastContainer containerId="2" {...toastContainerSuccess} />
+      <ToastContainer containerId="friend" {...toastContainerError} />
       <div className="content-wrapper">
         <div
           className="friends-container"

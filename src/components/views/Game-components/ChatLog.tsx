@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { api, handleError } from "helpers/api";
+import { handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";

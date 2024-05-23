@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import { handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,128 +26,158 @@ import {
 import ModalTimeout from "./modalContent/ModalTimeout";
 import { toastContainerError } from "../Toasts/ToastContainerError";
 
-
-const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstruction}) => {
+const CharacterGrid = ({
+  persons,
+  hasSentMessage,
+  setHasSentMessage,
+  updateInstruction, updateModal,
+}) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [roundNumber, setRoundNumber] = useState(0);
-  const [strikes, setStrikes] = useState(0);
-  const [maxStrikes, setMaxStrikes] = useState(Number(localStorage.getItem("maxStrikes")));
+  const [lastChance, setLastChance] = useState(false);
+  const [maxStrikes, setMaxStrikes] = useState(
+    Number(localStorage.getItem("maxStrikes"))
+  );
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
-  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [gameStatus, setGameStatus] = useState("CHOOSING");
+  const storedCharacterId = Number(localStorage.getItem("selectedCharacter"));
+  const [selectedCharacter, setSelectedCharacter] = useState(
+    !isNaN(storedCharacterId) && storedCharacterId !== 0
+      ? storedCharacterId
+      : null
+  );
   const [visibleCharacters, setVisibleCharacters] = useState([]);
-
-  console.log(persons);
-  console.log(visibleCharacters);
-
   const [modalState, setModalState] = useState({
-    isOpen: true,
+    isOpen: false,
     content: <ModalFirstInstructions />,
   });
   let timeoutThreshold = 10;
 
   useEffect(() => {
-    setSelectedCharacter(localStorage.getItem("selectedCharacter"));
-
-    // Update visibleCharacters when persons changes
-    if (persons.length > 0) {
-      setVisibleCharacters(Array(persons.length).fill(true));  // Initialize as visible
-    }
     async function ws() {
-      if (playerId && gameId) {
-        await waitForConnection();
+      await waitForConnection();
 
-        const callback = function (message) {
-          const body = JSON.parse(message.body);
-          const header = body["event-type"];
-          console.log("Header: ", header);
-          const data = body.data;
+      const callback = function (message) {
+        const body = JSON.parse(message.body);
+        const header = body["event-type"];
+        console.log("Header: ", header);
+        const data = body.data;
 
-          setGameStatus(data.gameStatus);
-          console.log(data);
+        console.log("Data: ", data);
+        setGameStatus(data.gameStatus);
 
-          if (header === "round0") {
-            if (data.roundNumber === 1) {
-              setGameStatus("GUESSING");
-              setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            }
-          }
-          if (header === "turn-update") {
-            console.log("Turn update: ", data);
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setHasSentMessage(false);
-          }
-
-          if (header === "round-update") {
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setRoundNumber(data.roundNumber);
-            setHasSentMessage(false);
-          }
-
-
-          if (data.gameStatus === "END") {
-            if ((data.guess === true && data.playerId === playerId) || (data.guess === false && data.playerId !== playerId)) {
-              localStorage.setItem("result", "won");
-            } else {
-              localStorage.setItem("result", "lost");
-            }
-
-            cancelGameSubscriptions();
-            //cancelSubscription(`/games/${gameId}`, subscription);
-            navigate("/endscreen");
-          }
-
+        if (data.gameStatus === "END") {
           if (
-            data.guess === false &&
-            data.gameStatus !== "END" &&
-            data.playerId === playerId &&
-            data.strikes !== 0
+            (data.guess === true && data.playerId === playerId) ||
+            (data.guess === false && data.playerId !== playerId)
           ) {
-            setModalState({
-              isOpen: true,
-              content: <ModalGuessInformation strikes={data.strikes} maxStrikes={maxStrikes} />,
-            });
-          } else if (header === "user-timeout") {
-            //make timeout-modal with timer running down
-            timeoutThreshold = data;
-            setModalState({
-              isOpen: true,
-              content: <ModalTimeout timeoutThreshold={timeoutThreshold} />,
-            });
-          } else if (header === "user-rejoined") {
-            //close modal and stop timer
-            setModalState({ isOpen: false, content: null });
-          } else if (header === "user-disconnected") {
-            //close game, set result as tied, navigate to endscreen
-            localStorage.setItem("result", "tied");
-            cancelGameSubscriptions();
-            //cancelSubscription(`/games/${gameId}`, subscription);
-            navigate("/endscreen");
-
-          } else if(header === "update-game-state") {
-            console.log("Reconnected: ", data);
-            setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setRoundNumber(data.roundNumber);
+            localStorage.setItem("result", "won");
+          } else {
+            localStorage.setItem("result", "lost");
           }
-        };
+          cancelGameSubscriptions();
+          //cancelSubscription(`/games/${gameId}`, subscription);
+          navigate("/endscreen");
+        } else if (
+          data.guess === false &&
+          data.gameStatus !== "END" &&
+          data.playerId === playerId &&
+          data.strikes !== 0
+        ) {
+          toast.warning(`Incorrect guess! ${data.strikes} / ${maxStrikes}`, { containerId: "grid" });
+          updateModal({
+            isOpen: false,
+            content: (
+              <ModalGuessInformation
+                strikes={data.strikes}
+                maxStrikes={maxStrikes}
+              />
+            ),
+          });
+        } else if (header === "round0") {
+          if (data.roundNumber === 1) {
+            setGameStatus("GUESSING");
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            instructionUpdate(data);
+          }
+        } else if (header === "turn-update") {
+          console.log("Turn update: ", data);
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setHasSentMessage(false);
+          if (!lastChance) {
+            instructionUpdate(data);
+          }
+        } else if (header === "round-update") {
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setRoundNumber(data.roundNumber);
+          setHasSentMessage(false);
+          if (!lastChance) {
+            instructionUpdate(data);
+          }
+        } else if (data.gameStatus === "LASTCHANCE"){
+          setLastChance(true);
+          if (data.playerId !== playerId) {
+            updateInstruction("Oppenent guessed correctly.Your last try!")
+          } else {updateInstruction("Correct Guess! Oppenent has one last try")
+          }
+        } else if (data.gameStatus === "TIE") {
+          localStorage.setItem("result", "tie");
+          cancelGameSubscriptions();
+          navigate("/endscreen");
+        }
+        else if (header === "user-timeout") {
+          //make timeout-modal with timer running down
+          timeoutThreshold = data;
+          setModalState({
+            isOpen: true,
+            content: <ModalTimeout timeoutThreshold={timeoutThreshold} />,
+          });
+        } else if (header === "user-rejoined") {
+          //close modal and stop timer
+          setModalState({ isOpen: false, content: null });
+        } else if (header === "user-disconnected") {
+          //close game, set result as tied, navigate to endscreen
+          localStorage.setItem("result", "tied");
+          cancelGameSubscriptions();
+          //cancelSubscription(`/games/${gameId}`, subscription);
+          navigate("/endscreen");
+        } else if (header === "update-game-state") {
+          console.log("Reconnected: ", data);
+          setCurrentTurnPlayerId(data.currentTurnPlayerId);
+          setRoundNumber(data.roundNumber);
+          if (data.roundNumber >= 1 || selectedCharacter !== null) {
+            setGameStatus("GUESSING");
+          }
+        }
+      };
 
-        const subscription = await makeSubscription(
-          `/games/${gameId}`,
-          callback
-        );
-
-        return () => {
-
-          cancelSubscription(`/games/${gameId}`, subscription);
-          disconnectWebSocket();
-        };
-      }
+      const subscription = await makeSubscription(`/games/${gameId}`, callback);
     }
-    ws();
+    console.log("Gamestate: ", gameStatus);
+    // Update visibleCharacters when persons changes
+    if (persons.length > 0 && playerId && gameId) {
+      console.log("Selected character: ", selectedCharacter);
+      setVisibleCharacters(Array(persons.length).fill(true)); // Initialize as visible
+      ws();
+    }
+
+    /*
+    return () => {
+      cancelSubscription(`/games/${gameId}`, subscription);
+    };
+    */
   }, [persons]);
+
+  const instructionUpdate = (data) =>{
+    if (data.currentTurnPlayerId === playerId) {
+      updateInstruction("Your turn! Guess or use the chat")
+    }
+    else {updateInstruction("Opponents turn")
+    }
+  }
 
   async function pickCharacter(characterId, idx) {
     try {
@@ -163,8 +193,8 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
       });
       sendMessage("/app/chooseImage", requestBody);
 
-      setModalState({
-        isOpen: true,
+      updateModal({
+        isOpen: false,
         content: <ModalPickInformation />,
       });
       setGameStatus("WAITING_FOR_OTHER_PLAYER");
@@ -172,7 +202,7 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
       localStorage.setItem("selectedCharacter", characterId);
       updateInstruction("Waiting for other player to pick a character");
     } catch (error) {
-      toast.error(handleError(error), { containerId: "2" });
+      toast.error(handleError(error), { containerId: "grid" });
     }
   }
 
@@ -190,12 +220,14 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
     if (playerId !== currentTurnPlayerId) {
-      alert("It's not your turn to guess!");
+      toast.error("It's not your turn to guess!", { containerId: "grid" });
+      
 
       return;
     }
-    if (hasSentMessage) {  // check if a message has been sent
-      alert("You cannot make a guess after sending a message!");
+    if (hasSentMessage) {
+      // check if a message has been sent
+      toast.error("You cannot make a guess after sending a message!", { containerId: "grid" });
 
       return;
     }
@@ -208,18 +240,7 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
       guessPostDTO: guessPostDTO,
     });
     sendMessage("/app/guessImage", requestBody);
-    /*
-    setModalState({
-      isOpen: true,
-      content: <ModalGuessInformation strikes={response.data.strikes} />,
-    });
-    */
   };
-
-  if (!persons) {
-    return <div>Loading...</div>;
-  }
-  console.log(visibleCharacters);
 
   const handleCloseModal = () => {
     setModalState({ isOpen: false, content: null });
@@ -228,7 +249,7 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
     <>
-      <ToastContainer containerId="2" {...toastContainerError} />
+      <ToastContainer containerId="grid" {...toastContainerError} />
       <BaseContainer className="character-grid">
         {persons.map((character, idx) => (
           <Character
@@ -239,7 +260,7 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
             pickCharacter={() => pickCharacter(character.id, idx)}
             foldCharacter={() => foldCharacter(idx)}
             guessCharacter={
-              playerId ===  currentTurnPlayerId && !hasSentMessage
+              playerId === currentTurnPlayerId && !hasSentMessage
                 ? () => guessCharacter(character.id, idx)
                 : () => {}
             }
@@ -249,13 +270,11 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
             hasSentMessage={hasSentMessage}
           />
         ))}
-        {
-          <ModalDisplay
-            isOpen={modalState.isOpen}
-            content={modalState.content}
-            handleClose={handleCloseModal}
-          />
-        }
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
       </BaseContainer>
     </>
   );
@@ -264,8 +283,9 @@ const CharacterGrid = ({ persons, hasSentMessage, setHasSentMessage, updateInstr
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
   updateInstruction: PropTypes.func,
-  hasSentMessage: PropTypes.boolean,
+  hasSentMessage: PropTypes.bool,
   setHasSentMessage: PropTypes.func,
+  updateModal: PropTypes.func,
 };
 
 export default CharacterGrid;

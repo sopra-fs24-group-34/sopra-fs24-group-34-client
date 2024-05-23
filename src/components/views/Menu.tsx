@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import React, { useState } from "react";
+import { api } from "helpers/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
@@ -52,7 +52,6 @@ FormField.propTypes = {
 };
 
 const Menu = () => {
-  // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -65,12 +64,11 @@ const Menu = () => {
     setLoading(true);
     try {
       changeStatus("offline");
-      console.log("CHANGE U");
       localStorage.clear();
       navigate("/landingPage");
     } catch (error) {
       console.error("Error during logout:", error);
-      toast.error("Something went wrong during logout! Please try again.");
+      toast.error("Something went wrong during logout! Please try again.", {containerId: "menu"});
     } finally {
       setLoading(false);
     }
@@ -84,16 +82,13 @@ const Menu = () => {
       localStorage.setItem("lobbyId", response.data);
       localStorage.setItem("lobbyId", response.data);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(response);
-      console.log(response);
-
       navigate("/lobby");
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), {containerId: "menu"});
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const [lobbyCode, setLobbyCode] = useState(null);
   async function doJoinLobby() {
@@ -109,9 +104,9 @@ const Menu = () => {
       navigate("/lobby");
     } catch (error) {
       if (error.response.status === 404) {
-        toast.error("Lobby not found.");
+        toast.error("Lobby not found.", {containerId: "menu"});
       } else {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), {containerId: "menu"});
       }
     } finally {
       setLoading(false);
@@ -120,7 +115,7 @@ const Menu = () => {
 
   return (
     <BaseContainer className="menu container">
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="menu" {...toastContainerError} />
       {loading && <Spinner />}
       <div className="buttonbar">
         <Button
@@ -208,10 +203,8 @@ const Menu = () => {
 export async function changeStatus(newStatus: string) {
   try {
     await api.post(`users/${localStorage.getItem("userId")}/status/change`, newStatus);
-    console.log("CHANGE USER STATUS");
   } catch (error) {
-    console.log("User Status was not changed");
-    toast.error(doHandleError(error), { containerId: "2" });
+    toast.error(doHandleError(error), { containerId: "menu" });
   }
 }
 

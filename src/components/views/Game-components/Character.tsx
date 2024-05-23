@@ -57,7 +57,7 @@ const Character = ({
       className={`character container ${highlight ? "highlight" : ""}`}
       key={character.id}
     >
-      <img className="character container img" src={character.url}></img>
+      <img className="character container img" src={character.url} alt={"Character"}></img>
       {visibleCharacter ? (
         <div className="character overlay">{interactCharacter()}</div>
       ) : (

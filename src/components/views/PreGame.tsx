@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, handleError } from "helpers/api";
+import { api } from "helpers/api";
 import { Spinner } from "components/ui/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,7 +34,7 @@ const PreGame = () => {
   const navigate = useNavigate();
 
   const [modalState, setModalState] = useState({
-    isOpen: true,
+    isOpen: false,
     content: <GameModalContent />,
   });
   const [stompClient, setStompClient] = useState(getStompClient());
@@ -106,6 +106,7 @@ const PreGame = () => {
         <button
           className="character-button"
           onClick={() => RemoveCharacter(idx, id)}
+          disabled={loading}
         >
           Replace
         </button>
@@ -120,6 +121,7 @@ const PreGame = () => {
       await api.delete(`/games/${gameId}/images/${imageId}`);
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
+      toast.success("Character removed successfully");
     } catch (error) {
       toast.error(doHandleError(error));
     } finally {
@@ -129,6 +131,10 @@ const PreGame = () => {
 
   const handleCloseModal = () => {
     setModalState({ isOpen: false, content: null });
+  };
+
+  const handleOpenModal = () => {
+    setModalState({ isOpen: true, content: <GameModalContent /> });
   };
 
   const handleAcceptCharacters = async () => {
@@ -174,9 +180,15 @@ const PreGame = () => {
       {isCreator ? (
         <BaseContainer className="pregame container">
           <ToastContainer {...toastContainerError} />
-          <div className="instructions">
-            <h1>Current Instruction: Remove unsuited characters</h1>
+          <div className="header">
+            <div className="instructions">
+              <h1>Current Instruction: Remove unsuited characters</h1>
+            </div>
+            <Button className="help-button" onClick={() => handleOpenModal()}>
+              ?
+            </Button>
           </div>
+
           <div className="game">
             <div className="character-grid">
               {characters.map((character, idx) => (
@@ -197,6 +209,7 @@ const PreGame = () => {
               <Button
                 className="accept-character-button"
                 onClick={() => handleAcceptCharacters()}
+                disbale={loading}
               >
                 Accept characters
               </Button>

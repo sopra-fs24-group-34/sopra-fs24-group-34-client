@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import { api } from "helpers/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
-import { Button } from "components/ui/Button";
-import { useNavigate } from "react-router-dom";
-import BaseContainer from "components/ui/BaseContainer";
-import PropTypes from "prop-types";
 import { User } from "types";
 import "styles/views/menu-tabs/Leaderboard.scss";
 import { toastContainerError } from "../Toasts/ToastContainerError";
@@ -45,20 +41,17 @@ const Leaderboard = () => {
 
         // Get the returned users and update the state.
         setUsers(response.data);
-
-        console.log(response);
       } catch (error) {
-        toast.error(doHandleError(error));
+        toast.error(doHandleError(error), { containerId: "leaderboard" });
       }
     }
 
     fetchData();
   }, []);
 
-
   const handleSort = (criteria: string) => {
     let sortedUsers = [...users];
-  
+
     if (criteria === "username") {
       sortedUsers.sort((a, b) => a.username.localeCompare(b.username));
     } else if (criteria === "totalwins") {
@@ -105,7 +98,7 @@ const Leaderboard = () => {
 
   return (
     <div>
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="leaderboard" {...toastContainerError} />
       {content}
     </div>
   );
