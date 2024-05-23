@@ -86,7 +86,6 @@ const Game = () => {
           updateInstruction={setInstructions}
           
         />
-        <ChatLog updateInstruction={setInstructions} />
         <ModalDisplay
           isOpen={modalState.isOpen}
           content={modalState.content}
