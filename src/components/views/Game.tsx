@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
-import { Spinner } from "components/ui/Spinner";
+import { api } from "helpers/api";
 import { Button } from "components/ui/Button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

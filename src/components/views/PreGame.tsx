@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, handleError } from "helpers/api";
+import { api } from "helpers/api";
 import { Spinner } from "components/ui/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -120,6 +120,7 @@ const PreGame = () => {
       await api.delete(`/games/${gameId}/images/${imageId}`);
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
+      toast.success("Character removed successfully");
     } catch (error) {
       toast.error(doHandleError(error));
     } finally {

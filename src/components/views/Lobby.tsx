@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { api, handleError } from "helpers/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
-import { User, Lobby } from "types";
+import { User } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
@@ -22,7 +21,6 @@ import {
   waitForConnection,
 } from "./WebSocketService";
 import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
-import { toastContainerError } from "./Toasts/ToastContainerError";
 import { doHandleError } from "helpers/errorHandler";
 import { changeStatus } from "./Menu";
 
@@ -114,7 +112,6 @@ const LobbyPage = () => {
           } else if (header === "lobby-closed") {
             console.log(data);
             handleReturn();
-
           } else if (header === "game-created") {
             localStorage.setItem("gameId", data.gameId);
 
@@ -147,26 +144,14 @@ const LobbyPage = () => {
 
   async function fetchData() {
     try {
-      //nedim-j: will get network errors at the moment
-      /*
-        const settingsResponse = await api.get(`/lobbies/settings/${lobbyId}`);
-        console.log(settingsResponse);
-
-        const friendsResponse = await api.get(`/users/${userId}/friends`);
-        console.log(friendsResponse);
-        */
-
       await new Promise((resolve) => setTimeout(resolve, 200));
-      console.log("LobbyId: ", lobbyId);
       const lobbyResponse = (await api.get(`/lobbies/${lobbyId}`)).data;
-      console.log("Lobby: ", lobbyResponse);
 
       // nedim-j: get profile names for creator and invited player
       const creatorResponse = await api.get(
         `/users/${lobbyResponse.creatorUserId}`
       );
       const creatorUser = creatorResponse.data;
-      console.log("Creator User: ", creatorUser);
       setUserStatus(creatorUser.status);
 
       //nedim-j: find better solution for checking if one is the host
@@ -197,7 +182,7 @@ const LobbyPage = () => {
         `Something went wrong while fetching data: \n${handleError(error)}`
       );
       navigate("/menu");
-      toast.error(doHandleError(error), { containerId: "2" });
+      toast.error(doHandleError(error));
     }
   }
 
@@ -208,7 +193,7 @@ const LobbyPage = () => {
         console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
-        toast.error(doHandleError(error), { containerId: "2" });
+        toast.error(doHandleError(error));
       }
     };
     fetchInvitableFriends();
@@ -291,6 +276,7 @@ const LobbyPage = () => {
         sendMessage("/app/createGame", requestBody);
       }
     } catch (error) {
+      toast.error(doHandleError(error));
       console.error(
         `Something went wrong while starting game: \n${handleError(error)}`
       );
@@ -312,9 +298,13 @@ const LobbyPage = () => {
 
       //stompClient.send("/app/updateReadyStatus", {}, request);
       sendMessage("/app/updateReadyStatus", requestBody);
-      toast.info("Ready status updated successfully!", { containerId: "1" });
+      if (isCreator) {
+        toast.info("Starting Game!");
+      } else {
+        toast.success("Ready status successfully updated!");
+      }
     } catch (error) {
-      toast.error(doHandleError(error), { containerId: "2" });
+      toast.error(doHandleError(error));
     }
   }
 
@@ -376,21 +366,17 @@ const LobbyPage = () => {
         invitedUserName: userName,
         lobbyId: lobbyId,
       });
-
-      console.log("Request body: ", requestBody);
       await api.post("lobbies/invite", requestBody);
-
-      toast.info("Friend invited successfully!", { containerId: "1" });
+      toast.info("Friend invited successfully!");
     } catch (error) {
-      toast.error(doHandleError(error), { containerId: "2" });
+      toast.error(doHandleError(error));
     }
   };
 
   return (
     <BaseContainer className="lobby container">
       <div className="view">
-        <ToastContainer containerId="1" {...toastContainerSuccess} />
-        <ToastContainer containerId="2" {...toastContainerError} />
+        <ToastContainer {...toastContainerSuccess} />
         <ul>
           <li>
             <BaseContainer className="settings">
@@ -404,7 +390,7 @@ const LobbyPage = () => {
                   max="10"
                   value={maxStrikes}
                   readOnly={!isCreator}
-                  onChange={(e) => setMaxStrikes(e.target.value)} //add function
+                  onChange={(e) => setMaxStrikes(e.target.value)}
                 />
                 {isCreator && (
                   <Button
@@ -430,7 +416,7 @@ const LobbyPage = () => {
               <h1>Lobby ID:</h1>
               <BaseContainer className="code-container">
                 <div className="code">
-                  {/*lobbyId*/ localStorage.getItem("lobbyId")}
+                  {localStorage.getItem("lobbyId")}
                 </div>
               </BaseContainer>
               <h1>Players</h1>
@@ -448,19 +434,20 @@ const LobbyPage = () => {
           <li>
             <BaseContainer className="friends-container">
               <h1>Invitable Friends</h1>
-              {isCreator ? (<ul className="list">
-                {invitableFriends.map((friend) => (
-                  <Friend
-                    key={friend.friendId}
-                    profilePicture={friend.friendIcon}
-                    username={friend.friendUsername}
-                    func={inviteFriend}
-                  />
-                ))}
-              </ul>) : (
+              {isCreator ? (
+                <ul className="list">
+                  {invitableFriends.map((friend) => (
+                    <Friend
+                      key={friend.friendId}
+                      profilePicture={friend.friendIcon}
+                      username={friend.friendUsername}
+                      func={inviteFriend}
+                    />
+                  ))}
+                </ul>
+              ) : (
                 <p>Only the host can invite friends</p>
               )}
-              
             </BaseContainer>
           </li>
         </ul>
@@ -489,6 +476,7 @@ export async function closeLobby() {
     //stompClient.send("/app/closeLobby", {}, requestBody);
     sendMessage("/app/closeLobby", requestBody);
   } catch (error) {
+    toast.error(doHandleError(error));
     console.error(
       `Something went wrong while closing lobby: \n${handleError(error)}`
     );

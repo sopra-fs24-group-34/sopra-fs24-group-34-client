@@ -4,13 +4,13 @@ export const doHandleError = (error: any): string => {
     // Server responded with a status other than 200 range
     switch (error.response.status) {
     case 400:
-      return "Bad Request. Please check your input.";
+      return "Bad Request. Please check your input and try again.";
     case 401:
       return "Unauthorized. Please log in.";
     case 403:
       return "Forbidden. You do not have permission to access this resource.";
     case 404:
-      return "Not Found. The requested resource could not be found.";
+      return "Whoops. Seems like what you are looking for does not exist";
     case 500:
       return "Internal Server Error. Please try again later.";
     default:

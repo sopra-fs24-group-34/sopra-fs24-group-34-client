@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import React, { useState } from "react";
+import { api } from "helpers/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Spinner } from "components/ui/Spinner";
@@ -52,7 +52,6 @@ FormField.propTypes = {
 };
 
 const Menu = () => {
-  // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("leaderboard");
@@ -65,7 +64,6 @@ const Menu = () => {
     setLoading(true);
     try {
       changeStatus("offline");
-      console.log("CHANGE U");
       localStorage.clear();
       navigate("/landingPage");
     } catch (error) {
@@ -84,9 +82,6 @@ const Menu = () => {
       localStorage.setItem("lobbyId", response.data);
       localStorage.setItem("lobbyId", response.data);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(response);
-      console.log(response);
-
       navigate("/lobby");
     } catch (error) {
       toast.error(doHandleError(error));
@@ -208,9 +203,7 @@ const Menu = () => {
 export async function changeStatus(newStatus: string) {
   try {
     await api.post(`users/${localStorage.getItem("userId")}/status/change`, newStatus);
-    console.log("CHANGE USER STATUS");
   } catch (error) {
-    console.log("User Status was not changed");
     toast.error(doHandleError(error), { containerId: "2" });
   }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import { handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -195,7 +195,7 @@ const CharacterGrid = ({
       localStorage.setItem("selectedCharacter", characterId);
       updateInstruction("Waiting for other player to pick a character");
     } catch (error) {
-      toast.error(handleError(error), { containerId: "2" });
+      toast.error(handleError(error));
     }
   }
 
@@ -233,12 +233,7 @@ const CharacterGrid = ({
       guessPostDTO: guessPostDTO,
     });
     sendMessage("/app/guessImage", requestBody);
-    /*
-    setModalState({
-      isOpen: true,
-      content: <ModalGuessInformation strikes={response.data.strikes} />,
-    });
-    */
+    toast.warning("Wrong guess!");
   };
 
   const handleCloseModal = () => {
@@ -248,7 +243,7 @@ const CharacterGrid = ({
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
     <>
-      <ToastContainer containerId="2" {...toastContainerError} />
+      <ToastContainer {...toastContainerError} />
       <BaseContainer className="character-grid">
         {persons.map((character, idx) => (
           <Character

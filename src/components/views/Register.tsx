@@ -51,13 +51,6 @@ const Register = () => {
         
         return;
       }
-      else if (username === " " || password === " ") {
-        toast.error("Username and password cannot be empty");
-        
-        return;
-
-      }
-
       const requestBody = JSON.stringify({ username, password });
 
       if (userId === null && userToken === null) {
@@ -144,7 +137,7 @@ const Register = () => {
             ) : (
               <Button
                 style={{ marginLeft: "10px", width:"100%" }}
-                disabled={(!username || !password)}
+                disabled={(!username.trim() || !password.trim())}
                 onClick={() => doRegister()}
               >
                 Register
