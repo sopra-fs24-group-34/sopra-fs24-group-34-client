@@ -25,7 +25,11 @@ const Player = ({
   if (isCurrentUser) {
     resultClass = result;
   } else {
-    resultClass = result === "won" ? "lost" : "won";
+    if (result === "tie") {
+      resultClass = "tie"
+    } else {
+      resultClass = result === "won" ? "lost" : "won";
+    }
   }
 
   return (

@@ -38,6 +38,7 @@ const CharacterGrid = ({
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [roundNumber, setRoundNumber] = useState(0);
   const [strikes, setStrikes] = useState(0);
+  const [lastChance, setLastChance] = useState(false);
   const [maxStrikes, setMaxStrikes] = useState(
     Number(localStorage.getItem("maxStrikes"))
   );
@@ -67,6 +68,7 @@ const CharacterGrid = ({
         const data = body.data;
 
         console.log("Data: ", data);
+        setGameStatus(data.gameStatus);
 
         if (data.gameStatus === "END") {
           if (
@@ -77,8 +79,8 @@ const CharacterGrid = ({
           } else {
             localStorage.setItem("result", "lost");
           }
-
           cancelGameSubscriptions();
+          //cancelSubscription(`/games/${gameId}`, subscription);
           navigate("/endscreen");
         } else if (
           data.guess === false &&
@@ -99,16 +101,34 @@ const CharacterGrid = ({
           if (data.roundNumber === 1) {
             setGameStatus("GUESSING");
             setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            instructionUpdate(data);
           }
         } else if (header === "turn-update") {
           console.log("Turn update: ", data);
           setCurrentTurnPlayerId(data.currentTurnPlayerId);
           setHasSentMessage(false);
+          if (!lastChance) {
+            instructionUpdate(data);
+          }
         } else if (header === "round-update") {
           setCurrentTurnPlayerId(data.currentTurnPlayerId);
           setRoundNumber(data.roundNumber);
           setHasSentMessage(false);
-        } else if (header === "user-timeout") {
+          if (!lastChance) {
+            instructionUpdate(data);
+          }
+        } else if (data.gameStatus === "LASTCHANCE"){
+          setLastChance(true);
+          if (data.playerId !== playerId) {
+            updateInstruction("Oppenent guessed correctly.Your last try!")
+          } else {updateInstruction("Correct Guess! Oppenent has one last try")
+          }
+        } else if (data.gameStatus === "TIE") {
+          localStorage.setItem("result", "tie");
+          cancelGameSubscriptions();
+          navigate("/endscreen");
+        }
+        else if (header === "user-timeout") {
           //make timeout-modal with timer running down
           timeoutThreshold = data;
           setModalState({
@@ -150,6 +170,14 @@ const CharacterGrid = ({
     };
     */
   }, [persons]);
+
+  const instructionUpdate = (data) =>{
+    if (data.currentTurnPlayerId === playerId) {
+      updateInstruction("Your turn! Guess or use the chat")
+    }
+    else {updateInstruction("Opponents turn")
+    }
+  }
 
   async function pickCharacter(characterId, idx) {
     try {
@@ -262,7 +290,7 @@ const CharacterGrid = ({
 CharacterGrid.propTypes = {
   persons: PropTypes.array,
   updateInstruction: PropTypes.func,
-  hasSentMessage: PropTypes.boolean,
+  hasSentMessage: PropTypes.bool,
   setHasSentMessage: PropTypes.func,
 };
 
