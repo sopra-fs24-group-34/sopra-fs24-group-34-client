@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
 import { Spinner } from "components/ui/Spinner";
 import { Button } from "components/ui/Button";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
@@ -11,6 +12,8 @@ import { LogoutLogo } from "components/ui/LogoutLogo";
 import { disconnectWebSocket, getStompClient } from "./WebSocketService";
 import { closeLobby } from "./Lobby";
 import { changeStatus } from "./Menu";
+import { doHandleError } from "../../helpers/errorHandler";
+import { toastContainerError } from "./Toasts/ToastContainerError";
 
 const Player = ({
   user,
@@ -49,7 +52,6 @@ Player.propTypes = {
 };
 
 const Endscreen = () => {
-  // use react-router-dom's hook to access navigation, more info: https://reactrouter.com/en/main/hooks/use-navigate
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [gameResult, setGameResult] = useState<string>("won");
@@ -74,6 +76,7 @@ const Endscreen = () => {
 
         setGameResult(localStorage.getItem("result"));
       } catch (error) {
+        toast.error(doHandleError(error));
         console.error("Error fetching user data:", error);
       }
     }
@@ -126,13 +129,6 @@ const Endscreen = () => {
   };
 
   function handleToRegister() {
-    /*
-    localStorage.removeItem("gameId");
-    localStorage.removeItem("users");
-    localStorage.removeItem("playerId");
-    localStorage.removeItem("isCreator");
-    localStorage.removeItem("result");
-    */
     disconnectWebSocket();
     //implement
     navigate("/register");
@@ -209,6 +205,7 @@ const Endscreen = () => {
       </div>
 
       <BaseContainer className="view"></BaseContainer>
+      <ToastContainer {...toastContainerError}/>
     </BaseContainer>
   );
 };

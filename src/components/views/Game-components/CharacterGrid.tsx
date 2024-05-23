@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api, handleError } from "helpers/api";
+import { handleError } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -30,7 +30,7 @@ const CharacterGrid = ({
   persons,
   hasSentMessage,
   setHasSentMessage,
-  updateInstruction,
+  updateInstruction, updateModal,
 }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
@@ -52,7 +52,7 @@ const CharacterGrid = ({
   );
   const [visibleCharacters, setVisibleCharacters] = useState([]);
   const [modalState, setModalState] = useState({
-    isOpen: true,
+    isOpen: false,
     content: <ModalFirstInstructions />,
   });
   let timeoutThreshold = 10;
@@ -88,8 +88,8 @@ const CharacterGrid = ({
           data.playerId === playerId &&
           data.strikes !== 0
         ) {
-          setModalState({
-            isOpen: true,
+          updateModal({
+            isOpen: false,
             content: (
               <ModalGuessInformation
                 strikes={data.strikes}
@@ -193,8 +193,8 @@ const CharacterGrid = ({
       });
       sendMessage("/app/chooseImage", requestBody);
 
-      setModalState({
-        isOpen: true,
+      updateModal({
+        isOpen: false,
         content: <ModalPickInformation />,
       });
       setGameStatus("WAITING_FOR_OTHER_PLAYER");
@@ -202,7 +202,7 @@ const CharacterGrid = ({
       localStorage.setItem("selectedCharacter", characterId);
       updateInstruction("Waiting for other player to pick a character");
     } catch (error) {
-      toast.error(handleError(error), { containerId: "2" });
+      toast.error(handleError(error));
     }
   }
 
@@ -220,13 +220,14 @@ const CharacterGrid = ({
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
     if (playerId !== currentTurnPlayerId) {
-      alert("It's not your turn to guess!");
+      toast.error("It's not your turn to guess!");
+      
 
       return;
     }
     if (hasSentMessage) {
       // check if a message has been sent
-      alert("You cannot make a guess after sending a message!");
+      toast.error("You cannot make a guess after sending a message!");
 
       return;
     }
@@ -239,12 +240,7 @@ const CharacterGrid = ({
       guessPostDTO: guessPostDTO,
     });
     sendMessage("/app/guessImage", requestBody);
-    /*
-    setModalState({
-      isOpen: true,
-      content: <ModalGuessInformation strikes={response.data.strikes} />,
-    });
-    */
+    toast.warning("Wrong guess!");
   };
 
   const handleCloseModal = () => {
@@ -254,7 +250,7 @@ const CharacterGrid = ({
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
     <>
-      <ToastContainer containerId="2" {...toastContainerError} />
+      <ToastContainer {...toastContainerError} />
       <BaseContainer className="character-grid">
         {persons.map((character, idx) => (
           <Character
@@ -275,13 +271,11 @@ const CharacterGrid = ({
             hasSentMessage={hasSentMessage}
           />
         ))}
-        {
-          <ModalDisplay
-            isOpen={modalState.isOpen}
-            content={modalState.content}
-            handleClose={handleCloseModal}
-          />
-        }
+        <ModalDisplay
+          isOpen={modalState.isOpen}
+          content={modalState.content}
+          handleClose={handleCloseModal}
+        />
       </BaseContainer>
     </>
   );
@@ -292,6 +286,7 @@ CharacterGrid.propTypes = {
   updateInstruction: PropTypes.func,
   hasSentMessage: PropTypes.bool,
   setHasSentMessage: PropTypes.func,
+  updateModal: PropTypes.func,
 };
 
 export default CharacterGrid;

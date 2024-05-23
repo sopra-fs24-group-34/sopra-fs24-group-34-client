@@ -12,17 +12,31 @@
     @include alignCenterColumn;
     height: 80vh;
 
-    .instructions {
-      @include centerColumn;
-      background-color: transparentize(white, 0.2);
-      border-radius: $borderRadius;
-      padding: 10px;
-      height: 10%;
+    .header {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
       margin-top: 1em;
 
-      h1 {
-        font-size: 35px;
-        color: black;
+      .instructions {
+        @include centerColumn;
+        background-color: transparentize(white, 0.2);
+        border-radius: $borderRadius;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        h1 {
+          font-size: 35px;
+          color: black;
+        }
+      }
+
+      .help-button {
+        font-size: 40px;
+        border-radius: 1em;
+        padding: 25px;
       }
     }
 
