@@ -39,7 +39,7 @@ const Game = () => {
       const response = await api.get(`/games/${gameId}/images`);
       setCharacters(response.data);
     } catch (error) {
-      toast.error(doHandleError(error));
+      toast.error(doHandleError(error), { containerId: "game" });
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ const Game = () => {
 
   return (
     <BaseContainer className="game container">
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="game" {...toastContainerError} />
       <div className="header">
         <div className="instructions">
           <h1>Current Instruction: {Instructions}</h1>

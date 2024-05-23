@@ -37,7 +37,6 @@ const CharacterGrid = ({
   const playerId = Number(localStorage.getItem("playerId"));
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [roundNumber, setRoundNumber] = useState(0);
-  const [strikes, setStrikes] = useState(0);
   const [lastChance, setLastChance] = useState(false);
   const [maxStrikes, setMaxStrikes] = useState(
     Number(localStorage.getItem("maxStrikes"))
@@ -88,6 +87,7 @@ const CharacterGrid = ({
           data.playerId === playerId &&
           data.strikes !== 0
         ) {
+          toast.warning(`Incorrect guess! ${data.strikes} / ${maxStrikes}`, { containerId: "grid" });
           updateModal({
             isOpen: false,
             content: (
@@ -202,7 +202,7 @@ const CharacterGrid = ({
       localStorage.setItem("selectedCharacter", characterId);
       updateInstruction("Waiting for other player to pick a character");
     } catch (error) {
-      toast.error(handleError(error));
+      toast.error(handleError(error), { containerId: "grid" });
     }
   }
 
@@ -220,14 +220,14 @@ const CharacterGrid = ({
   // Func to guess a character
   const guessCharacter = async (characterId, idx) => {
     if (playerId !== currentTurnPlayerId) {
-      toast.error("It's not your turn to guess!");
+      toast.error("It's not your turn to guess!", { containerId: "grid" });
       
 
       return;
     }
     if (hasSentMessage) {
       // check if a message has been sent
-      toast.error("You cannot make a guess after sending a message!");
+      toast.error("You cannot make a guess after sending a message!", { containerId: "grid" });
 
       return;
     }
@@ -240,7 +240,6 @@ const CharacterGrid = ({
       guessPostDTO: guessPostDTO,
     });
     sendMessage("/app/guessImage", requestBody);
-    toast.warning("Wrong guess!");
   };
 
   const handleCloseModal = () => {
@@ -250,7 +249,7 @@ const CharacterGrid = ({
   // Returns the grid with 20 characters. Each character receives the functionality.
   return (
     <>
-      <ToastContainer {...toastContainerError} />
+      <ToastContainer containerId="grid" {...toastContainerError} />
       <BaseContainer className="character-grid">
         {persons.map((character, idx) => (
           <Character
