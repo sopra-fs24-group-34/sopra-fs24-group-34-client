@@ -442,7 +442,7 @@ const LobbyPage = () => {
           </li>
           <li>
             <BaseContainer className="friends-container">
-              <h1>Invitable Friends</h1>
+              <h1>Friends online</h1>
               {isCreator ? (
                 <ul className="list">
                   {invitableFriends.map((friend) => (
