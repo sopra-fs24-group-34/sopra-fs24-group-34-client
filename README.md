@@ -1,5 +1,5 @@
 <p>
-  <img src="public/favicon.ico" alt="Guess Who Logo" width="216" height="40">
+  <img src="public/favicon.ico" alt="Guess Who Logo">
 </p>
 
 # SoPra FS24 group 34 Client - Guess Who?
@@ -50,13 +50,15 @@ The Lobby, CharacterGrid, and ChatLog all use the [WebSocketService](https://git
 
 ## Launch & Deployment
 
-- npm run dev
-  Runs the app in the development mode. Open http://localhost:3000 to view it in the browser. The page will reload if you make edits. You will also see any lint errors in the console.
+`npm run dev`
 
-- npm run build
-  Builds the app for production to the build folder. It correctly bundles React in production mode and optimizes the build for the best performance.
+Runs the app in the development mode. Open http://localhost:3000 to view it in the browser. The page will reload if you make edits. You will also see any lint errors in the console.
 
-  The build is minified and the filenames include the hashes. Your app is ready to be deployed!
+`npm run build`
+
+Builds the app for production to the build folder. It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes. Your app is ready to be deployed!
 
 ## Interface User Flow
 
