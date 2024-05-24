@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Spinner } from "components/ui/Spinner";
+import { api } from "helpers/api";
 import { Button } from "components/ui/Button";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,7 +30,7 @@ const Player = ({
     resultClass = result;
   } else {
     if (result === "tie") {
-      resultClass = "tie"
+      resultClass = "tie";
     } else {
       resultClass = result === "won" ? "lost" : "won";
     }
@@ -69,7 +70,10 @@ const Endscreen = () => {
         const usersString = localStorage.getItem("users");
         if (usersString) {
           const usersArray: User[] = JSON.parse(usersString);
-          const guestUser = usersArray.find(user => user.id === Number(userId) && user.username.startsWith("Guest"));
+          const guestUser = usersArray.find(
+            (user) =>
+              user.id === Number(userId) && user.username.startsWith("Guest")
+          );
           setIsGuest(!!guestUser);
           setUsers(usersArray);
         }
@@ -126,7 +130,7 @@ const Endscreen = () => {
     localStorage.removeItem("timePerRound");
     localStorage.removeItem("selectedCharacter");
     disconnectWebSocket();
-  };
+  }
 
   function handleToRegister() {
     disconnectWebSocket();
@@ -144,17 +148,28 @@ const Endscreen = () => {
     navigate("/landingPage");
   }
 
-  function handleToLobby() {
-    changeStatus("INLOBBY_PREPARING");
-    localStorage.removeItem("gameId");
-    localStorage.removeItem("users");
-    localStorage.removeItem("playerId");
-    localStorage.removeItem("isCreator");
-    localStorage.removeItem("result");
-    localStorage.removeItem("maxStrikes");
-    localStorage.removeItem("timePerRound");
-    localStorage.removeItem("selectedCharacter");
-    navigate("/lobby");
+  async function handleToLobby() {
+    try {
+      const response = await api.get(`/lobbies/${localStorage.getItem("lobbyId")}`);
+      if (!response.data) {
+        toast.error("Lobby not found");
+        
+        return;
+      }
+      changeStatus("INLOBBY_PREPARING");
+      localStorage.removeItem("gameId");
+      localStorage.removeItem("users");
+      localStorage.removeItem("playerId");
+      localStorage.removeItem("isCreator");
+      localStorage.removeItem("result");
+      localStorage.removeItem("maxStrikes");
+      localStorage.removeItem("timePerRound");
+      localStorage.removeItem("selectedCharacter");
+      navigate("/lobby");
+    } catch (error) {
+      toast.error(doHandleError(error));
+      console.error("Error changing status to INLOBBY_PREPARING:", error);
+    }
   }
 
   return (
@@ -204,7 +219,7 @@ const Endscreen = () => {
       </div>
 
       <BaseContainer className="view"></BaseContainer>
-      <ToastContainer {...toastContainerError}/>
+      <ToastContainer {...toastContainerError} />
     </BaseContainer>
   );
 };
