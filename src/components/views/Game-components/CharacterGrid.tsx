@@ -24,7 +24,10 @@ const CharacterGrid = ({
   persons,
   hasSentMessage,
   setHasSentMessage,
-  updateInstruction, updateModal, currentTurnPlayerId, setCurrentTurnPlayerId
+  updateInstruction,
+  updateModal,
+  currentTurnPlayerId,
+  setCurrentTurnPlayerId,
 }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
@@ -35,7 +38,7 @@ const CharacterGrid = ({
     Number(localStorage.getItem("maxStrikes"))
   );
   //nedim-j: data.gameStatus can be CHOOSING, GUESSING, END
-  const [gameStatus, setGameStatus] = useState("CHOOSING");
+  const [gameStatus, setGameStatus] = useState<String>("CHOOSING");
   const storedCharacterId = Number(localStorage.getItem("selectedCharacter"));
   const [selectedCharacter, setSelectedCharacter] = useState(
     !isNaN(storedCharacterId) && storedCharacterId !== 0
@@ -58,7 +61,6 @@ const CharacterGrid = ({
         const header = body["event-type"];
         const data = body.data;
 
-        setGameStatus(data.gameStatus);
 
         if (data.gameStatus === "END") {
           if (
@@ -78,7 +80,9 @@ const CharacterGrid = ({
           data.playerId === playerId &&
           data.strikes !== 0
         ) {
-          toast.warning(`Incorrect guess! ${data.strikes} / ${maxStrikes}`, { containerId: "grid" });
+          toast.warning(`Incorrect guess! ${data.strikes} / ${maxStrikes}`, {
+            containerId: "grid",
+          });
           updateModal({
             isOpen: false,
             content: (
@@ -107,18 +111,18 @@ const CharacterGrid = ({
           if (!lastChance) {
             instructionUpdate(data);
           }
-        } else if (data.gameStatus === "LASTCHANCE"){
+        } else if (data.gameStatus === "LASTCHANCE") {
           setLastChance(true);
           if (data.playerId !== playerId) {
-            updateInstruction("Oppenent guessed correctly.Your last try!")
-          } else {updateInstruction("Correct Guess! Oppenent has one last try")
+            updateInstruction("Oppenent guessed correctly.Your last try!");
+          } else {
+            updateInstruction("Correct Guess! Oppenent has one last try");
           }
         } else if (data.gameStatus === "TIE") {
           localStorage.setItem("result", "tie");
           cancelGameSubscriptions();
           navigate("/endscreen");
-        }
-        else if (header === "user-timeout") {
+        } else if (header === "user-timeout") {
           //make timeout-modal with timer running down
           timeoutThreshold = data;
           setModalState({
@@ -135,18 +139,21 @@ const CharacterGrid = ({
           //cancelSubscription(`/games/${gameId}`, subscription);
           navigate("/endscreen");
         } else if (header === "update-game-state") {
-          if(!data.currentTurnPlayerId) {
-            setGameStatus("CHOOSING");
-          } else {
+
+          setRoundNumber(data.roundNumber);
+          if (data.currentTurnPlayerId) {
+
             setCurrentTurnPlayerId(data.currentTurnPlayerId);
-            setRoundNumber(data.roundNumber);
           }
-          if (data.roundNumber >= 1 || selectedCharacter !== null) {
-            setGameStatus("GUESSING");
+          if (selectedCharacter === null) {
+            setGameStatus("CHOOSING");
+          } else if (data.event === "CHOOSING") {
+            setGameStatus("WAITING_FOR_OTHER_PLAYER");
+          } else {
+            setGameStatus(data.event);
           }
-        }
-        else {
-          console.log("Unhandled WS event: ", header, data);
+        } else {
+          console.error("Unhandled WS event: ", header, data);
         }
       };
 
@@ -157,16 +164,15 @@ const CharacterGrid = ({
       setVisibleCharacters(Array(persons.length).fill(true)); // Initialize as visible
       ws();
     }
-    
   }, [persons]);
 
-  const instructionUpdate = (data) =>{
+  const instructionUpdate = (data) => {
     if (data.currentTurnPlayerId === playerId) {
-      updateInstruction("Your turn! Guess or use the chat")
+      updateInstruction("Your turn! Guess or use the chat");
+    } else {
+      updateInstruction("Opponents turn");
     }
-    else {updateInstruction("Opponents turn")
-    }
-  }
+  };
 
   async function pickCharacter(characterId, idx) {
     try {
@@ -210,13 +216,14 @@ const CharacterGrid = ({
   const guessCharacter = async (characterId, idx) => {
     if (playerId !== currentTurnPlayerId) {
       toast.error("It's not your turn to guess!", { containerId: "grid" });
-      
 
       return;
     }
     if (hasSentMessage) {
       // check if a message has been sent
-      toast.error("You cannot make a guess after sending a message!", { containerId: "grid" });
+      toast.error("You cannot make a guess after sending a message!", {
+        containerId: "grid",
+      });
 
       return;
     }
@@ -235,38 +242,46 @@ const CharacterGrid = ({
     setModalState({ isOpen: false, content: null });
   };
 
+  useEffect(() => {
+    displayGame();
+  }, [gameStatus]);
+
   // Returns the grid with 20 characters. Each character receives the functionality.
-  return (
-    <>
-      <ToastContainer containerId="grid" {...toastContainerError} />
-      <BaseContainer className="character-grid">
-        {persons.map((character, idx) => (
-          <Character
-            key={character.id}
-            character={character}
-            visibleCharacter={visibleCharacters[idx]}
-            gameStatus={gameStatus}
-            pickCharacter={() => pickCharacter(character.id, idx)}
-            foldCharacter={() => foldCharacter(idx)}
-            guessCharacter={
-              playerId === currentTurnPlayerId && !hasSentMessage
-                ? () => guessCharacter(character.id, idx)
-                : () => {}
-            }
-            highlight={character.id === selectedCharacter ? true : false}
-            currentTurnPlayerId={currentTurnPlayerId}
-            playerId={playerId}
-            hasSentMessage={hasSentMessage}
+  function displayGame() {
+    return (
+      <>
+        <ToastContainer containerId="grid" {...toastContainerError} />
+        <BaseContainer className="character-grid">
+          {persons.map((character, idx) => (
+            <Character
+              key={character.id}
+              character={character}
+              visibleCharacter={visibleCharacters[idx]}
+              gameStatus={gameStatus}
+              pickCharacter={() => pickCharacter(character.id, idx)}
+              foldCharacter={() => foldCharacter(idx)}
+              guessCharacter={
+                playerId === currentTurnPlayerId && !hasSentMessage
+                  ? () => guessCharacter(character.id, idx)
+                  : () => {}
+              }
+              highlight={character.id === selectedCharacter ? true : false}
+              currentTurnPlayerId={currentTurnPlayerId}
+              playerId={playerId}
+              hasSentMessage={hasSentMessage}
+            />
+          ))}
+          <ModalDisplay
+            isOpen={modalState.isOpen}
+            content={modalState.content}
+            handleClose={handleCloseModal}
           />
-        ))}
-        <ModalDisplay
-          isOpen={modalState.isOpen}
-          content={modalState.content}
-          handleClose={handleCloseModal}
-        />
-      </BaseContainer>
-    </>
-  );
+        </BaseContainer>
+      </>
+    );
+  }
+
+  return displayGame();
 };
 
 CharacterGrid.propTypes = {
