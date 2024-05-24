@@ -26,12 +26,14 @@ QuestionField.propTypes = {
 };
 
 
-const ChatLog = ({ hasSentMessage, setHasSentMessage }) => {
+const ChatLog = ({ hasSentMessage, setHasSentMessage,  currentTurnPlayerId,}) => {
   const gameId = localStorage.getItem("gameId");
   const userId = localStorage.getItem("userId");
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState<string>("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const playerId = Number(localStorage.getItem("playerId"));
+
 
   useEffect(() => {
     async function ws() {
@@ -97,6 +99,7 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage }) => {
             <button
               className="chat-log-send-button"
               onClick={switchTurn}
+              disabled={playerId !== currentTurnPlayerId}
             >
           Switch Turn
             </button>
@@ -133,6 +136,7 @@ ChatLog.propTypes = {
   updateInstruction: PropTypes.func,
   hasSentMessage: PropTypes.boolean,
   setHasSentMessage: PropTypes.func,
+  currentTurnPlayerId: PropTypes.number,
 };
 
 export default ChatLog;

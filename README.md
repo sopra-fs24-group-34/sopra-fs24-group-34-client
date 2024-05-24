@@ -6,13 +6,14 @@
 
 ## Introduction
 
-Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We implemented the traditional tabletop game where users have to guess characters by asking yes or no questions.
+**Motivation**: Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We developed a digital version of "Guess Who?" it combines the fun and nostalgia of a classic board game with the interactive and dynamic possibilities of modern technology. It offers an engaging way to enhance problem-solving skills, logical reasoning, and deductive thinking. By programming "Guess Who?", we can create an accessible and scalable platform that brings friends and families together, bridging distances and encouraging social interaction in a playful and educational manner.
 The rules are simple:
-
-1. **Setup**: Each player selects a character card without revealing it to their opponent. This card represents the character the opponent must guess.
+1. **Setup**:  Each player selects a character card without revealing it to their opponent. This card represents the character the opponent must guess.
 2. **Taking Turns**: Players take turns asking yes or no questions about the opponent's character in order to narrow down the possibilities.
 3. **Elimination**: Based on the answers to the questions, players can start eliminating characters that do not fit the description until they are confident enough to make a guess.
 4. **Winning**: The first player to correctly guess their opponent's character wins the game!
+
+**Goal**: The primary goal of programming "Guess Who?" is to create a user-friendly, interactive digital game that replicates the experience of the physical board game while introducing new features and enhancements. This includes developing a responsive and intuitive user interface for question-and-answer mechanics, and ensuring the game is accessible on Google Chrome. Additionally, the tabletop game contains always the same batch of characters whereas our implementation has a much bigger pool of characters. The player can even choose which characters are part of his game, thus making it even more customizable than the original.
 
 ## Table of Contents
 

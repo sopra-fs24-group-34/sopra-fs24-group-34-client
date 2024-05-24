@@ -21,6 +21,7 @@ const Game = () => {
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [Instructions, setInstructions] = useState<String>("Pick a character");
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [modalState, setModalState] = useState({
     isOpen: false,
     content: <ModalFirstInstructions />,
@@ -43,6 +44,7 @@ const Game = () => {
 
   useEffect(() => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
+    setCurrentTurnPlayerId(Number(localStorage.getItem("currentTurnPlayerId"))); // Initialize from localStorage
     fetchImages();
   }, []);
 
@@ -74,10 +76,14 @@ const Game = () => {
           setHasSentMessage={setHasSentMessage} // pass down the state setter
           updateInstruction={setInstructions}
           updateModal={setModalState}
+          currentTurnPlayerId={currentTurnPlayerId} // pass current turn player ID
+          setCurrentTurnPlayerId={setCurrentTurnPlayerId}
         />
         <ChatLog
           hasSentMessage={hasSentMessage} // pass down the state
           setHasSentMessage={setHasSentMessage} // pass down the state setter
+          currentTurnPlayerId={currentTurnPlayerId} // pass current turn player ID
+
         />
         <ModalDisplay
           isOpen={modalState.isOpen}
