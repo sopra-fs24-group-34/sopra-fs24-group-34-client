@@ -30,12 +30,11 @@ const CharacterGrid = ({
   persons,
   hasSentMessage,
   setHasSentMessage,
-  updateInstruction, updateModal,
+  updateInstruction, updateModal, currentTurnPlayerId, setCurrentTurnPlayerId
 }) => {
   const navigate = useNavigate();
   const gameId = Number(localStorage.getItem("gameId"));
   const playerId = Number(localStorage.getItem("playerId"));
-  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
   const [roundNumber, setRoundNumber] = useState(0);
   const [lastChance, setLastChance] = useState(false);
   const [maxStrikes, setMaxStrikes] = useState(
@@ -289,6 +288,8 @@ CharacterGrid.propTypes = {
   hasSentMessage: PropTypes.bool,
   setHasSentMessage: PropTypes.func,
   updateModal: PropTypes.func,
+  currentTurnPlayerId: PropTypes.number,
+  setCurrentTurnPlayerId: PropTypes.func,
 };
 
 export default CharacterGrid;
