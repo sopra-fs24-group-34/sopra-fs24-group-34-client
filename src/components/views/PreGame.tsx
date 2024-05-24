@@ -185,7 +185,7 @@ const PreGame = () => {
               <h1>Current Instruction: Remove unsuited characters</h1>
             </div>
             <Button className="help-button" onClick={() => handleOpenModal()}>
-              ?
+              &#63;
             </Button>
           </div>
 

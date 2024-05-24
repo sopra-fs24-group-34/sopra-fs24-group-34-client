@@ -19,24 +19,28 @@
       align-items: center;
       width: 100%;
       margin-top: 1em;
+      margin-bottom: 1em;
 
       .instructions {
         @include centerColumn;
         background-color: transparentize(white, 0.2);
         border-radius: $borderRadius;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 10px;
+        height: 100%;
+        margin: 0;
 
         h1 {
-          font-size: 35px;
+          margin: 0;
+          font-size: 30px;
           color: black;
         }
       }
 
       .help-button {
-        font-size: 40px;
-        border-radius: 1em;
-        padding: 25px;
+        font-size: 35px;
+        width: 60px; 
+        height: 60px; 
+        border-radius: 50%;
       }
     }
 
@@ -102,11 +106,14 @@
 @media (min-width: $SMALL_WIDTH) and (max-width: $SMALL_LAPTOPS_WIDTH) {
   .pregame {
     &.container {
-      .instructions {
-        h1 {
-          font-size: 25px;
+      .header {
+        .instructions {
+          h1 {
+            font-size: 25px;
+          }
         }
       }
+      
 
       .game {
         margin: 10px;

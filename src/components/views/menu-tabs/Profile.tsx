@@ -35,16 +35,17 @@ const Invitation = ({ creatorId, profilePicture, username, lobbyId, func }) => (
         style={{
           backgroundColor: "green",
           marginRight: "10px",
+          padding: "10px"
         }}
         onClick={() => func(true, creatorId, lobbyId)}
       >
-        Join
+        &#10003;
       </Button>
       <Button
-        style={{ backgroundColor: "red" }}
+        style={{ backgroundColor: "red", padding: "10px" }}
         onClick={() => func(false, creatorId, lobbyId)}
       >
-        Decline
+        &#10005;
       </Button>
     </div>
   </>
@@ -95,6 +96,7 @@ const Profile = () => {
   const [editedUsername, setEditedUsername] = useState("");
   const [editedPassword, setEditedPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState(defaultImage); // Highlighted change
+  const [InitialProfilePicture, setInitialProfilePicture] = useState(defaultImage); // Highlighted change
   const [totalPlayed, setTotalPlayed] = useState(0);
   const [totalWins, setTotalWins] = useState(0);
   const [showImagePicker, setShowImagePicker] = useState(false);
@@ -158,6 +160,7 @@ const Profile = () => {
       setInitialUsername(response.data.username);
       setInitialPassword(response.data.password);
       setProfilePicture(response.data.profilePicture);
+      setInitialProfilePicture(response.data.profilePicture);
       setTotalPlayed(response.data.totalplayed);
       setTotalWins(response.data.totalwins);
       setLoading(false);
@@ -284,7 +287,7 @@ const Profile = () => {
             <Button
               className="editButton"
               onClick={() => sendEdit()}
-              disabled={!editedUsername.trim() || !editedPassword.trim()}
+              disabled={!editedUsername.trim() && !editedPassword.trim() && profilePicture === InitialProfilePicture ? true : undefined}
             >
               Save
             </Button>

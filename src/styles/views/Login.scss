@@ -17,7 +17,7 @@
     padding-left: 6%;
     padding-right: 6%;
     border-radius: 0.75em;
-    background-color: transparentize(white, 0.2);
+    background-color: $background_transparent;
     transition: opacity 0.5s ease, transform 0.5s ease;
     box-shadow: $dropShadow;
   }
@@ -44,7 +44,9 @@
   }
   &.h1 {
     @include center;
+    font-family: $fontNormal;
     font-size: 45px;
+    font-weight: 100;
   }
   &.button-form {
     @include justifyCenterColumn;

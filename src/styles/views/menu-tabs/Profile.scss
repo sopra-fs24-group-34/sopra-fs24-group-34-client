@@ -28,8 +28,7 @@
   .profile-wrapper {
     @include centerColumn;
     background-color: $background_focus_orange;
-    flex: 2;
-    //width: 67%;
+    width: 60%;
     height: 100%;
     padding: 10px;
     //margin-right: 0.5em;
@@ -49,8 +48,7 @@
         align-items: center;
         justify-self: center;
         border-radius: $borderRadius;
-        min-width: 70px;
-        max-width: 120px;
+        width: 30%;
         padding: 0;
 
         .overlay {
@@ -129,9 +127,7 @@
     align-items: center;
     justify-content: flex-start;
     background-color: $background_focus_blue;
-    //width: 30%;
-    flex: 1;
-    //margin-left: 0.5em;
+    width: 40%;
     max-height: 300px;
     border-radius: $borderRadius;
     box-shadow: $dropShadow;
@@ -153,15 +149,14 @@
       .friend-container {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
         margin-bottom: 1em;
 
         .friend-picture {
           border-radius: $borderRadius;
-          height: 70px;
-          width: 70px;
+          width: 30%;
           padding: 0;
           margin-right: 1em;
+          margin-left: 0;
         }
 
         .value {
@@ -227,7 +222,7 @@
     .profile-wrapper {
       .container {
         .picture {
-          width: 150px;
+          max-width: 80px;
         }
 
         .details {
@@ -241,6 +236,7 @@
       }
     }
     .invitations-container {
+      
       .list {
         .friend-container {
           font-size: 14px;

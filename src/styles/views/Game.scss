@@ -31,15 +31,16 @@
 
         h1 {
           margin: 0;
-          font-size: 35px;
+          font-size: 30px;
           color: black;
         }
       }
 
       .help-button {
         font-size: 35px;
-        border-radius: 1em;
-        padding: 25px;
+        width: 60px; 
+        height: 60px; 
+        border-radius: 50%;
       }
     }
 
@@ -93,9 +94,11 @@
 @media (min-width: $SMALL_WIDTH) and (max-width: $SMALL_LAPTOPS_WIDTH) {
   .game {
     &.container {
-      .instructions {
-        h1 {
-          font-size: 25px;
+      .header {
+        .instructions {
+          h1 {
+            font-size: 25px;
+          }
         }
       }
 

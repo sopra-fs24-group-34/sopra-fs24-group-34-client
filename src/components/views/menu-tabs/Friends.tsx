@@ -191,20 +191,21 @@ const Friends = () => {
                         style={{
                           backgroundColor: "green",
                           marginRight: "10px",
+                          padding: "1em"
                         }}
                         onClick={() =>
                           answerFriendRequest(true, requests.friendId)
                         }
                       >
-                        Accept
+                        &#10003;
                       </Button>
                       <Button
-                        style={{ backgroundColor: "red" }}
+                        style={{ backgroundColor: "red", padding: "1em" }}
                         onClick={() =>
                           answerFriendRequest(false, requests.friendId)
                         }
                       >
-                        Reject
+                        &#10005;
                       </Button>
                     </div>
                   </div>

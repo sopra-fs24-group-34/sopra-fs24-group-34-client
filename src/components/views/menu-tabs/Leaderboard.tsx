@@ -72,7 +72,7 @@ const Leaderboard = () => {
         <div className="title-row">
           <div className="header">Top players</div>
           <div className="sorting">
-            <select
+            <select className="dropdown"
               value={selectedCriteria}
               onChange={(e) => handleSort(e.target.value)}
             >
