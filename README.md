@@ -6,29 +6,30 @@
 
 ## Introduction
 
-Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We implemented the traditional tabletop game where users have to guess characters by asking yes or no questions.
+**Motivation**: Does the person have brown eyes? No! Did you forget this game? "Guess Who" is back. We developed a digital version of "Guess Who?" it combines the fun and nostalgia of a classic board game with the interactive and dynamic possibilities of modern technology. It offers an engaging way to enhance problem-solving skills, logical reasoning, and deductive thinking. By programming "Guess Who?", we can create an accessible and scalable platform that brings friends and families together, bridging distances and encouraging social interaction in a playful and educational manner.
 The rules are simple:
-
-1. **Setup**: Each player selects a character card without revealing it to their opponent. This card represents the character the opponent must guess.
+1. **Setup**:  Each player selects a character card without revealing it to their opponent. This card represents the character the opponent must guess.
 2. **Taking Turns**: Players take turns asking yes or no questions about the opponent's character in order to narrow down the possibilities.
 3. **Elimination**: Based on the answers to the questions, players can start eliminating characters that do not fit the description until they are confident enough to make a guess.
 4. **Winning**: The first player to correctly guess their opponent's character wins the game!
 
+**Goal**: The primary goal of programming "Guess Who?" is to create a user-friendly, interactive digital game that replicates the experience of the physical board game while introducing new features and enhancements. This includes developing a responsive and intuitive user interface for question-and-answer mechanics, and ensuring the game is accessible on Google Chrome. Additionally, the tabletop game contains always the same batch of characters whereas our implementation has a much bigger pool of characters. The player can even choose which characters are part of his game, thus making it even more customizable than the original.
+
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Technologies](#technologies)
-3. [High-level Components](#HLC)
-4. [Launch & Deployment](#LD)
-5. [Interface User Flow](#IUF)
-6. [Roadmap](#roadmap)
-7. [Authors and Acknowledgment](#AAA)
-8. [Licencse](#licence)
-9. [Further Material](#FM)
-   1. [UML Diagram](#uml)
-   2. [Component Diagram](#component)
-   3. [Activity Diagram](#activity)
-   4. [Figma Mockups](#figma)
+1. Introduction
+2. Technologies
+3. High-level Components
+4. Launch & Deployment
+5. Interface User Flow
+6. Roadmap
+7. Authors and Acknowledgment
+8. License
+9. Further Material
+   1. UML Diagram
+   2. Component Diagram
+   3. Activity Diagram
+   4. Figma Mockups
 
 ## Technologies
 
@@ -126,7 +127,7 @@ In game, the users have a variety of options:
 
 We want to express our sincere gratitude to [Marco Leder](https://www.github.com/marcoleder) for his outstanding expertise and support throughout the development of our project.
 
-## Licencse
+## License
 
 [MIT license](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/LICENSE)
 

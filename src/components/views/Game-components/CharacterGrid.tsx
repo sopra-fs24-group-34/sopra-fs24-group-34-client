@@ -11,14 +11,8 @@ import ModalDisplay from "./modalContent/ModalDisplay";
 import ModalFirstInstructions from "./modalContent/ModalFirstInstructions";
 import ModalGuessInformation from "./modalContent/ModalGuessInformation";
 import ModalPickInformation from "./modalContent/ModalPickInformation";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
 import {
   cancelGameSubscriptions,
-  cancelSubscription,
-  connectWebSocket,
-  disconnectWebSocket,
-  getStompClient,
   makeSubscription,
   sendMessage,
   waitForConnection,
@@ -66,6 +60,7 @@ const CharacterGrid = ({
         const body = JSON.parse(message.body);
         const header = body["event-type"];
         const data = body.data;
+
 
         if (data.gameStatus === "END") {
           if (
@@ -147,6 +142,7 @@ const CharacterGrid = ({
 
           setRoundNumber(data.roundNumber);
           if (data.currentTurnPlayerId) {
+
             setCurrentTurnPlayerId(data.currentTurnPlayerId);
           }
           if (selectedCharacter === null) {

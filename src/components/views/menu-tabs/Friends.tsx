@@ -8,7 +8,6 @@ import PropTypes from "prop-types";
 import "styles/views/menu-tabs/Friends.scss";
 import { doHandleError } from "../../../helpers/errorHandler";
 import { toastContainerError } from "../Toasts/ToastContainerError";
-import { toastContainerSuccess } from "../Toasts/ToastContainerSuccess";
 
 const AddFriendField = (props) => {
   return (

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { api, handleError } from "helpers/api";
+import { api } from "helpers/api";
 import { useNavigate } from "react-router-dom";
 import { Button } from "components/ui/Button";
 import "styles/views/Login.scss";
@@ -44,7 +44,6 @@ const Login = () => {
       setLoading(true);
       const requestBody = JSON.stringify({ username, password });
       const response = await api.post("/login", requestBody);
-      console.log("Profile: ", response);
 
       // Store the token into the local storage.
       localStorage.setItem("userToken", response.data.token);

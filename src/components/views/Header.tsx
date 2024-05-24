@@ -1,5 +1,4 @@
 import React from "react";
-import { ReactLogo } from "../ui/ReactLogo";
 import PropTypes from "prop-types";
 import "../../styles/views/Header.scss";
 import logo_big from "../../styles/Assets/logo_big.png";

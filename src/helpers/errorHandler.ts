@@ -11,6 +11,8 @@ export const doHandleError = (error: any): string => {
       return "Forbidden. You do not have permission to access this resource.";
     case 404:
       return "Whoops. Seems like what you are looking for does not exist";
+    case 409:
+      return "Conflict. What you are trying to do does not work. "
     case 500:
       return "Internal Server Error. Please try again later.";
     default:

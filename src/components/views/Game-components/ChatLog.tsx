@@ -3,9 +3,7 @@ import { handleError } from "helpers/api";
 import "../../../styles/views/Game-components/ChatLog.scss";
 import PropTypes from "prop-types";
 import BaseContainer from "../../ui/BaseContainer";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
-import { getStompClient, makeSubscription, sendMessage, waitForConnection } from "../WebSocketService";
+import { makeSubscription, sendMessage } from "../WebSocketService";
 
 // Defines the structure of the question field
 const QuestionField = (props) => {
@@ -45,7 +43,6 @@ const ChatLog = ({ hasSentMessage, setHasSentMessage,  currentTurnPlayerId,}) =>
         const header = body["event-type"];
         const data = body.data;
 
-        console.log("Header: ", header, "\nReceived message: ", data.message);
         setMessages((prevMessages) => [...prevMessages, data.message]);
       };
       const subscription = await makeSubscription(`/games/${gameId}/chat`, callback);
