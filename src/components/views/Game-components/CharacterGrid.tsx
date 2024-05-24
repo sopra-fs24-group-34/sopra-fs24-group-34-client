@@ -149,8 +149,8 @@ const CharacterGrid = ({
           if(!data.currentTurnPlayerId) {
             setGameStatus("CHOOSING");
           } else {
-          setCurrentTurnPlayerId(data.currentTurnPlayerId);
-          setRoundNumber(data.roundNumber);
+            setCurrentTurnPlayerId(data.currentTurnPlayerId);
+            setRoundNumber(data.roundNumber);
           }
           if (data.roundNumber >= 1 || selectedCharacter !== null) {
             setGameStatus("GUESSING");
