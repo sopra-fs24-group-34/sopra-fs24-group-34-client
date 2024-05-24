@@ -25,7 +25,7 @@ const Game = () => {
   const [isCreator, setIsCreator] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [Instructions, setInstructions] = useState<String>("Pick a character");
-  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState(null);
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState();
   const [modalState, setModalState] = useState({
     isOpen: false,
     content: <ModalFirstInstructions />,
@@ -48,7 +48,6 @@ const Game = () => {
 
   useEffect(() => {
     setIsCreator(JSON.parse(localStorage.getItem("isCreator")));
-    setCurrentTurnPlayerId(Number(localStorage.getItem("currentTurnPlayerId"))); // Initialize from localStorage
     fetchImages();
   }, []);
 
