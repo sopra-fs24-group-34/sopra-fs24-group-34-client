@@ -1,5 +1,5 @@
 <p>
-  <img src="Client/public/favicon.ico" alt="Guess Who Logo" width="216" height="40">
+  <img src="public/favicon.ico" alt="Guess Who Logo" width="216" height="40">
 </p>
 
 # SoPra FS24 group 34 Client - Guess Who?
@@ -38,7 +38,15 @@ To establish a connection between the front- and backend REST is used. When crea
 
 ## High-level Components
 
-some text
+The [Menu](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/src/components/views/Menu.tsx) screen is the first entry point of a newly registered or logged-in user. Here, a user can switch between different content via the navbar, create a new lobby, or join an already existing lobby using the lobby code.
+
+The [Lobby](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/src/components/views/Lobby.tsx) view is used to gather all the relevant information to create a game. The lobby host can choose the number of strikes in the game, invite his/her friends, and start the game. Starting the game sends a message to the backend via a stomp websocket connection to create the game with its configurations, redirects the host to the pregame and further notifies the joinee to also navigate to the pregame. 
+
+The [CharacterGrid](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/src/components/views/Game-components/CharacterGrid.tsx) component is the main component of the frontend. It handles the logic of the game, like picking and guessing a character, as well as switching turns between the users.
+
+The [ChatLog](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/src/components/views/Game-components/ChatLog.tsx) component contains the logic of sending, receiving, and displaying messages. Furthermore, it also handles the logic of switching turns between the users.
+
+The Lobby, CharacterGrid, and ChatLog all use the [WebSocketService](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/src/components/views/WebSocketService.tsx) using a stomp WebSocket. It establishes the connection to the server, subscribes to the correct endpoint, and disconnects the WebSocket. 
 
 ## Launch & Deployment
 
