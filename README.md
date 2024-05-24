@@ -16,19 +16,19 @@ The rules are simple:
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Technologies](#technologies)
-3. [High-level Components](#HLC)
-4. [Launch & Deployment](#LD)
-5. [Interface User Flow](#IUF)
-6. [Roadmap](#roadmap)
-7. [Authors and Acknowledgment](#AAA)
-8. [License](#license)
-9. [Further Material](#FM)
-   1. [UML Diagram](#uml)
-   2. [Component Diagram](#component)
-   3. [Activity Diagram](#activity)
-   4. [Figma Mockups](#figma)
+1. Introduction
+2. Technologies
+3. High-level Components
+4. Launch & Deployment
+5. Interface User Flow
+6. Roadmap
+7. Authors and Acknowledgment
+8. License
+9. Further Material
+   1. UML Diagram
+   2. Component Diagram
+   3. Activity Diagram
+   4. Figma Mockups
 
 ## Technologies
 
