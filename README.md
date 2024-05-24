@@ -23,7 +23,7 @@ The rules are simple:
 5. [Interface User Flow](#IUF)
 6. [Roadmap](#roadmap)
 7. [Authors and Acknowledgment](#AAA)
-8. [Licencse](#licence)
+8. [License](#license)
 9. [Further Material](#FM)
    1. [UML Diagram](#uml)
    2. [Component Diagram](#component)
@@ -126,7 +126,7 @@ In game, the users have a variety of options:
 
 We want to express our sincere gratitude to [Marco Leder](https://www.github.com/marcoleder) for his outstanding expertise and support throughout the development of our project.
 
-## Licencse
+## License
 
 [MIT license](https://github.com/sopra-fs24-group-34/sopra-fs24-group-34-client/blob/main/LICENSE)
 
