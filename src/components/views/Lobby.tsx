@@ -10,16 +10,11 @@ import "styles/views/Lobby.scss";
 import { User } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
 import { Spinner } from "components/ui/Spinner";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
 import {
-  cancelSubscription,
   connectWebSocket,
   disconnectWebSocket,
-  getStompClient,
   makeSubscription,
   sendMessage,
-  waitForConnection,
 } from "./WebSocketService";
 import { toastContainerSuccess } from "./Toasts/ToastContainerSuccess";
 import { doHandleError } from "helpers/errorHandler";
@@ -88,13 +83,10 @@ const LobbyPage = () => {
         const body = JSON.parse(message.body);
         const header = body["event-type"];
         const data = body.data;
-        console.log("Header: ", header);
 
         if (header === "user-joined") {
-          console.log("Invited User: ", data);
           setUsers((prevUsers) => [...prevUsers, data]);
         } else if (header === "user-left") {
-          console.log("User left: ", data.id);
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user.id !== data.id)
           );
@@ -109,7 +101,6 @@ const LobbyPage = () => {
             return updatedUsers;
           });
         } else if (header === "lobby-closed") {
-          console.log(data);
           handleReturn();
         } else if (header === "game-created") {
           localStorage.setItem("gameId", data.gameId);
@@ -126,7 +117,7 @@ const LobbyPage = () => {
           setLoading(false);
           navigate("/pregame");
         } else {
-          console.log("Unknown message from WS");
+          console.error("Unknown message from WS");
         }
       };
 
@@ -195,7 +186,6 @@ const LobbyPage = () => {
     const fetchInvitableFriends = async () => {
       try {
         const response = await api.get(`users/${userId}/friends/online`);
-        console.log("GET friends: ", response);
         setInvitableFriends(response.data);
       } catch (error) {
         toast.error(doHandleError(error));
@@ -208,7 +198,6 @@ const LobbyPage = () => {
   useEffect(() => {
     async function loadPlayers() {
       if (users !== null && users !== undefined) {
-        console.log("USEEEEEEERS: ", users);
         localStorage.setItem("users", JSON.stringify(users));
         const playersComponent = (
           <ul className="players list">

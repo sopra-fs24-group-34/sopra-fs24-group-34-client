@@ -287,13 +287,13 @@ const Profile = () => {
             <Button
               className="editButton"
               onClick={() => sendEdit()}
-              disabled={!editedUsername.trim() && !editedPassword.trim() && profilePicture === InitialProfilePicture ? true : undefined}
+              disabled={!editedUsername.trim() || !editedPassword.trim() || !InitialProfilePicture}
             >
               Save
             </Button>
           ) : (
             <div className="button-container">
-              <Button onClick={() => setIsEditing(true)}>Edit</Button>
+              <Button onClick={() => {setIsEditing(true), setEditedPassword(initialPassword); setEditedUsername(initialUsername)}}>Edit</Button>
               <Button className="delete-button" onClick={() => deleteUser()}>
                 Delete Account
               </Button>

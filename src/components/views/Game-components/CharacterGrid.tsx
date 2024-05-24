@@ -11,14 +11,8 @@ import ModalDisplay from "./modalContent/ModalDisplay";
 import ModalFirstInstructions from "./modalContent/ModalFirstInstructions";
 import ModalGuessInformation from "./modalContent/ModalGuessInformation";
 import ModalPickInformation from "./modalContent/ModalPickInformation";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
 import {
   cancelGameSubscriptions,
-  cancelSubscription,
-  connectWebSocket,
-  disconnectWebSocket,
-  getStompClient,
   makeSubscription,
   sendMessage,
   waitForConnection,
@@ -63,10 +57,8 @@ const CharacterGrid = ({
       const callback = function (message) {
         const body = JSON.parse(message.body);
         const header = body["event-type"];
-        console.log("Header: ", header);
         const data = body.data;
 
-        console.log("Data: ", data);
         setGameStatus(data.gameStatus);
 
         if (data.gameStatus === "END") {
@@ -104,7 +96,6 @@ const CharacterGrid = ({
             instructionUpdate(data);
           }
         } else if (header === "turn-update") {
-          console.log("Turn update: ", data);
           setCurrentTurnPlayerId(data.currentTurnPlayerId);
           setHasSentMessage(false);
           if (!lastChance) {
@@ -145,7 +136,6 @@ const CharacterGrid = ({
           //cancelSubscription(`/games/${gameId}`, subscription);
           navigate("/endscreen");
         } else if (header === "update-game-state") {
-          console.log("Reconnected: ", data);
           if(!data.currentTurnPlayerId) {
             setGameStatus("CHOOSING");
           } else {
@@ -164,10 +154,7 @@ const CharacterGrid = ({
       const subscription = await makeSubscription(`/games/${gameId}`, callback);
     }
 
-    console.log("Gamestate: ", gameStatus);
-
     if (persons.length > 0 && playerId && gameId) {
-      console.log("Selected character: ", selectedCharacter);
       setVisibleCharacters(Array(persons.length).fill(true)); // Initialize as visible
       ws();
     }

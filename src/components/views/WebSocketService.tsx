@@ -1,4 +1,3 @@
-import { isProduction } from "../../helpers/isProduction";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import { getDomain } from "../../helpers/getDomain";
@@ -35,19 +34,6 @@ function onConnect() {
   console.log("Connected to WebSocket");
   isConnected = true;
   reconnectAttempts = 0;
-
-  /*
-  // Resubscribe to all previous subscriptions
-  subscriptionsMap.forEach((subscriptionInfo, endpoint) => {
-    console.log("Trying to resubscribe: ", subscriptionInfo);
-    //if (subscriptionInfo.endpoint && subscriptionInfo.callback) {
-      const reSubscription = stompClient.subscribe(subscriptionInfo.endpoint, subscriptionInfo.callback);
-      subscriptionInfo.subscription = reSubscription;
-      console.log("RESUBSCRIBED: ", reSubscription);
-    //}
-  });
-  saveSubscriptionsToLocalStorage();
-  */
 }
 
 function onError() {
@@ -94,17 +80,7 @@ export async function makeSubscription(endpoint: string, callback: Function) {
 
   subscriptionsMap.set(endpoint, { endpoint, callback, subscription: newSubscription });
 
-  /*
-  //debugging
-  console.log("New stomp:", stompClient);
-  console.log("New sub:", subscription, endpoint);
-  console.log("NEW submap:", subscriptionsMap);
-  */
-
   return newSubscription;
-  //} else {
-  // console.log("Subscription already exists in subscriptionsMap");
-  //}
 }
 
 export async function cancelSubscription(endpoint: string, subscription) {

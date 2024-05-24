@@ -10,8 +10,6 @@ import "styles/views/PreGame.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
 import GameModalContent from "./GameModalContent";
 import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
 import {
   cancelSubscription,
   connectWebSocket,
@@ -49,24 +47,18 @@ const PreGame = () => {
           const body = JSON.parse(message.body);
           const header = body["event-type"];
           const data = body.data;
-          console.log("Header: ", header);
-          console.log("Data: ", data);
 
           if (header === "game-started") {
             cancelSubscription(`/lobbies/${lobbyId}`, subscription);
             navigate("/game");
           } else if (header === "user-left") {
-            console.log("User left: ", data.id);
-            //nedim-j: if someone leaves, the game is cancelled, remaining players are redirected to the menu, localstorage: everything apart from userId and usertoken is cleared
-            //handle for guests!!!
             handleCancelledGame();
             navigate("/menu");
           } else if (header === "game-cancelled") {
-            console.log("Game cancelled");
             handleCancelledGame();
             navigate("/menu");
           } else {
-            console.log("Unknown message from WS");
+            console.error("Unknown message from WS");
             localStorage.clear();
             navigate("/landingPage");
           }

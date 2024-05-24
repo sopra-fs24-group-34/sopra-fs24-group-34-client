@@ -146,7 +146,6 @@ const Endscreen = () => {
 
   function handleToLobby() {
     changeStatus("INLOBBY_PREPARING");
-    console.log("changed status");
     localStorage.removeItem("gameId");
     localStorage.removeItem("users");
     localStorage.removeItem("playerId");

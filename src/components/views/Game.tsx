@@ -10,12 +10,8 @@ import ModalDisplay from "./Game-components/modalContent/ModalDisplay";
 import ModalFirstInstructions from "./Game-components/modalContent/ModalFirstInstructions";
 import "styles/views/Game.scss";
 import "styles/views/Game-components/CharacterGrid.scss";
-import Stomp from "stompjs";
-import SockJS from "sockjs-client";
 import {
   connectWebSocket,
-  disconnectWebSocket,
-  getStompClient,
 } from "./WebSocketService";
 import { doHandleError } from "../../helpers/errorHandler";
 import { toastContainerError } from "./Toasts/ToastContainerError";
