@@ -9,6 +9,7 @@ import PropTypes from "prop-types";
 import "styles/views/Lobby.scss";
 import { User } from "types";
 import LobbyGameExplanation from "./LobbyGameExplanation";
+import { Spinner } from "components/ui/Spinner";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 import {
@@ -77,6 +78,7 @@ const LobbyPage = () => {
   const [maxStrikes, setMaxStrikes] = useState(3);
   const userId = localStorage.getItem("userId");
   const lobbyId = localStorage.getItem("lobbyId");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function ws() {
@@ -121,7 +123,7 @@ const LobbyPage = () => {
           }
 
           localStorage.setItem("maxStrikes", data.maxStrikes);
-
+          setLoading(false);
           navigate("/pregame");
         } else {
           console.log("Unknown message from WS");
@@ -258,6 +260,7 @@ const LobbyPage = () => {
   }
 
   async function handleCreate() {
+    setLoading(true);
     const lobbyId = localStorage.getItem("lobbyId");
     const userId = localStorage.getItem("userId");
     const userToken = localStorage.getItem("userToken");
@@ -265,7 +268,7 @@ const LobbyPage = () => {
     try {
       //nedim-j: add ready status to if clause
       if (users && users.length === 2) {
-        handleReady("INLOBBY_READY");
+        await handleReady("INLOBBY_READY");
         const lobby = await api.get(`/lobbies/${lobbyId}/`);
 
         const gamePostDto = {
@@ -287,6 +290,7 @@ const LobbyPage = () => {
         sendMessage("/app/createGame", requestBody);
       }
     } catch (error) {
+      setLoading(false);
       toast.error(doHandleError(error));
       console.error(
         `Something went wrong while starting game: \n${handleError(error)}`
@@ -386,6 +390,7 @@ const LobbyPage = () => {
 
   return (
     <BaseContainer className="lobby container">
+      {loading && <Spinner />}
       <div className="view">
         <ToastContainer {...toastContainerSuccess} />
         <ul>
