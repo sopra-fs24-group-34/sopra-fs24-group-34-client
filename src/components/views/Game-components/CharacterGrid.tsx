@@ -157,7 +157,7 @@ const CharacterGrid = ({
             setGameStatus(data.event);
           }
         } else {
-          console.log("Unhandled WS event: ", header, data);
+          console.error("Unhandled WS event: ", header, data);
         }
       };
 
